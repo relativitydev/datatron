@@ -59,7 +59,7 @@ Write-Output "Connection to $machineName successful."
 
 Foreach($target in $machineName){ 
 cls
-Write-Output "Begin Data Tron:"
+Write-Output "Begin Data Tron:`n"
 
 ##Copy the Data Grid Package
 
@@ -97,13 +97,13 @@ Write-Output "Begin Data Tron:"
             }
             Catch{
                 $ErrorMessage = $_.Exception.Message
-                Write-Host "An Execption has occurred.`n" -BackgroundColor Red -ForegroundColor White;
-                Write-Output "The Exeception Message is $ErrorMessage.`n"
+                Write-Host "An Execption has occurred.`n" -BackgroundColor Green -ForegroundColor Black;
+                Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
                 Write-Output "A WinRM client error will occur if the computer is part of a workgroup and has not been added to the TrustedHosts list in Window Remote Management service.`n"
-                Write-Output "Here are the Trusted Hosts listed for this machine.`n"
+                Write-Output "Here are the Trusted Hosts listed for this machine.`nThe output will be blank if no Trusted Hosts exist.`n"
                 Get-Item WSMan:\localhost\Client\TrustedHosts
-                Write-Output "`nYou can add a trusted computer to the Trusted Host list now if it is missing.`n"
-                Read-host "Press enter to add $target to the list of Trusted Hosts.`n to exit now press ctrl+c"
+                Write-Output "`nThe computer will be added to the Trusted Host list now if it is missing.`n"
+
                 $A = Get-Item wsman:\localhost\Client\TrustedHosts | Select Value -ExpandProperty Value
                 If($A){
                     $A = $A + ",$target"
@@ -114,7 +114,8 @@ Write-Output "Begin Data Tron:"
                 set-item wsman:\localhost\Client\TrustedHosts -value "$A" -Force
                 sleep -s 5
                 Get-Item WSMan:\localhost\Client\TrustedHosts
-                Write-Output "Begin isntallation of Java on $target.`nExpect a long delay as Java installs."
+                Write-Host "The remote machine is now added to TrustedHosts the installation will continue.`n" -BackgroundColor Green -ForegroundColor White;
+                Write-Output "Begin installation of Java on $target.`nExpect a long delay as Java installs."
                 Invoke-Command $target -ScriptBlock {
                 $version = Get-ChildItem 'C:\RelativityDataGrid\jdk-8*' | Select-Object Name -First 1 -ExpandProperty Name
                 $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
@@ -135,7 +136,7 @@ Write-Output "Begin Data Tron:"
     }
     #end
 
-##Create environmental variables on the nodes.
+##Create environmental variables on the node.
 
     #start
 
@@ -145,7 +146,7 @@ Write-Output "Begin Data Tron:"
             Invoke-Command $target -ScriptBlock {
                 $version = Get-ChildItem "$Using:driveLetter`:\Program Files\java\jdk*" | Select-Object Name -First 1 -ExpandProperty Name
                 $filePath = "$Using:driveLetter`:\Program Files\Java\$version"
-                [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"Machine")
+                & setx KCURA_JAVA_HOME "$filePath" /m
                 $sysEnv = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","Machine")
                 Write-Output "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnv"
             }
@@ -487,13 +488,14 @@ Write-Output "Begin Data Tron:"
         Invoke-Command -ComputerName $target -ScriptBlock {
             $version = Get-ChildItem "$Using:driveLetter`:\Program Files\java\jdk*" | Select-Object Name -First 1 -ExpandProperty Name
             $filePath = "$Using:driveLetter`:\Program Files\Java\$version"
-            [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"Machine")
-            $sysEnv = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","Machine")
-            Write-Output "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnv"
+            $env:KCURA_JAVA_HOME = $filePath
+            $env:KCURA_JAVA_HOME
+            $KCURA_JAVA_HOME = $filePath
+            $KCURA_JAVA_HOME
             & cd\
             & cd "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
             $install = "install"
-            .\kservice.bat $install
+            & .\kservice.bat $install
         }
     }
     Write-Output "Finished installing Elasticsearch service on $target."
