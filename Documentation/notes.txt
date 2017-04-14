@@ -1,5 +1,83 @@
-This is Data Tron 5.0.
+This is Data Tron 6.0.
 
-Try Catches are added to the install java section.
+.SYNOPSIS
+This script is used to install Relativity Data Grid to a server or "node", refered to as a "install run". 
 
-Includes add-ons for the monitoring node.
+.DESCRIPTION
+
+The purpose of this script is to install Relativity Data Grid to a single server.
+
+The script relies on a file in the script directory called Config.psd1
+
+This configuration file can be created by running this script with  only the -config switch and no other arguements.
+
+To install Relativity Data Grid to a server you must specify the drive letter that will host the service and the machine name.
+
+.NOTES
+
+The script can also be used to create a config file for an install run.
+
+The script must reside in the root folder DataTron.
+
+The DataTron folder must contain the RelativityDataGrid Folder.
+
+The RelativityDataGrid folder must contain a jdk version 8 installer and the certificate which will be used by shield for authentication.
+
+A Config.psd1 file must be generated before doing an install run of the script.
+
+.PARAMETER DriveLetter
+The drive letter to host the Relativity Data Grid folder and from which the Elasticsearch service will run.  This must be a single character.  Don't use a colon.
+
+This is a mandatory parameter during a installation run.
+
+.PARAMETER MachineName
+The name of the server where Relativity Data Grid will be installed.
+
+.PARAMETER IsMaster
+Use this parameter to create a master node for the production cluster.
+
+.PARAMETER IsClient
+Use this parameter to create a client node for the production cluster.
+
+.PARAMETER IsData
+Use this parameter to create a data node for the production cluster.
+
+.PARAMETER IsMonitor
+Use this parameter to create a monitoring node for the monitoring cluster.
+
+.PARAMETER dontCopyFolders
+Specify this switch to skip copying of the Relativity Data Grid folder.
+
+.PARAMETER dontInstalljava
+Spdcify this switch to skip java installation.
+
+.PARAMETER Config
+Use this switch to create a config file for an install run.
+
+.EXAMPLE
+.\DataTron\Run-DataTron6.0.ps1 -Config
+
+This will create a Config.psd1 file in the directory for and install run.
+This is a switch and cannot be run with any other parameters.
+
+.EXAMPLE
+.\Run-DataTron3.0.ps1 -driveLetter c -machineName someserver -IsMaster $true
+
+Once a Config.psd1 file is created the script can be used to do an install run.
+This example installs RelativityDataGrid to the c drive of someserver.
+
+
+.EXAMPLE
+.\DataTron\Run-DataTron3.0.ps1 -driveLetter c -machineName someserver -IsMaster $true -dontCopyfolders
+
+Does an install run but does not copy the RelativityDataGrid folder.
+
+.EXAMPLE
+.\DataTron\Run-DataTron3.0.ps1 -driveLetter c -machineName someserver -IsMaster $true -dontInstallJava
+
+Does an install run but does not install Java.
+
+.EXAMPLE
+.\DataTron\Run-DataTron3.0.ps1 -driveLetter c -machineName someserver -IsMaster $true -dontInstallJava -dontCopyfolders
+
+Does an install run but does not install Java and does not copy the installation folders.
