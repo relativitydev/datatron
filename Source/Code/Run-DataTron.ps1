@@ -497,7 +497,7 @@ else{
                         $proc.WaitForExit()
                     } -ErrorAction Stop
                 }
-                Catch{
+                Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
                     $ErrorMessage = $_.Exception.Message
                     Write-Host "An Execption has occurred.`n" -BackgroundColor Green -ForegroundColor Black;
                     Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
@@ -523,7 +523,14 @@ else{
                         $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
                         $proc = Start-Process -FilePath $filePath -ArgumentList "/s" -Wait -PassThru
                         $proc.WaitForExit()
-                    } -ErrorAction Stop
+                } -ErrorAction Stop
+                Catch
+                {
+                $ErrorMessage = $_.Exception.Message
+                $ErrorName = $_.Exception.GetType().Fullname
+                $ErrorItem = $_.Exceception.ItemName
+                Write-Output "An error $ErrorName has occurred. The error message is $ErrorMessage.  The item that cause the error is $ErrorItem."
+                }
                 }
         
                 Write-Output "End installation of Java on $target."
@@ -1130,63 +1137,76 @@ else{
 
     ##Post-Install
 
-    Write-Output "Checking the elastic search service."
+    function Start-ESService {
+        ##Check the elastic search service windows service status
 
-    ##Check the elastic search service windows service status
+        Write-Output "Checking the elastic search service."
 
-    $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
-     Select-Object -Property Status -ExpandProperty Status
+        $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
+         Select-Object -Property Status -ExpandProperty Status
 
-    if("$check" -eq "Running"){
-        Write-Host "The elasticserch service is running."
+        if("$check" -eq "Running"){
+            Write-Host "The elasticserch service is running."
+        }
+        if("$check" -eq "Stopped"){
+            Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName | Start-Service
+            Start-Sleep -s 10
+        }
     }
-    if("$check" -eq "Stopped"){
-        Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName | Start-Service
-        Start-Sleep -s 10
-    }
 
-    ##Check it again
+    Start-ESService
 
+
+    ##Check the ES service
+
+    Function Check-ESService{
     $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
      Select-Object -Property Status -ExpandProperty Status
 
     Write-Host "The elasticsearch servie is: $check."
+    }
+
+    Check-ESService
 
     ##Hook up with Elastic
 
-    Write-Host "The node can take up to 45 seconds to start.`nThe script will attempt to contact the node 5 times with 15 second pauses."
+    Function Ping-ES{
+        Write-Host "The node can take up to 45 seconds to start.`nThe script will attempt to contact the node 5 times with 15 second pauses."
 
-    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsername,$esPassword)))
-    $i=0;
-    Do{ ++$i;
+        $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsername,$esPassword)))
+        $i=0;
+        Do{ ++$i;
 
-        Try{
-        $responceName = Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-         -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json' |
-         Select-Object -Property name -ExpandProperty name
+            Try{
+            $responceName = Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+             -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json' |
+             Select-Object -Property name -ExpandProperty name
 
-        }
-        Catch{
-            $ErrorMessage = $_.Exception.Message
-        } 
+            }
+            Catch{
+                $ErrorMessage = $_.Exception.Message
+            } 
 
-    Write-Output "The script has attempted to contact the node $i times"
-         if($i -eq 5){
-         write-Host "The node cannot be contacted.  Here are the last 250 lines of the log file.  Good luck human!" -foregroundcolor "black" -BackgroundColor "red"
-         Invoke-Command -ComputerName $target -ScriptBlock {Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\logs\$Using:Clustername.log -Tail 250}
-         break;
-         }
-
-
-         if($responceName -eq $machineName){
-             Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-         -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json'
-         }else{
-             Start-Sleep -s 15
-         }
+        Write-Output "The script has attempted to contact the node $i times"
+             if($i -eq 5){
+             write-Host "The node cannot be contacted.  Here are the last 250 lines of the log file.  Good luck human!" -foregroundcolor "black" -BackgroundColor "red"
+             Invoke-Command -ComputerName $target -ScriptBlock {Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\logs\$Using:Clustername.log -Tail 250}
+             break;
+             }
 
 
-     }Until ($responceName -eq $machineName)
+             if($responceName -eq $machineName){
+                 Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+             -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json'
+             }else{
+                 Start-Sleep -s 15
+             }
+
+
+         }Until ($responceName -eq $machineName)
+     }
+
+     Ping-ES
 
 
     ##Additional tasks for the Monitor server Note the nodeType variable is coming from the top section of Update YML
@@ -1204,66 +1224,18 @@ else{
     }
 
     ##Restart Elastic Search
-    $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
-     Select-Object -Property Status -ExpandProperty Status
 
-    Write-Output "Checking the elastic search service."
-
-    ##Check the elastic search service windows service status
-
-    $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
-     Select-Object -Property Status -ExpandProperty Status
-
-    if("$check" -eq "Running"){
-        Write-Host "The elasticserch service is running."
-    }
-    if("$check" -eq "Stopped"){
-        Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName | Start-Service
-        Start-Sleep -s 10
-    }
+    Start-ESService
 
     ##Check it again
 
-    $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
-     Select-Object -Property Status -ExpandProperty Status
-
-    Write-Host "The elasticsearch service is: $check."
+    Check-ESService
 
     ##Hook up with Elastic
 
-    Write-Host "The node can take up to 45 seconds to start.`nThe script will attempt to contact the node 5 times with 15 second pauses."
+    Ping-ES
 
-    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsername,$esPassword)))
-    $i=0;
-    Do{ ++$i;
-
-        Try{
-            $responceName = Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-             -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json' |
-             Select-Object -Property name -ExpandProperty name
-
-        }
-        Catch{
-            $ErrorMessage = $_.Exception.Message
-        } 
-
-        Write-Output "The script has attempted to contact the node $i times"
-         if($i -eq 5){
-             write-Host "The node cannot be contacted.  Here are the last 250 lines of the log file.  Good luck human!" -foregroundcolor "black" -BackgroundColor "red"
-             Invoke-Command -ComputerName $target -ScriptBlock {Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\logs\$Using:ClusternameMON.log -Tail 250}
-             break;
-         }
-
-
-         if($responceName -eq $machineName){
-             Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-             -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json'
-         }else{
-             Start-Sleep -s 15
-         }
-
-
-    }Until ($responceName -eq $machineName)
+    #Add Custom marvel template.
 
     Write-Output "By default the marvel template has one replica.  Adding a custom marvel template to correct."
 
@@ -1275,6 +1247,7 @@ else{
 
     Write-Output "Above is the system responce from elastic.`n"
 
+    #Add Custom kibana template.
 
     Write-Output "By default Kibana's template has one replica.  Adding a custom Kibana template to correct."
 
@@ -1286,7 +1259,7 @@ else{
 
     Write-Output "Above is the system responce from elastic.`n"
 
-
+    #Correct the number of replicas for marvel indexes if they exist.
 
     Write-Output "The inital indexes most likely have already been created with the incorrect number of replicas.`n"
 
@@ -1298,6 +1271,8 @@ else{
     -URI "http://$machineName`:9200/.m*/_settings" -Method 'PUT' -ContentType 'application/json' -Body "$body"
 
     Write-Output "Above is the system responce from elastic.`n"
+
+    #Ask if Kibana folders need to be copied and copy them if the answer is yes.
 
     Write-Output "Kibana is a visualization tool that includes Sense and the Marvel Application."
     $question = Read-Host "To copy the Kibana folders to the monitoring server now type yes.  To skip press enter."
@@ -1325,6 +1300,7 @@ else{
     $question = Read-Host "To configure Kibana now type yes.  To skip press enter."
 
         IF($question -eq "yes"){
+
         ##Update Kibana YML
 
             foreach($target in $machineName){
