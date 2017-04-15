@@ -281,8 +281,7 @@ else{
     $esPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
 
-
-    ##Test the machinename
+    ##Test the network connection to the target
     Write-Output "Checking the connection to $machineName.`n"
     if (Test-Connection -ComputerName $machineName -Quiet -Count 1){
     }else{
@@ -293,10 +292,37 @@ else{
     }
     break}
     Write-Output "Connection to $machineName successful."
+
+    #Test the PSRemoting
+    Try{
+        Invoke-Command -ComputerName dg-ramp-02 {} -ErrorAction Stop
+    }
+    Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
+        $ErrorMessage = $_.Exception.Message
+        Write-Host "An Execption has occurred.`n" -BackgroundColor Green -ForegroundColor Black;
+        Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
+        Write-Output "A WinRM client error will occur if the computer is part of a workgroup and has not been added to the TrustedHosts list in Window Remote Management service.`n"
+        Write-Output "Here are the Trusted Hosts listed for this machine.`nThe output will be blank if no Trusted Hosts exist.`n"
+        Get-Item WSMan:\localhost\Client\TrustedHosts
+        Write-Output "`nThe computer will be added to the Trusted Host list now if it is missing.`n"
+
+        $A = Get-Item wsman:\localhost\Client\TrustedHosts | Select Value -ExpandProperty Value
+        If($A){
+            $A = $A + ",$machineName"
+        }
+        IF(!$A){
+            $A = $machineName
+        }
+        set-item wsman:\localhost\Client\TrustedHosts -value "$A" -Force
+        sleep -s 5
+        Get-Item WSMan:\localhost\Client\TrustedHosts
+        Write-Host "The remote machine is now added to TrustedHosts the installation will continue.`n" -BackgroundColor Green -ForegroundColor Black;
+    }
+
+
     #Begin The installer.
 
     Foreach($target in $machineName){ 
-    cls
     Write-Output "Begin Data Tron:`n"
 
     ##Copy the Data Grid Package
@@ -325,42 +351,13 @@ else{
             If($dontInstalljava -eq $false){
 
                 Write-Output "Begin installation of Java on $target.`nExpect a long delay as Java installs."
-                Try{
-                    Invoke-Command $target -ScriptBlock {
-                        $version = Get-ChildItem 'C:\RelativityDataGrid\jdk-8*' | Select-Object Name -First 1 -ExpandProperty Name
-                        $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
-                        $proc = Start-Process -FilePath $filePath -ArgumentList "/s" -Wait -PassThru
-                        $proc.WaitForExit()
-                    } -ErrorAction Stop
-                }
-                Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
-                    $ErrorMessage = $_.Exception.Message
-                    Write-Host "An Execption has occurred.`n" -BackgroundColor Green -ForegroundColor Black;
-                    Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
-                    Write-Output "A WinRM client error will occur if the computer is part of a workgroup and has not been added to the TrustedHosts list in Window Remote Management service.`n"
-                    Write-Output "Here are the Trusted Hosts listed for this machine.`nThe output will be blank if no Trusted Hosts exist.`n"
-                    Get-Item WSMan:\localhost\Client\TrustedHosts
-                    Write-Output "`nThe computer will be added to the Trusted Host list now if it is missing.`n"
 
-                    $A = Get-Item wsman:\localhost\Client\TrustedHosts | Select Value -ExpandProperty Value
-                    If($A){
-                        $A = $A + ",$target"
-                    }
-                    IF(!$A){
-                        $A = $target
-                    }
-                    set-item wsman:\localhost\Client\TrustedHosts -value "$A" -Force
-                    sleep -s 5
-                    Get-Item WSMan:\localhost\Client\TrustedHosts
-                    Write-Host "The remote machine is now added to TrustedHosts the installation will continue.`n" -BackgroundColor Green -ForegroundColor Black;
-                    Write-Output "Begin installation of Java on $target.`nExpect a long delay as Java installs."
                     Invoke-Command $target -ScriptBlock {
                         $version = Get-ChildItem 'C:\RelativityDataGrid\jdk-8*' | Select-Object Name -First 1 -ExpandProperty Name
                         $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
                         $proc = Start-Process -FilePath $filePath -ArgumentList "/s" -Wait -PassThru
                         $proc.WaitForExit()
-                    } -ErrorAction Stop
-                }
+                    } 
         
                 Write-Output "End installation of Java on $target."
             }
