@@ -129,55 +129,18 @@ Start-Sleep -s 1
 
 ##Get Username
     $UserName = Read-Host "Enter the Relativity User Account`n"
-    $yn = "0"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $UserName is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $UserName = Read-Host "Enter the Relativity User Account`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $Username`n"
     "`t`tUserName = " + """$UserName"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
     
 ##Get Password
-    $Password = Read-Host "Enter the Relativity User Account Password`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $Password is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $UserName = Read-Host "Enter the Relativity User Account Password`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $Password`n"
-    "`t`tPassword = " + """$Password"";" | Add-Content .\Config.psd1
+    Read-Host "Enter the Relativity User Account Password`n" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readPass
+    "`t`treadPass = " + """$readPass"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
     
 ##Get Monitoring Node Name
     $MonitoringNodeName = Read-Host "Enter the Name of the Monitoring Node`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $MonitoringNodeName is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $MonitoringNodeName = Read-Host "Enter the Name of the Monitoring Node`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $MonitoringNodeName`n"
     "`t`tMonitoringNodeName = " + """$MonitoringNodeName"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get Production Array
 
@@ -209,211 +172,66 @@ Start-Sleep -s 1
            }
        }Until($q -eq "exit")
 Start-Sleep -s 1
-cls
 
-##Get the production cluster name
+##Get the produciton cluster name
     $Clustername = Read-Host "Enter the Name of the Production Cluster`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $Clustername is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $Clustername = Read-Host "Enter the Name of the Production Cluster`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $Clustername`n"
     "`t`tClustername = " + """$Clustername"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the monitoring cluster name
     $ClusternameMON = Read-Host "Enter the Name of the Monitoring Cluster`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $ClusternameMON is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $ClusternameMON = Read-Host "Enter the Name of the Monitoring Node`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $ClusternameMON`n"
     "`t`tClusternameMON = " + """$ClusternameMON"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get minimum number of master nodes
     $MinimumMasterNode = Read-Host "Enter minimum number of master nodes for the production cluster`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $MinimumMasterNode is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $MinimumMasterNode = Read-Host "Enter minimum number of master nodes for the production cluster`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $MinimumMasterNode`n"
     "`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the data path for the master node
-    $PathDataMaster = Read-Host "Enter data path for the master node`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $PathDataMaster is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $PathDataMaster = Read-Host "Enter data path for the master node`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $PathDataMaster`n"
+    $PathDataMaster = Read-Host "Enter data path for the master node.  For example c:\data`n"
     "`t`tPathDataMaster = " + """$PathDataMaster"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the data path for the client node(s)
-    $PathDataClient = Read-Host "Enter data path for the client node(s)`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $PathDataClient is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $PathDataClient = Read-Host "Enter data path for the client node(s)`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $PathDataClient`n"
+    $PathDataClient = Read-Host "Enter data path for the client node(s).  For example c:\data`n"
     "`t`tPathDataClient = " + """$PathDataClient"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the data path for the data node(s)
-    $PathDataData = Read-Host "Enter data path for the data node(s)`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $PathDataData is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $PathDataData = Read-Host "Enter data path for the data node(s)`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $PathDataData`n"
+    $PathDataData = Read-Host "Enter data path for the data node(s).  For example c:\data`n"
     "`t`tPathDataData = " + """$PathDataData"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the data path for the monitoring node(s)
-    $PathDataMonitor = Read-Host "Enter data path for the monitoring node(s)`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $PathDataMonitor is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $PathDataMonitor = Read-Host "Enter data path for the monitoring node(s)`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $PathDataMonitor`n"
+    $PathDataMonitor = Read-Host "Enter data path for the monitoring node(s).  For example c:\data`n"
     "`t`tPathDataMonitor = " + """$PathDataMonitor"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the name of the SQL server(s)
-    $SQLServers = Read-Host "Enter names of the SQL servers(s)`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $SQLServers is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $SQLServers = Read-Host "Enter names of the SQL servers(s)`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $SQLServers`n"
+    $SQLServers = Read-Host "Enter names of the SQL servers(s).  This is a comma separated list of Primary and Distributed SQL servers excluding Invariant.`n"
     "`t`tSQLServers = " + """$SQLServers"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the name of the web server for shield authentication
     $WebServer = Read-Host "Enter names of the web server for shield authentication`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $WebServer is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $WebServer = Read-Host "Enter names of the web server for shield authentication`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $WebServer`n"
     "`t`tWebServer = " + """$WebServer"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Get the backup path location
     $PathRepo = Read-Host "Enter the backup path location`nThe format of the backup path must be like \\\\servername\\foldername"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $PathRepo is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $WebServer = Read-Host "Enter names of the web server for shield authentication`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $PathRepo`n"
     "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Create a new for the shield useraccount
     $esUsername = Read-Host "Enter name for the esadmin account`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $esUsername is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $esUsername = Read-Host "Enter name for the esadmin account`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $esUsername`n"
     "`t`tesUsername = " + """$esUsername"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 ##Create a new for the shield useraccount passoword
-    $esPassword = Read-Host "Enter esadmin account password`n"
-    Clear-Variable yn
-    While($yn -ne "y"){
-
-    Write-Host "You entered: $esPassword is this correct y/n`n"
-    $yn = Read-Host 
-        If($yn -eq "n"){
-        $esPassword = Read-Host "Enter esadmin account password`n"
-        $yn = Read-Host
-        }
-    }
-    Write-Host "Set $esPassword`n"
-    "`t`tesPassword = " + """$esPassword"";" | Add-Content .\Config.psd1
+    Read-Host "Enter esadmin account password`n" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readESPass
+    "`t`treadESPass = " + """$readESPass"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
-    cls
 
 "`t`tSecondsToWait = 1;" | Add-Content .\Config.psd1
 "}" | Add-Content .\Config.psd1
@@ -434,7 +252,7 @@ else{
 
     #Variables for "Update the servicename"
     [string]$UserName = $Data.UserName
-    [string]$Password = $Data.Password
+    [string]$readPass = $Data.readPass
     [int]$SecondsToWait = $Data.SecondsToWait
     #Variables for "Update YML"
     [String]$MonitoringNodeName = $Data.MonitoringNodeName
@@ -451,7 +269,18 @@ else{
     [String]$PathRepo = $Data.PathRepo
     #Variables for shield
     [string]$esUsername = $Data.esUsername
-    [string]$esPassword = $Data.esPassword
+    [string]$readESPass = $Data.readESPass
+
+    #Convert $readPass to clear text
+    $readPass| ConvertTo-SecureString | Set-Variable -Name passSecString
+    $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($passSecString)
+    $Password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+
+    $readESPass| ConvertTo-SecureString | Set-Variable -Name passSecString
+    $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($passSecString)
+    $esPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+
+
 
     ##Test the machinename
     Write-Output "Checking the connection to $machineName.`n"
@@ -530,14 +359,7 @@ else{
                         $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
                         $proc = Start-Process -FilePath $filePath -ArgumentList "/s" -Wait -PassThru
                         $proc.WaitForExit()
-                } -ErrorAction Stop
-                Catch
-                {
-                $ErrorMessage = $_.Exception.Message
-                $ErrorName = $_.Exception.GetType().Fullname
-                $ErrorItem = $_.Exceception.ItemName
-                Write-Output "An error $ErrorName has occurred. The error message is $ErrorMessage.  The item that cause the error is $ErrorItem."
-                }
+                    } -ErrorAction Stop
                 }
         
                 Write-Output "End installation of Java on $target."
