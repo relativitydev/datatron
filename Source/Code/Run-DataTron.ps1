@@ -211,7 +211,7 @@ Start-Sleep -s 1
 Start-Sleep -s 1
 cls
 
-##Get the produciton cluster name
+##Get the production cluster name
     $Clustername = Read-Host "Enter the Name of the Production Cluster`n"
     Clear-Variable yn
     While($yn -ne "y"){
