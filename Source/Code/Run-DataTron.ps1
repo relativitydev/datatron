@@ -1290,15 +1290,16 @@ else{
 
         Write-Output "The inital indexes most likely have already been created with the incorrect number of replicas.`n"
 
-        Write-Output "Updating the initial marvel indexes.`n"
+        Write-Output "Updating the initial marvel indexes if they exist.`n"
+        Try{
+            $body = "{ ""index"" `: { ""number_of_replicas"" `: 0 } }"
 
-        $body = "{ ""index"" `: { ""number_of_replicas"" `: 0 } }"
-
-        Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-        -URI "http://$machineName`:9200/.m*/_settings" -Method 'PUT' -ContentType 'application/json' -Body "$body"
-
-        Write-Output "Above is the system responce from elastic.`n"
-
+            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+            -URI "http://$machineName`:9200/.m*/_settings" -Method 'PUT' -ContentType 'application/json' -Body "$body" -ErrorAction Stop
+        }
+        catch [System.Net.WebException]{
+            Write-Output "Marvel indexes were not found to update."    
+        }
       #Ask if Kibana folders need to be copied and copy them if the answer is yes.
 
         Write-Output "Kibana is a visualization tool that includes Sense and the Marvel Application."
