@@ -116,10 +116,10 @@ if($Config){
 
 ##Create the psd1 file
 
-New-Item .\DataTron\Config.psd1 -type file
+New-Item .\Config.psd1 -type file
 
 ##Prep the file
-"@{" | Out-File .\DataTron\Config.psd1
+"@{" | Out-File .\Config.psd1
 
 clear
 Write-host "Welcome to DataTron Human`n"
@@ -141,7 +141,7 @@ Start-Sleep -s 1
         }
     }
     Write-Host "Set $Username`n"
-    "`t`tUserName = " + """$UserName"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tUserName = " + """$UserName"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
     
@@ -158,7 +158,7 @@ Start-Sleep -s 1
         }
     }
     Write-Host "Set $Password`n"
-    "`t`tPassword = " + """$Password"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tPassword = " + """$Password"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
     
@@ -175,32 +175,39 @@ Start-Sleep -s 1
         }
     }
     Write-Host "Set $MonitoringNodeName`n"
-    "`t`tMonitoringNodeName = " + """$MonitoringNodeName"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tMonitoringNodeName = " + """$MonitoringNodeName"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
 ##Get Production Array
 
-   $q = "0"
-   Remove-Variable q
-   Do{
-       If(!$q){
-           $stackVar = "`"" + "[" + "`"" + "`""
-           } 
+    $stackVar = "`"" + "[" + "`"" + "`""
+   Do{ 
        $array = Read-Host "Enter the name of each server in the production cluster`nYou must enter at least one server name`nIf you are done adding servers type exit"
        if($array -eq "exit"){
            $q = "exit"
-           "`t`tProductionHostsArray = " + $stackVar.Substring(0,$stackVar.Length-3) + "]" + "`";" | Add-Content .\DataTron\Config.psd1
+           "`t`tProductionHostsArray = " + $stackVar.Substring(0,$stackVar.Length-3) + "]" + "`";" | Add-Content .\Config.psd1
            }
-           Write-Host "You entered: $array is this correct?`n"
-           $q = Read-Host "Type y to confirm, n to remove the entry, exit to exit"
-       If($q -eq "y"){
-           $stackVar += $array + "`"" + "`"" + "," + "`"" + "`""
-       }
-       If($q -eq "n"){
-           Clear-Variable array
-       }
-   }Until($q -eq "exit")
+           if($array -ne "exit"){
+                   Write-Output "You entered: $array`n"
+                   Write-Output "Checking the connection to $array.`n"
+           
+               $ping = ""
+
+               if (Test-Connection -ComputerName $array -Quiet -Count 1){
+                   Write-Host "The connection to $array was successful." -ForegroundColor Green;
+                   $ping = "success"
+               }else{
+                   Write-Host "The connection to $array was not succssesfull.  You can try array again or enter a new server name.`n" -ForegroundColor Red;
+               }
+               if($ping -eq "success"){
+                   $stackVar += $array + "`"" + "`"" + "," + "`"" + "`""
+               }
+               if($ping -eq ""){
+                   Clear-Variable array
+               }
+           }
+       }Until($q -eq "exit")
 Start-Sleep -s 1
 cls
 
@@ -217,7 +224,7 @@ cls
         }
     }
     Write-Host "Set $Clustername`n"
-    "`t`tClustername = " + """$Clustername"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tClustername = " + """$Clustername"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -234,7 +241,7 @@ cls
         }
     }
     Write-Host "Set $ClusternameMON`n"
-    "`t`tClusternameMON = " + """$ClusternameMON"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tClusternameMON = " + """$ClusternameMON"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -251,7 +258,7 @@ cls
         }
     }
     Write-Host "Set $MinimumMasterNode`n"
-    "`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\DataTron\Config.psd1
+    "`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -268,7 +275,7 @@ cls
         }
     }
     Write-Host "Set $PathDataMaster`n"
-    "`t`tPathDataMaster = " + """$PathDataMaster"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tPathDataMaster = " + """$PathDataMaster"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -285,7 +292,7 @@ cls
         }
     }
     Write-Host "Set $PathDataClient`n"
-    "`t`tPathDataClient = " + """$PathDataClient"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tPathDataClient = " + """$PathDataClient"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -302,7 +309,7 @@ cls
         }
     }
     Write-Host "Set $PathDataData`n"
-    "`t`tPathDataData = " + """$PathDataData"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tPathDataData = " + """$PathDataData"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -319,7 +326,7 @@ cls
         }
     }
     Write-Host "Set $PathDataMonitor`n"
-    "`t`tPathDataMonitor = " + """$PathDataMonitor"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tPathDataMonitor = " + """$PathDataMonitor"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -336,7 +343,7 @@ cls
         }
     }
     Write-Host "Set $SQLServers`n"
-    "`t`tSQLServers = " + """$SQLServers"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tSQLServers = " + """$SQLServers"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -353,7 +360,7 @@ cls
         }
     }
     Write-Host "Set $WebServer`n"
-    "`t`tWebServer = " + """$WebServer"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tWebServer = " + """$WebServer"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -370,7 +377,7 @@ cls
         }
     }
     Write-Host "Set $PathRepo`n"
-    "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\DataTron\Config.psd1
+    "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -387,7 +394,7 @@ cls
         }
     }
     Write-Host "Set $esUsername`n"
-    "`t`tesUsername = " + """$esUsername"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tesUsername = " + """$esUsername"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
@@ -404,15 +411,15 @@ cls
         }
     }
     Write-Host "Set $esPassword`n"
-    "`t`tesPassword = " + """$esPassword"";" | Add-Content .\DataTron\Config.psd1
+    "`t`tesPassword = " + """$esPassword"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     cls
 
-"`t`tSecondsToWait = 1;" | Add-Content .\DataTron\Config.psd1
-"}" | Add-Content .\DataTron\Config.psd1
+"`t`tSecondsToWait = 1;" | Add-Content .\Config.psd1
+"}" | Add-Content .\Config.psd1
 
 
-Get-Content .\DataTron\Config.psd1
+Get-Content .\Config.psd1
 Start-Sleep -s 5
 
 }
@@ -1373,6 +1380,7 @@ else{
             }
         #end if statement tasks for monitor cluster
     }
-}
+
 #Land back in DataTron Folder.
 & cd .\DataTron
+}
