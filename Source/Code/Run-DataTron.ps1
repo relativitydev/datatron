@@ -684,7 +684,17 @@ else{
                         $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
                         $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
 
-                        Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse
+                        try{
+                            Write-Host "No monitoring cluster specified marvel plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
+                        }
+                        catch [System.Management.Automation.ItemNotFoundException]{
+                            $ErrorMessage = $_.Exception.Message
+                            $ErrorName = $_.Exception.GetType().FullName
+                            Write-Host "Marvel Plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
+                            Write-Output "The Exeception Name is:`n $ErrorName.`n"
+                        }
                     }
 
                     #Update the path data
@@ -712,11 +722,15 @@ else{
                     $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
                     $result = foreach ($line in $yml) {$line.Replace("node.data: true", "node.data: false")}
                     $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the repo path $PathRepo
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+
+                    if($PathRepo -ne "[""""]"){
+                        # Update the repo path $PathRepo
+                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
+                        $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
+                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+                    }
+
+
                 }
  
                 elseif ($Using:IsClient) {
@@ -764,7 +778,17 @@ else{
                         $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
                         $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
 
-                        Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse
+                        try{
+                            Write-Host "No monitoring cluster specified marvel plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
+                        }
+                        catch [System.Management.Automation.ItemNotFoundException]{
+                            $ErrorMessage = $_.Exception.Message
+                            $ErrorName = $_.Exception.GetType().FullName
+                            Write-Host "Marvel Plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
+                            Write-Output "The Exeception Name is:`n $ErrorName.`n"
+                        }
                     }
                     
                     #Update the path data
@@ -797,10 +821,12 @@ else{
                     $result = foreach ($line in $yml) {$line.Replace("node.master: true", "node.master: false")}
                     $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
  
-                    # Update the repo path $PathRepo
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+                    if($PathRepo -ne "[""""]"){
+                        # Update the repo path $PathRepo
+                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
+                        $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
+                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+                    }
                 }
  
                 elseif ($Using:IsData){
@@ -847,7 +873,17 @@ else{
                         $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
                         $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
 
-                        Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse
+                        try{
+                            Write-Host "No monitoring cluster specified marvel plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
+                        }
+                        catch [System.Management.Automation.ItemNotFoundException]{
+                            $ErrorMessage = $_.Exception.Message
+                            $ErrorName = $_.Exception.GetType().FullName
+                            Write-Host "Marvel Plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
+                            Write-Output "The Exeception Name is:`n $ErrorName.`n"
+                        }
                     }
  
                     #Update the path data
@@ -875,10 +911,12 @@ else{
                     $result = foreach ($line in $yml) {$line.Replace("node.master: true", "node.master: false")}
                     $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
  
-                    # Update the repo path $PathRepo
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+                    if($PathRepo -ne "[""""]"){
+                        # Update the repo path $PathRepo
+                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
+                        $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
+                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+                    }
                 }
  
                 elseif ($Using:IsMonitor) {
@@ -939,6 +977,18 @@ else{
                     $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
                     $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
                     $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+
+                        try{
+                            Write-Host "This is a monitoring node the marvel plugin folder will be removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
+                        }
+                        catch [System.Management.Automation.ItemNotFoundException]{
+                            $ErrorMessage = $_.Exception.Message
+                            $ErrorName = $_.Exception.GetType().FullName
+                            Write-Host "Marvel Plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
+                            Write-Output "The Exeception Name is:`n $ErrorName.`n"
+                        }
                 }
 
             #end script block
@@ -1211,138 +1261,117 @@ else{
 
     ##Additional tasks for the Monitor server Note the nodeType variable is coming from the top section of Update YML
      if($nodeType -eq "Monitor"){
-         Write-Output "This a monitoring node some additional work must be done.`nStopping the elasticsearch service."
-         Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName | Stop-Service
-         Start-Sleep -s 10
-         Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName
- 
-        ##Drop the Marvel folder
-        Write-Output "Removing the marvel plugin for the monitoring node."
-        Start-Sleep -s 10
-        Invoke-Command -ComputerName $machineName -ScriptBlock{
-        Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse
-    }
-
-    ##Restart Elastic Search
-
-    Start-ESService
-
-    ##Check it again
-
-    Check-ESService
-
-    ##Hook up with Elastic
-
-    Ping-ES
+             Write-Output "This a monitoring node some additional work must be done.`nStopping the elasticsearch service."
 
     #Add Custom marvel template.
 
-    Write-Output "By default the marvel template has one replica.  Adding a custom marvel template to correct."
+        Write-Output "By default the marvel template has one replica.  Adding a custom marvel template to correct."
+
+            $body = "{ ""template""`: "".marvel*"", ""order""`: 1, ""settings""`: { ""number_of_shards""`: 1, ""number_of_replicas""`: 0 } }"
+
+            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+            -URI "http://$machineName`:9200/_template/custom_marvel" -Method 'PUT' -ContentType 'application/json' -Body "$body"
+
+        Write-Output "Above is the system responce from elastic.`n"
+
+     #Add Custom kibana template.
+
+        Write-Output "By default Kibana's template has one replica.  Adding a custom Kibana template to correct."
 
 
-        $body = "{ ""template""`: "".marvel*"", ""order""`: 1, ""settings""`: { ""number_of_shards""`: 1, ""number_of_replicas""`: 0 } }"
+            $body = "{ ""template""`: "".kibana"", ""order""`: 1, ""settings""`: { ""number_of_shards""`: 1, ""number_of_replicas""`: 0 } }"
+
+            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+            -URI "http://$machineName`:9200/_template/custom_kibana" -Method 'PUT' -ContentType 'application/json' -Body "$body"
+
+        Write-Output "Above is the system responce from elastic.`n"
+
+     #Correct the number of replicas for marvel indexes if they exist.
+
+        Write-Output "The inital indexes most likely have already been created with the incorrect number of replicas.`n"
+
+        Write-Output "Updating the initial marvel indexes.`n"
+
+        $body = "{ ""index"" `: { ""number_of_replicas"" `: 0 } }"
 
         Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-        -URI "http://$machineName`:9200/_template/custom_marvel" -Method 'PUT' -ContentType 'application/json' -Body "$body"
+        -URI "http://$machineName`:9200/.m*/_settings" -Method 'PUT' -ContentType 'application/json' -Body "$body"
 
-    Write-Output "Above is the system responce from elastic.`n"
+        Write-Output "Above is the system responce from elastic.`n"
 
-    #Add Custom kibana template.
+      #Ask if Kibana folders need to be copied and copy them if the answer is yes.
 
-    Write-Output "By default Kibana's template has one replica.  Adding a custom Kibana template to correct."
+        Write-Output "Kibana is a visualization tool that includes Sense and the Marvel Application."
+        $question = Read-Host "To copy the Kibana folders to the monitoring server now type yes.  To skip press enter."
 
+            IF($question -eq "yes"){
+                #Copy Kibana folders
+                    #start
 
-        $body = "{ ""template""`: "".kibana"", ""order""`: 1, ""settings""`: { ""number_of_shards""`: 1, ""number_of_replicas""`: 0 } }"
+                        Write-Output "Begin copying Kibana folders to $machineName."
 
-        Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-        -URI "http://$machineName`:9200/_template/custom_kibana" -Method 'PUT' -ContentType 'application/json' -Body "$body"
+                        $installPath = "\\" + $machineName + "\$driveLetter`$\RelativityDataGrid"
 
-    Write-Output "Above is the system responce from elastic.`n"
+                        # Copies the package to the remote server(s) the package must be in the DataTron Folder.
+                        cd\
+                        Copy-Item .\DataTron\kibana-4.5.4-windows -Destination $InstallPath -Recurse -force
 
-    #Correct the number of replicas for marvel indexes if they exist.
+                        Write-Output "End Copy Kibana Folders to $target."
 
-    Write-Output "The inital indexes most likely have already been created with the incorrect number of replicas.`n"
-
-    Write-Output "Updating the initial marvel indexes.`n"
-
-    $body = "{ ""index"" `: { ""number_of_replicas"" `: 0 } }"
-
-    Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
-    -URI "http://$machineName`:9200/.m*/_settings" -Method 'PUT' -ContentType 'application/json' -Body "$body"
-
-    Write-Output "Above is the system responce from elastic.`n"
-
-    #Ask if Kibana folders need to be copied and copy them if the answer is yes.
-
-    Write-Output "Kibana is a visualization tool that includes Sense and the Marvel Application."
-    $question = Read-Host "To copy the Kibana folders to the monitoring server now type yes.  To skip press enter."
-
-        IF($question -eq "yes"){
-            #Copy Kibana folders
-                #start
-
-                    Write-Output "Begin copying Kibana folders to $machineName."
-
-                    $installPath = "\\" + $machineName + "\$driveLetter`$\RelativityDataGrid"
-
-                    # Copies the package to the remote server(s) the package must be in the DataTron Folder.
-                    cd\
-                    Copy-Item .\DataTron\kibana-4.5.4-windows -Destination $InstallPath -Recurse -force
-
-                    Write-Output "End Copy Kibana Folders to $target."
-
-                #end
-        }
-
-    ##Configuring Kibana
-
-    Write-Output "Kibana needs to be configured to connect to the monitoing node's network host settings."
-    $question = Read-Host "To configure Kibana now type yes.  To skip press enter."
-
-        IF($question -eq "yes"){
-
-        ##Update Kibana YML
-
-            foreach($target in $machineName){
-
-                Invoke-Command -ComputerName $target -ScriptBlock {
-                    $NodeName = $Using:machineName
-                    $driveLetter = $Using:driveLetter
-
-                    Write-Output "Configuring Kibana YML on  $NodeName."
-
-                    Write-Output "The drive letter passed = $driveLetter."
-                    Write-Output "TheNodeName passed = $NodeName."
-
-                        # Update the server host
-                        $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("# server.host: `"0.0.0.0`"", "server.host: " + $NodeName)}
-                        $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                        # Update the server port
-                        $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("# server.port: 5601", "server.port: 5601")}
-                        $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                        # Update the elasticsearch URL
-                        $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("# elasticsearch.url: ""http://localhost:9200`"", "elasticsearch.url: http://$NodeName`:9200")}
-                        $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                    Write-Output "Finished Kibana YML Configuration."
-  
-                    Write-Output "Installing the Marvel application into Kibana.`n"
-                    & cd\
-                    & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana.bat "plugin" "--install" "marvel" "--url" "file:///RelativityDataGrid/kibana-4.5.4-windows/marvel-2.3.5.tar.gz"
-                    Write-Output "Installing the Sense application to Kibana.`n"
-                    & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
-
-                    Write-Output "Finished installing plugins to Kibana."
-                }
+                    #end
             }
-        Write-Output "Finished Data Grid Install for the Monitoring node."
 
-        }
-    #end if statement tasks for monitor cluster
+        ##Configuring Kibana
+
+        Write-Output "Kibana needs to be configured to connect to the monitoing node's network host settings."
+        $question = Read-Host "To configure Kibana now type yes.  To skip press enter."
+
+            IF($question -eq "yes"){
+
+            ##Update Kibana YML
+
+                foreach($target in $machineName){
+
+                    Invoke-Command -ComputerName $target -ScriptBlock {
+                        $NodeName = $Using:machineName
+                        $driveLetter = $Using:driveLetter
+
+                        Write-Output "Configuring Kibana YML on  $NodeName."
+
+                        Write-Output "The drive letter passed = $driveLetter."
+                        Write-Output "TheNodeName passed = $NodeName."
+
+                            # Update the server host
+                            $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
+                            $result = foreach ($line in $yml) {$line.Replace("# server.host: `"0.0.0.0`"", "server.host: " + $NodeName)}
+                            $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
+
+                            # Update the server port
+                            $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
+                            $result = foreach ($line in $yml) {$line.Replace("# server.port: 5601", "server.port: 5601")}
+                            $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
+
+                            # Update the elasticsearch URL
+                            $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
+                            $result = foreach ($line in $yml) {$line.Replace("# elasticsearch.url: ""http://localhost:9200`"", "elasticsearch.url: http://$NodeName`:9200")}
+                            $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
+
+                        Write-Output "Finished Kibana YML Configuration."
+  
+                        Write-Output "Installing the Marvel application into Kibana.`n"
+                        & cd\
+                        & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana.bat "plugin" "--install" "marvel" "--url" "file:///RelativityDataGrid/kibana-4.5.4-windows/marvel-2.3.5.tar.gz"
+                        Write-Output "Installing the Sense application to Kibana.`n"
+                        & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
+
+                        Write-Output "Finished installing plugins to Kibana."
+                    }
+                }
+            Write-Output "Finished Data Grid Install for the Monitoring node."
+
+            }
+        #end if statement tasks for monitor cluster
     }
 }
+#Land back in DataTron Folder.
+& cd .\DataTron

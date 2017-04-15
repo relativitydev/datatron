@@ -1,4 +1,4 @@
-This is Data Tron 8.0.
+This is Data Tron.
 
 .SYNOPSIS
 This script is used to install Relativity Data Grid to a server or "node", refered to as a "install run". 
