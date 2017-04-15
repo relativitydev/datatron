@@ -388,7 +388,7 @@ else{
                     Invoke-Command $target -ScriptBlock {
                         $version = Get-ChildItem 'C:\RelativityDataGrid\jdk-8*' | Select-Object Name -First 1 -ExpandProperty Name
                         $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
-                        $proc = Start-Process -FilePath $filePath -ArgumentList "/s" -Wait -PassThru
+                        $proc = Start-Process -FilePath $filePath -ArgumentList "/s" -Wait -PassThru -RedirectStandardOutput c:\javainstallog.txt
                         $proc.WaitForExit()
                     } 
         
