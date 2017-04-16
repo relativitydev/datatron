@@ -247,8 +247,31 @@ Start-Sleep -s 1
     Start-Sleep -s 1
 
 ##Get the name of the web server for shield authentication
-    $WebServer = Read-Host "Enter names of the web server for shield authentication`n"
-    "`t`tWebServer = " + """$WebServer"";" | Add-Content .\Config.psd1
+    $webServer = Read-Host "Enter names of the web server for shield authentication`n"
+    $bytes = ""
+    
+    $webRequest = [Net.WebRequest]::Create("https://$webServer/")
+    Try { 
+        $webRequest.GetResponse()
+    }
+    Catch {}
+   
+    $cert = $webRequest.ServicePoint.Certificate
+
+    Try{
+    $bytes = $cert.Export([Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+    }
+    Catch [System.Management.Automation.RuntimeException]{
+        Write-Host "An Execption has occurred. The web server could not be reached.`n" -BackgroundColor Green -ForegroundColor Black;
+    }
+    Try{
+    set-content -value $bytes -encoding byte -path ".\RelativityDataGrid\cert.cer" -ErrorAction Stop
+    }
+    Catch [System.Management.Automation.RuntimeException]{
+        Write-Host "The script will continue but the certificate was not export to the RelativityDataGrid Folder.`n" -ForegroundColor Yellow;
+        Remove-item .\RelativityDataGrid\cert.cer
+    }
+    "`t`twebServer = " + """$webServer"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the backup path location
@@ -320,15 +343,18 @@ else{
     }else{
         Write-Output "The connection to $machineName was not succssesfull would you like to try to ping the server?`n"
         $ping = Read-Host "Press enter to not ping $machineName and stop the script.`nType yes to ping $machineName.`n"
+
     If($ping -eq "yes"){
         Test-Connection -ComputerName $machineName
     }
+    #Land back in DataTron Folder.
+    & cd .\DataTron
     break}
     Write-Output "Connection to $machineName successful."
 
     #Test the PSRemoting
     Try{
-        Invoke-Command -ComputerName dg-ramp-02 {} -ErrorAction Stop
+        Invoke-Command -ComputerName $machineName {} -ErrorAction Stop
     }
     Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
         $ErrorMessage = $_.Exception.Message
@@ -379,7 +405,7 @@ else{
     #Install Java Silently.
 
         #start
-        IF((Test-Path "\\$target\c`$\Program Files\Java\jdk*") -eq $false){
+        IF((Test-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*") -eq $false){
 
             If($dontInstalljava -eq $false){
 
@@ -396,7 +422,7 @@ else{
             }
         }else{
             $javaPath = Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*" | select -Property Path -ExpandProperty Path 
-            Write-Host "Java is installed here: $javaPath." -BackgroundColor Green -ForegroundColor Black;
+            Write-Host "Java is installed here: $javaPath." -ForegroundColor Green;
         }
         if((Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*") -eq $false){
             Write-Host "Java failed to install on $target." 
@@ -838,13 +864,14 @@ else{
                     $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
 
                         try{
-                            Write-Host "This is a monitoring node the marvel plugin folder will be removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Write-Output "This is a monitoring node the marvel plugin folder will be removed.`n"
                             Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
                         }
                         catch [System.Management.Automation.ItemNotFoundException]{
                             $ErrorMessage = $_.Exception.Message
                             $ErrorName = $_.Exception.GetType().FullName
-                            Write-Host "Marvel Plugin folder has already been removed.`n" -BackgroundColor Green -ForegroundColor Black;
+                            Write-Output "Marvel Plugin folder has already been removed.`n"
+
                             Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
                             Write-Output "The Exeception Name is:`n $ErrorName.`n"
                         }
@@ -902,31 +929,31 @@ else{
         #This function will print the right value. The error code list was extracted using the MSDN documentation for the change method as December 2014
         Switch ($strReturnCode)
             {
-            0{ write-host  "    0 The request was accepted." -foregroundcolor "white" -BackgroundColor "Red" }
-            1{ write-host  "    1 The request is not supported." -foregroundcolor "white" -BackgroundColor "Red" }
-            2{ write-host  "    2 The user did not have the necessary access."-foregroundcolor "white" -BackgroundColor "Red"}
-            3{ write-host  "    3 The service cannot be stopped because other services that are running are dependent on it." -foregroundcolor "white" -BackgroundColor "Red"}
-            4{ write-host  "    4 The requested control code is not valid, or it is unacceptable to the service." -foregroundcolor "white" -BackgroundColor "Red"}
-            5{ write-host  "    5 The requested control code cannot be sent to the service because the state of the service (Win32_BaseService State property) is equal to 0, 1, or 2." -foregroundcolor "white" -BackgroundColor "Red"}
-            6{ write-host  "    6 The service has not been started." -foregroundcolor "white" -BackgroundColor "Red"}
-            7{ write-host  "    7 The service did not respond to the start request in a timely fashion." -foregroundcolor "white" -BackgroundColor "Red"}
-            8{ write-host  "    8 Unknown failure when starting the service."-foregroundcolor "white" -BackgroundColor "Red" }
-            9{ write-host  "    9 The directory path to the service executable file was not found." -foregroundcolor "white" -BackgroundColor "Red"}
-            10{ write-host  "    10 The service is already running."-foregroundcolor "white" -BackgroundColor "Red" }
-            11{ write-host  "    11 The database to add a new service is locked."-foregroundcolor "white" -BackgroundColor "Red" }
-            12{ write-host  "    12 A dependency this service relies on has been removed from the system."-foregroundcolor "white" -BackgroundColor "Red" }
-            13{ write-host  "    13 The service failed to find the service needed from a dependent service."-foregroundcolor "white" -BackgroundColor "Red" }
-            14{ write-host  "    14 The service has been disabled from the system."-foregroundcolor "white" -BackgroundColor "Red" }
-            15{ write-host  "    15 The service does not have the correct authentication to run on the system."-foregroundcolor "white" -BackgroundColor "Red" }
-            16{ write-host  "    16 This service is being removed from the system."-foregroundcolor "white" -BackgroundColor "Red" }
-            17{ write-host  "    17 The service has no execution thread." -foregroundcolor "white" -BackgroundColor "Red"}
-            18{ write-host  "    18 The service has circular dependencies when it starts."-foregroundcolor "white" -BackgroundColor "Red" }
-            19{ write-host  "    19 A service is running under the same name."-foregroundcolor "white" -BackgroundColor "Red" }
-            20{ write-host  "    20 The service name has invalid characters."-foregroundcolor "white" -BackgroundColor "Red" }
-            21{ write-host  "    21 Invalid parameters have been passed to the service."-foregroundcolor "white" -BackgroundColor "Red" }
-            22{ write-host  "    22 The account under which this service runs is either invalid or lacks the permissions to run the service."-foregroundcolor "white" -BackgroundColor "Red" }
-            23{ write-host  "    23 The service exists in the database of services available from the system."-foregroundcolor "white" -BackgroundColor "Red" }
-            24{ write-host  "    24 The service is currently paused in the system."-foregroundcolor "white" -BackgroundColor "Red" }
+            0{ write-host  "    0 The request was accepted." -foregroundcolor "Red" }
+            1{ write-host  "    1 The request is not supported." -foregroundcolor "Red" }
+            2{ write-host  "    2 The user did not have the necessary access."-foregroundcolor "Red" }
+            3{ write-host  "    3 The service cannot be stopped because other services that are running are dependent on it." -foregroundcolor "Red" }
+            4{ write-host  "    4 The requested control code is not valid, or it is unacceptable to the service." -foregroundcolor "Red"}
+            5{ write-host  "    5 The requested control code cannot be sent to the service because the state of the service (Win32_BaseService State property) is equal to 0, 1, or 2." -foregroundcolor "Red"}
+            6{ write-host  "    6 The service has not been started." -foregroundcolor "Red"}
+            7{ write-host  "    7 The service did not respond to the start request in a timely fashion." -foregroundcolor "Red"}
+            8{ write-host  "    8 Unknown failure when starting the service."-foregroundcolor "Red" }
+            9{ write-host  "    9 The directory path to the service executable file was not found." -foregroundcolor "Red"}
+            10{ write-host  "    10 The service is already running."-foregroundcolor "Red" }
+            11{ write-host  "    11 The database to add a new service is locked."-foregroundcolor "Red" }
+            12{ write-host  "    12 A dependency this service relies on has been removed from the system."-foregroundcolor "Red" }
+            13{ write-host  "    13 The service failed to find the service needed from a dependent service."-foregroundcolor "Red" }
+            14{ write-host  "    14 The service has been disabled from the system."-foregroundcolor "Red" }
+            15{ write-host  "    15 The service does not have the correct authentication to run on the system."-foregroundcolor "Red" }
+            16{ write-host  "    16 This service is being removed from the system."-foregroundcolor "Red" }
+            17{ write-host  "    17 The service has no execution thread." -foregroundcolor "Red"}
+            18{ write-host  "    18 The service has circular dependencies when it starts."-foregroundcolor "Red" }
+            19{ write-host  "    19 A service is running under the same name."-foregroundcolor "Red" }
+            20{ write-host  "    20 The service name has invalid characters."-foregroundcolor "Red" }
+            21{ write-host  "    21 Invalid parameters have been passed to the service."-foregroundcolor "Red" }
+            22{ write-host  "    22 The account under which this service runs is either invalid or lacks the permissions to run the service."-foregroundcolor "Red" }
+            23{ write-host  "    23 The service exists in the database of services available from the system."-foregroundcolor "Red" }
+            24{ write-host  "    24 The service is currently paused in the system."-foregroundcolor "Red" }
             }
         }
  
@@ -950,66 +977,50 @@ else{
         write-host "----------------------------------------------------------------" 
  
  
-               if ($_.state -eq 'Running')
-               {
-           
-                   write-host "    Attempting to Stop the elasticsearch service..."
-                   $Value = $_.StopService()
-                    if ($Value.ReturnValue -eq '0')
- 
-                       {
-                        $Change = 1      
-                        $Starts = 1     
-                        write-host "    Service stopped" -foregroundcolor "white" -BackgroundColor "darkgreen"
-                        }
-                       Else
-                       {
-                            write-host "    The stop action returned the following error: " -foregroundcolor "white" -BackgroundColor "Red"
-                            PowerShell-PrintErrorCodes ($Value.ReturnValue)
-                             $Change = 0
-                             $Starts = 0
-                        }
-               }
-               Else
-               {
-         
-                 $Starts = 0
-                 $Change = 1
-         
-               }
-        
-                   if ($Change -eq 1 )
-                   {
-                     write-host "    Attempting to change the service..."
-                       #This is the method that will do the user and pasword change
-                       $Value = $_.change($null,$null,$null,$null,$null,$null,$UserName,$Password,$null,$null,$null)
-                       if ($Value.ReturnValue -eq '0')
-                        {
-                           write-host "    Password and User changed" -foregroundcolor "white" -BackgroundColor "darkgreen"
-                           if ($Starts -eq 1)
-                                {
-                                    write-host "    Attempting to start the service, waiting $SecondsToWait seconds..."
-                                    PowerShell-Wait ($SecondsToWait)
-                                    $Value =  $_.StartService()
-                                    if ($Value.ReturnValue -eq '0')
-                                        {
-                                            write-host "    Service started successfully." -foregroundcolor "white" -BackgroundColor "darkgreen"
-                                        }
-                                     Else
-                                        {
-                                        write-host "    Error while starting the service: " -foregroundcolor "white" -BackgroundColor "red"
-                                         PowerShell-PrintErrorCodes ($Value.ReturnValue)
-                                        }
-                                }                                                          
+        if ($_.state -eq 'Running'){
+            write-host "    Attempting to Stop the elasticsearch service..."
+            $Value = $_.StopService()
+            if ($Value.ReturnValue -eq '0'){
+                $Change = 1      
+                $Starts = 1     
+                write-host "    Service stopped" -foregroundcolor "Green";
+            }Else{
+                write-host "    The stop action returned the following error: " -foregroundcolor "Red";
+                PowerShell-PrintErrorCodes ($Value.ReturnValue)
+                $Change = 0
+                $Starts = 0
+            }
+        }Else{
+            $Starts = 0
+            $Change = 1
+        }
+        if ($Change -eq 1 ){
+            write-host "    Attempting to change the service..."
+            #This is the method that will do the user and pasword change
+            $Value = $_.change($null,$null,$null,$null,$null,$null,$UserName,$Password,$null,$null,$null)
+            if ($Value.ReturnValue -eq '0')
+            {
+                write-host "    Password and User changed" -foregroundcolor "Green";
+                if ($Starts -eq 1){
+                        write-host "    Attempting to start the service, waiting $SecondsToWait seconds..."
+                        PowerShell-Wait ($SecondsToWait)
+                        $Value =  $_.StartService()
+                        if ($Value.ReturnValue -eq '0')
+                            {
+                                write-host "    Service started successfully." -foregroundcolor "Green";
                             }
-                        Else
-                         {
-                         write-host "    The change action returned the following error: "  -foregroundcolor "white" -BackgroundColor "red"
-                          PowerShell-PrintErrorCodes ($Value.ReturnValue)
-                         }
-                        }                     
- 
-           write-host "----------------------------------------------------------------"   
+                            Else
+                            {
+                            write-host "    Error while starting the service: " -foregroundcolor "Red";
+                                PowerShell-PrintErrorCodes ($Value.ReturnValue)
+                            }
+                 }                                                          
+             }Else{
+                write-host "    The change action returned the following error: "  -foregroundcolor "Red";
+                PowerShell-PrintErrorCodes ($Value.ReturnValue)
+             }
+          }                     
+        write-host "----------------------------------------------------------------"   
         }
  
         }
@@ -1159,12 +1170,11 @@ else{
         catch [System.Net.WebException]{
             Write-Output "Marvel indexes were not found to update."    
         }
-      #Ask if Kibana folders need to be copied and copy them if the answer is yes.
+      #Copy Kibana folders if they do not exist
 
         Write-Output "Kibana is a visualization tool that includes Sense and the Marvel Application."
-        $question = Read-Host "To copy the Kibana folders to the monitoring server now type yes.  To skip press enter."
+        If((Test-Path "\\$target\$driveLetter`$\RelativityDataGrid\kibana-4.5.4-windows") -eq $false){
 
-            IF($question -eq "yes"){
                 #Copy Kibana folders
                     #start
 
@@ -1183,10 +1193,8 @@ else{
 
         ##Configuring Kibana
 
-        Write-Output "Kibana needs to be configured to connect to the monitoing node's network host settings."
-        $question = Read-Host "To configure Kibana now type yes.  To skip press enter."
+        Write-Output "Kibana needs to be configured to connect to the monitoing node's network host settings.`n"
 
-            IF($question -eq "yes"){
 
             ##Update Kibana YML
 
@@ -1196,10 +1204,7 @@ else{
                         $NodeName = $Using:machineName
                         $driveLetter = $Using:driveLetter
 
-                        Write-Output "Configuring Kibana YML on  $NodeName."
-
-                        Write-Output "The drive letter passed = $driveLetter."
-                        Write-Output "TheNodeName passed = $NodeName."
+                        Write-Output "Configuring Kibana YML on  $NodeName.`n"
 
                             # Update the server host
                             $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
@@ -1219,17 +1224,32 @@ else{
                         Write-Output "Finished Kibana YML Configuration."
   
                         Write-Output "Installing the Marvel application into Kibana.`n"
-                        & cd\
-                        & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana.bat "plugin" "--install" "marvel" "--url" "file:///RelativityDataGrid/kibana-4.5.4-windows/marvel-2.3.5.tar.gz"
-                        Write-Output "Installing the Sense application to Kibana.`n"
-                        & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
 
+                        Try{
+                            $ErrorActionPreference = "Stop";
+                            & cd\
+                            & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana.bat "plugin" "--install" "marvel" "--url" "file:///RelativityDataGrid/kibana-4.5.4-windows/marvel-2.3.5.tar.gz"
+                        }
+                        Catch [System.Management.Automation.RemoteException]
+                        {
+                            Write-Host "Marvel is aleady installed.`n" -ForegroundColor Green;
+                        }
+
+                        Write-Output "Installing the Sense application to Kibana.`n"
+
+                        Try{
+                        & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
+                        }
+                        Catch [System.Management.Automation.RemoteException]
+                        {
+                            Write-Host "Sense is aleady installed.`n" -ForegroundColor Green;
+                        }
                         Write-Output "Finished installing plugins to Kibana."
                     }
                 }
             Write-Output "Finished Data Grid Install for the Monitoring node."
 
-            }
+            
         #end if statement tasks for monitor cluster
     }
 
