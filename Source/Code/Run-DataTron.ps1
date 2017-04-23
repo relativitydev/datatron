@@ -143,6 +143,121 @@ param(
 [Parameter(Mandatory=$true, ParameterSetName = 'Config')]
 [switch]$Config
 )
+If($PSVersionTable.PSVersion.Major -lt 4){
+Write-Host "The PowerShell verison is $PSVersionTable.PSVersion.`nVersion 4.0 or higher required."
+Break
+}
+
+function LogonLocal {
+Invoke-Command -ComputerName $array -ScriptBlock {
+$UserName = $Using:UserName
+$separator = "\"
+$split = $UserName.Split($separator, [System.StringSplitOptions]::RemoveEmptyEntries)
+$accountToAdd = $split[1]
+
+$sidstr = $null
+try {
+	$ntprincipal = new-object System.Security.Principal.NTAccount "$accountToAdd"
+	$sid = $ntprincipal.Translate([System.Security.Principal.SecurityIdentifier])
+	$sidstr = $sid.Value.ToString()
+} catch {
+	$sidstr = $null
+}
+
+Write-Verbose "Account: $($accountToAdd)"
+Write-Verbose "Account SID: $($sidstr)"
+
+$tmp = [System.IO.Path]::GetTempFileName()
+
+Write-Verbose "Export current Local Security Policy"
+
+function exportSec{
+    secedit.exe /export /cfg "$($tmp)" 
+}
+exportSec | Out-Null
+
+$c = Get-Content -Path $tmp 
+
+$currentSetting = ""
+
+foreach($s in $c) {
+	if( $s -like "SeServiceLogonRight*") {
+		$x = $s.split("=",[System.StringSplitOptions]::RemoveEmptyEntries)
+		$currentSetting = $x[1].Trim()
+
+	}
+}
+
+if( $currentSetting -notlike "*$($sidstr)*" ) {
+	Write-Host "Modify Setting ""Logon as a Service""" -ForegroundColor DarkCyan
+	
+	if( [string]::IsNullOrEmpty($currentSetting) ) {
+		$currentSetting = "*$($sidstr)"
+	} else {
+		$currentSetting = "*$($sidstr),$($currentSetting)"
+	}
+	
+	
+	$outfile = @"
+[Unicode]
+Unicode=yes
+[Version]
+signature="`$CHICAGO`$"
+Revision=1
+[Privilege Rights]
+SeServiceLogonRight = $($currentSetting)
+"@
+
+	$tmp2 = [System.IO.Path]::GetTempFileName()
+	
+	
+	Write-Host "Import new settings to Local Security Policy" -ForegroundColor DarkCyan
+	$outfile | Set-Content -Path $tmp2 -Encoding Unicode -Force
+
+	Push-Location (Split-Path $tmp2)
+	
+	try {
+		function Import {secedit.exe /configure /db "secedit.sdb" /cfg "$($tmp2)" /areas USER_RIGHTS}
+        Import | Out-Null
+	} finally {	
+		Pop-Location
+	}
+} else {
+	Write-Host "NO ACTIONS REQUIRED! Account already in ""Logon as a Service""" -ForegroundColor DarkCyan
+}
+
+Write-Host "Done." -ForegroundColor DarkCyan
+
+}}
+
+function TestPSRemoting {
+    #Test the PSRemoting
+    Try{
+        Invoke-Command -ComputerName $array {} -ErrorAction Stop
+    }
+    Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
+        $ErrorMessage = $_.Exception.Message
+        Write-Host "Power Shell cannot connecte to the Windows Remoting service on $array.`n" -ForegroundColor Yellow;
+        Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
+        Write-Output "A WinRM client error will occur if the computer is part of a workgroup and has not been added to the TrustedHosts list in Window Remote Management service.`n"
+        Write-Output "Here are the Trusted Hosts listed for this machine.`nThe output will be blank if no Trusted Hosts exist.`n"
+        Get-Item WSMan:\localhost\Client\TrustedHosts
+        Write-Output "`nThe computer will be added to the Trusted Host list now if it is missing.`n"
+
+        $A = Get-Item wsman:\localhost\Client\TrustedHosts | Select Value -ExpandProperty Value
+        If($A){
+            $A = $A + ",$array"
+        }
+        IF(!$A){
+            $A = $array
+        }
+        set-item wsman:\localhost\Client\TrustedHosts -value "$A" -Force
+        sleep -s 5
+        Get-Item WSMan:\localhost\Client\TrustedHosts
+        Write-Host "The remote machine is now added to TrustedHosts the installation will continue.`n" -BackgroundColor Green -ForegroundColor Black;
+    }
+}
+
 if($Config){
 
 ##Get Datatron Data from the User
@@ -174,6 +289,8 @@ Start-Sleep -s 1
     $MonitoringNodeName = Read-Host "Enter the Name of the Monitoring Node`n"
     "`t`tMonitoringNodeName = " + """$MonitoringNodeName"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
+    $array = $MonitoringNodeName
+    TestPSRemoting
 
 ##Get Production Array
 
@@ -193,6 +310,16 @@ Start-Sleep -s 1
                if (Test-Connection -ComputerName $array -Quiet -Count 1){
                    Write-Host "The connection to $array was successful." -ForegroundColor Green;
                    $ping = "success"
+
+                   Try{
+                   Invoke-Command -ComputerName $array {} -ErrorAction Stop
+                   }Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
+                   Write-Output "Starting ps remote test"
+                   TestPSREmoting
+                   Write-Output "ending test"
+                   }Finally{
+                   LogonLocal
+                   }
                }else{
                    Write-Host "The connection to $array was not succssesfull.  You can try array again or enter a new server name.`n" -ForegroundColor Red;
                }
@@ -275,7 +402,8 @@ Start-Sleep -s 1
     Start-Sleep -s 1
 
 ##Get the backup path location
-    $PathRepo = Read-Host "Enter the backup path location`nThe format of the backup path must be like \\\\servername\\foldername"
+    $PathRepoWindows = Read-Host "Enter the backup path location`nThis must be an accessible path to the service account."
+    $PathRepo = ($PathRepoWindows -replace "\\", "\\")
     "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
@@ -352,32 +480,7 @@ else{
     break}
     Write-Output "Connection to $machineName successful."
 
-    #Test the PSRemoting
-    Try{
-        Invoke-Command -ComputerName $machineName {} -ErrorAction Stop
-    }
-    Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
-        $ErrorMessage = $_.Exception.Message
-        Write-Host "An Execption has occurred.`n" -BackgroundColor Green -ForegroundColor Black;
-        Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
-        Write-Output "A WinRM client error will occur if the computer is part of a workgroup and has not been added to the TrustedHosts list in Window Remote Management service.`n"
-        Write-Output "Here are the Trusted Hosts listed for this machine.`nThe output will be blank if no Trusted Hosts exist.`n"
-        Get-Item WSMan:\localhost\Client\TrustedHosts
-        Write-Output "`nThe computer will be added to the Trusted Host list now if it is missing.`n"
-
-        $A = Get-Item wsman:\localhost\Client\TrustedHosts | Select Value -ExpandProperty Value
-        If($A){
-            $A = $A + ",$machineName"
-        }
-        IF(!$A){
-            $A = $machineName
-        }
-        set-item wsman:\localhost\Client\TrustedHosts -value "$A" -Force
-        sleep -s 5
-        Get-Item WSMan:\localhost\Client\TrustedHosts
-        Write-Host "The remote machine is now added to TrustedHosts the installation will continue.`n" -BackgroundColor Green -ForegroundColor Black;
-    }
-
+    #Deprecated TestPSRemoting
 
     #Begin The installer.
 
@@ -1173,6 +1276,12 @@ else{
       #Copy Kibana folders if they do not exist
 
         Write-Output "Kibana is a visualization tool that includes Sense and the Marvel Application."
+        Pop-Location
+        Set-Location .\DataTron
+        if((Test-Path .\kibana-4.5.4-windows) -eq $false){
+        Write-Host "Kibana folder not found in DataTron Folder.  Please unzip the Kibana 4.5.4 installer to the DataTron Folder" -ForegroundColor "Yellow";
+        Break
+        }
         If((Test-Path "\\$target\$driveLetter`$\RelativityDataGrid\kibana-4.5.4-windows") -eq $false){
 
                 #Copy Kibana folders
