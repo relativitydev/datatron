@@ -237,12 +237,10 @@ function TestPSRemoting {
     }
     Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
         $ErrorMessage = $_.Exception.Message
-        Write-Host "Power Shell cannot connecte to the Windows Remoting service on $array.`n" -ForegroundColor Yellow;
-        Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
-        Write-Output "A WinRM client error will occur if the computer is part of a workgroup and has not been added to the TrustedHosts list in Window Remote Management service.`n"
-        Write-Output "Here are the Trusted Hosts listed for this machine.`nThe output will be blank if no Trusted Hosts exist.`n"
-        Get-Item WSMan:\localhost\Client\TrustedHosts
-        Write-Output "`nThe computer will be added to the Trusted Host list now if it is missing.`n"
+        Write-Host "PowerShell cannot connect to the Windows Remoting service on $array.`n" -ForegroundColor Yellow;
+        Write-Output "Here are the Trusted Hosts listed for this machine.  The output will be blank if no Trusted Hosts exist.`n"
+        Write-Host "Found the following TrustedHosts: " (Get-Item WSMan:\localhost\Client\TrustedHosts).Value -ForegroundColor Green;
+        Write-Host "`nThe computer will be added to the Trusted Host list now if it is missing.`n" -ForegroundColor Green;
 
         $A = Get-Item wsman:\localhost\Client\TrustedHosts | Select Value -ExpandProperty Value
         If($A){
@@ -253,50 +251,78 @@ function TestPSRemoting {
         }
         set-item wsman:\localhost\Client\TrustedHosts -value "$A" -Force
         sleep -s 5
-        Get-Item WSMan:\localhost\Client\TrustedHosts
-        Write-Host "The remote machine is now added to TrustedHosts the installation will continue.`n" -BackgroundColor Green -ForegroundColor Black;
+        
+        Write-Host (Get-Item WSMan:\localhost\Client\TrustedHosts).Value "is now added to TrustedHosts the installation will continue.`n" -ForegroundColor Green;
     }
 }
 
 if($Config){
-
+clear
 ##Get Datatron Data from the User
 
 ##Create the psd1 file
-
-New-Item .\Config.psd1 -type file
+Try{
+New-Item .\Config.psd1 -type file -Force | Out-Null
+}
+Catch [System.IO.IOException]{
+        $ErrorMessage = $_.Exception.Message
+        $ErrorName = $_.Exception.GetType().FullName
+        Write-Host "Could not write the Config file to the DataTron Folder.`n" -ForegroundColor Red;
+        Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
+        Write-Output "The Exeception Name is:`n $ErrorName.`n"
+        Exit
+}
 
 ##Prep the file
 "@{" | Out-File .\Config.psd1
 
-clear
-Write-host "Welcome to DataTron Human`n"
-Write-Host "We need some input to install Data Grid`n"
+
+Write-Host "Welcome to DataTron config mode.`n" -ForegroundColor Green
+Write-Host "We need some input to create a configuration folder to install Relativity Data Grid`n" -ForegroundColor Green
 Start-Sleep -s 1
 
 
 ##Get Username
-    $UserName = Read-Host "Enter the Relativity User Account`n"
+    Write-Host "Enter the Relativity User Account.  Use domain\username format, for workgroup use .\username format." -ForegroundColor Cyan
+    $UserName = Read-Host ">>>"
     "`t`tUserName = " + """$UserName"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     
 ##Get Password
-    Read-Host "Enter the Relativity User Account Password`n" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readPass
+    Write-Host "Enter the Relativity User Account Password`n" -ForegroundColor Cyan
+    Read-Host ">>>" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readPass
     "`t`treadPass = " + """$readPass"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     
 ##Get Monitoring Node Name
-    $MonitoringNodeName = Read-Host "Enter the Name of the Monitoring Node`n"
-    "`t`tMonitoringNodeName = " + """$MonitoringNodeName"";" | Add-Content .\Config.psd1
-    Start-Sleep -s 1
-    $array = $MonitoringNodeName
-    TestPSRemoting
-
+    Write-Host "Enter the Name of the Monitoring Node. Press enter to skip adding a monitoring Node.`n" -ForegroundColor Cyan;
+    $MonitoringNodeName = Read-Host ">>>"
+    if($MonitoringNodeName -ne ""){
+        Do{ $array = $MonitoringNodeName
+            $ping = ""
+                if (Test-Connection -ComputerName $array -Quiet -Count 1){
+                    Write-Host "The connection to $array was successful." -ForegroundColor Green;
+                    $ping = "success"
+                    TestPSRemoting
+                    LogonLocal 
+                    "`t`tMonitoringNodeName = " + """$MonitoringNodeName"";" | Add-Content .\Config.psd1
+                    Start-Sleep -s 1        
+                }else{
+                    Write-Host "Could not ping the $MonitoringNodeName`n" -ForegroundColor Yellow
+                    Write-Host "Enter the Name of the Monitoring node or press enter to skip" -ForegroundColor Cyan
+                    $MonitoringNodeName = Read-Host ">>>"
+                    if($MonitoringNodeName -eq ""){
+                        $ping = "success"
+                    }
+            }
+        } Until ($ping -eq "success")
+    }
 ##Get Production Array
 
     $stackVar = "`"" + "[" + "`"" + "`""
    Do{ 
-       $array = Read-Host "Enter the name of each server in the production cluster`nYou must enter at least one server name`nIf you are done adding servers type exit"
+       Write-Host "Enter the name of each server in the production cluster.`nIf you are done adding servers type exit" -ForegroundColor Cyan
+       $array = Read-Host ">>>"
        if($array -eq "exit"){
            $q = "exit"
            "`t`tProductionHostsArray = " + $stackVar.Substring(0,$stackVar.Length-3) + "]" + "`";" | Add-Content .\Config.psd1
@@ -314,14 +340,14 @@ Start-Sleep -s 1
                    Try{
                    Invoke-Command -ComputerName $array {} -ErrorAction Stop
                    }Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
-                   Write-Output "Starting ps remote test"
+                   Write-Verbose "Starting ps remote test"
                    TestPSREmoting
-                   Write-Output "ending test"
+                   Write-Verbose "Ending test"
                    }Finally{
                    LogonLocal
                    }
                }else{
-                   Write-Host "The connection to $array was not succssesfull.  You can try array again or enter a new server name.`n" -ForegroundColor Red;
+                   Write-Host "The connection to $array was not succssesfull.  You can try $array again or enter a new server name.`n" -ForegroundColor Red;
                }
                if($ping -eq "success"){
                    $stackVar += $array + "`"" + "`"" + "," + "`"" + "`""
@@ -334,47 +360,56 @@ Start-Sleep -s 1
 Start-Sleep -s 1
 
 ##Get the produciton cluster name
-    $Clustername = Read-Host "Enter the Name of the Production Cluster`n"
+    Write-Host "Enter the Name of the Production Cluster`n" -ForegroundColor Cyan
+    $Clustername = Read-Host ">>>"
     "`t`tClustername = " + """$Clustername"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the monitoring cluster name
-    $ClusternameMON = Read-Host "Enter the Name of the Monitoring Cluster`n"
+    Write-Host "Enter the Name of the Monitoring Cluster`n" -ForegroundColor Cyan
+    $ClusternameMON = Read-Host ">>>"
     "`t`tClusternameMON = " + """$ClusternameMON"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get minimum number of master nodes
-    $MinimumMasterNode = Read-Host "Enter minimum number of master nodes for the production cluster`n"
+    Write-Host "Enter minimum number of master nodes for the production cluster`n" -ForegroundColor Cyan
+    $MinimumMasterNode = Read-Host ">>>"
     "`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the data path for the master node
-    $PathDataMaster = Read-Host "Enter data path for the master node.  For example c:\data`n"
+    Write-Host "Enter data path for the master node.  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataMaster = Read-Host ">>>"
     "`t`tPathDataMaster = " + """$PathDataMaster"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the data path for the client node(s)
-    $PathDataClient = Read-Host "Enter data path for the client node(s).  For example c:\data`n"
+    Write-Host "Enter data path for the client node(s).  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataClient = Read-Host ">>>"
     "`t`tPathDataClient = " + """$PathDataClient"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the data path for the data node(s)
-    $PathDataData = Read-Host "Enter data path for the data node(s).  For example c:\data`n"
+    Write-Host "Enter data path for the data node(s).  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataData = Read-Host ">>>"
     "`t`tPathDataData = " + """$PathDataData"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the data path for the monitoring node(s)
-    $PathDataMonitor = Read-Host "Enter data path for the monitoring node(s).  For example c:\data`n"
+    Write-Host "Enter data path for the monitoring node(s).  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataMonitor = Read-Host ">>>"
     "`t`tPathDataMonitor = " + """$PathDataMonitor"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the name of the SQL server(s)
-    $SQLServers = Read-Host "Enter names of the SQL servers(s).  This is a comma separated list of Primary and Distributed SQL servers excluding Invariant.`n"
+    Write-Host "Enter names of the SQL servers(s).  This is a comma separated list of Primary and Distributed SQL servers excluding Invariant.`n" -ForegroundColor Cyan
+    $SQLServers = Read-Host ">>>"
     "`t`tSQLServers = " + """$SQLServers"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Get the name of the web server for shield authentication
-    $webServer = Read-Host "Enter names of the web server for shield authentication`n"
+    Write-Host "Enter names of the web server for shield authentication`n" -ForegroundColor Cyan
+    $webServer = Read-Host ">>>"
     $bytes = ""
     
     $webRequest = [Net.WebRequest]::Create("https://$webServer/")
@@ -392,7 +427,7 @@ Start-Sleep -s 1
         Write-Host "An Execption has occurred. The web server could not be reached.`n" -BackgroundColor Green -ForegroundColor Black;
     }
     Try{
-    set-content -value $bytes -encoding byte -path ".\RelativityDataGrid\cert.cer" -ErrorAction Stop
+        set-content -value $bytes -encoding byte -path ".\RelativityDataGrid\cert.cer" -ErrorAction Stop
     }
     Catch [System.Management.Automation.RuntimeException]{
         Write-Host "The script will continue but the certificate was not export to the RelativityDataGrid Folder.`n" -ForegroundColor Yellow;
@@ -402,34 +437,48 @@ Start-Sleep -s 1
     Start-Sleep -s 1
 
 ##Get the backup path location
-    $PathRepoWindows = Read-Host "Enter the backup path location`nThis must be an accessible path to the service account."
-    $PathRepo = ($PathRepoWindows -replace "\\", "\\")
-    "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\Config.psd1
-    Start-Sleep -s 1
+    Write-Host "Enter the backup path location`nThis must be an accessible path to the service account." -ForegroundColor Cyan
+    $ping = ""
+    Do{$PathRepoWindows = Read-Host ">>>" 
+        If ($PathRepoWindows){
+            if(![System.IO.Directory]::Exists($PathRepoWindows)){
+            Write-Host "The share location cannot be reached.  Please re-enter the backup location or press enter to skip" -ForegroundColor Yellow
+            }
+            if([System.IO.Directory]::Exists($PathRepoWindows)){
+            $ping = "success"
+            $PathRepo = ($PathRepoWindows -replace "\\", "\\")
+            "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\Config.psd1
+            Start-Sleep -s 1
+`            }
+        }
+        If ($PathRepoWindows -eq ""){
+            $ping = "success"
+        } 
+    } Until($ping -eq "success")
 
 ##Create a new for the shield useraccount
-    $esUsername = Read-Host "Enter name for the esadmin account`n"
+    Write-Host "Enter name for the esadmin account`n" -ForegroundColor Cyan
+    $esUsername = Read-Host ">>>"
     "`t`tesUsername = " + """$esUsername"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 ##Create a new for the shield useraccount passoword
-    Read-Host "Enter esadmin account password`n" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readESPass
+    Write-Host "Enter esadmin account password`n" -ForegroundColor Cyan
+    Read-Host ">>>" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readESPass
     "`t`treadESPass = " + """$readESPass"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
 "`t`tSecondsToWait = 1;" | Add-Content .\Config.psd1
 "}" | Add-Content .\Config.psd1
-
-
+cls
+Write-Host "The configuration is completed. Here is the configuration file created by this setup.`n" -ForegroundColor Green
 Get-Content .\Config.psd1
-Start-Sleep -s 5
-
 }
 
 else{
 
     #Import Variables from the psd1 file in the same directory as this script.
-    cd\
+    Set-Location -Path (Get-Location).Drive.Root
     $currentScriptDir = ".\DataTron"
     Import-LocalizedData -BaseDirectory $currentScriptDir -FileName Config.psd1 -BindingVariable Data
 
@@ -469,16 +518,16 @@ else{
     Write-Output "Checking the connection to $machineName.`n"
     if (Test-Connection -ComputerName $machineName -Quiet -Count 1){
     }else{
-        Write-Output "The connection to $machineName was not succssesfull would you like to try to ping the server?`n"
+        Write-Host "The connection to $machineName was not succssesfull would you like to try to ping the server?`n" -ForegroundColor Yellow
         $ping = Read-Host "Press enter to not ping $machineName and stop the script.`nType yes to ping $machineName.`n"
 
     If($ping -eq "yes"){
         Test-Connection -ComputerName $machineName
     }
     #Land back in DataTron Folder.
-    & cd .\DataTron
+    Set-Location .\DataTron
     break}
-    Write-Output "Connection to $machineName successful."
+    Write-Host "Connection to $machineName successful." -ForegroundColor Green
 
     #Deprecated TestPSRemoting
 
@@ -498,7 +547,7 @@ else{
             $installPath = "\\" + $target + "\$driveLetter`$\"
 
             # Copies the package to the remote server, the package must be in the DataTron Folder.
-            cd\
+            Set-Location -Path (Get-Location).Drive.Root
             Copy-Item .\DataTron\RelativityDataGrid -Destination $InstallPath -Recurse -force
 
             Write-Output "Finished copying folders to $target."
@@ -581,8 +630,8 @@ else{
             $keyTool = "$Using:driveLetter`:\Program Files\Java\$installedVersion\bin\keytool.exe"
             $keystore = "$Using:driveLetter`:\Program Files\Java\$installedVersion\jre\lib\security\cacerts"
             $list = "-importcert","-noprompt","-alias","shield","-keystore","""$keystore""","-storepass","changeit","-file","""$Using:driveLetter`:\RelativityDataGrid\$certname"""
-            & cd\ 
-            & cd "$Using:driveLetter`:\Program Files\Java\$installedVersion\bin"
+            Set-Location -Path (Get-Location).Drive.Root 
+            Set-Location "$Using:driveLetter`:\Program Files\Java\$installedVersion\bin"
             & .\keytool.exe $list 2>&1 | %{ "$_" }
         }
 
@@ -1005,8 +1054,8 @@ else{
                 $env:KCURA_JAVA_HOME
                 $KCURA_JAVA_HOME = $filePath
                 $KCURA_JAVA_HOME
-                & cd\
-                & cd "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
+                Set-Location -Path (Get-Location).Drive.Root
+                Set-Location "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
                 $install = "install"
                 & .\kservice.bat $install
             }
@@ -1194,7 +1243,7 @@ else{
     ##Hook up with Elastic
 
     Function Ping-ES{
-        Write-Host "The node can take up to 45 seconds to start.`nThe script will attempt to contact the node 5 times with 15 second pauses."
+        Write-Host "The node can take some time to start.`nThe script will attempt to contact the node 6 times with 15 second pauses."
 
         $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsername,$esPassword)))
         $i=0;
@@ -1211,8 +1260,8 @@ else{
             } 
 
         Write-Output "The script has attempted to contact the node $i times"
-             if($i -eq 5){
-             write-Host "The node cannot be contacted.  Here are the last 250 lines of the log file.  Good luck human!" -foregroundcolor "black" -BackgroundColor "red"
+             if($i -eq 6){
+             write-Host "The node cannot be contacted.  Here are the last 250 lines of the log file.  Good luck human!" -foregroundcolor Red
              Invoke-Command -ComputerName $target -ScriptBlock {Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\logs\$Using:Clustername.log -Tail 250}
              break;
              }
@@ -1292,7 +1341,7 @@ else{
                         $installPath = "\\" + $machineName + "\$driveLetter`$\RelativityDataGrid"
 
                         # Copies the package to the remote server(s) the package must be in the DataTron Folder.
-                        cd\
+                        Set-Location -Path (Get-Location).Drive.Root
                         Copy-Item .\DataTron\kibana-4.5.4-windows -Destination $InstallPath -Recurse -force
 
                         Write-Output "End Copy Kibana Folders to $target."
@@ -1336,7 +1385,7 @@ else{
 
                         Try{
                             $ErrorActionPreference = "Stop";
-                            & cd\
+                            Set-Location -Path (Get-Location).Drive.Root
                             & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana.bat "plugin" "--install" "marvel" "--url" "file:///RelativityDataGrid/kibana-4.5.4-windows/marvel-2.3.5.tar.gz"
                         }
                         Catch [System.Management.Automation.RemoteException]
@@ -1347,7 +1396,7 @@ else{
                         Write-Output "Installing the Sense application to Kibana.`n"
 
                         Try{
-                        & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
+                            & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
                         }
                         Catch [System.Management.Automation.RemoteException]
                         {
@@ -1363,5 +1412,6 @@ else{
     }
 
 #Land back in DataTron Folder.
-& cd .\DataTron
+Set-Location -Path (Get-Location).Drive.Root
+Set-Location .\Datatron
 }
