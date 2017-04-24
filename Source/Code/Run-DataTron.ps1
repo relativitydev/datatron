@@ -90,26 +90,26 @@ This is a switch and cannot be run with any other parameters.
 Once a Config.psd1 file is created the script can be used to do an install run.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename -IsMaster $true
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename -IsMaster
 
  The above will install DataGrid to the drive letter c on the machine named nodename and will make the node a monitoring node for the production cluster.  It is not a member of the production cluster.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter g -machineName nodename2 -IsMonitor $true
+.\DataTron\Run-DataTron.ps1 -driveLetter g -machineName nodename2 -IsMonitor
 
  The above will install DataGrid to the drive letter g on the machine named nodename2 and will make the node a production master node.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -IsData $true
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -IsData
 
 The above will install DataGrid to the drive letter c on the machine named nodename3 and will make the node a production data node.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -IsClient $true
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -IsClient
 The above will install DataGrid to the drive letter c on the machine named nodename3 and will make the node a production client node.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName someserver -IsMaster $true -dontInstallJava -dontCopyfolders
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName someserver -IsMaster -dontInstallJava -dontCopyfolders
 
 Does an install run but does not install Java and does not copy the installation folders. Both switches can be used or either one singly.
 
@@ -123,16 +123,16 @@ param(
 [string[]]$machineName,
 
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[bool]$IsMaster,
+[switch]$IsMaster,
 
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[bool]$IsClient,
+[switch]$IsClient,
 
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[bool]$IsData,
+[switch]$IsData,
 
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[bool]$IsMonitor,
+[switch]$IsMonitor,
 
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
 [switch]$dontCopyFolders,
@@ -289,8 +289,22 @@ Start-Sleep -s 1
     Start-Sleep -s 1
     
 ##Get Password
-    Write-Host "Enter the Relativity User Account Password`n" -ForegroundColor Cyan
-    Read-Host ">>>" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readPass
+    Do{
+        Write-Host "Enter the Relativity User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass
+        Write-Host "Re-enter the Relativity User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass2
+        $readPass_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass))
+        $readPass2_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass2))
+        If ($readPass_text -ne $readPass2_text){
+            $passMatch = $false
+            Write-Host "The password does not match" -ForegroundColor Yellow
+        }
+        If ($readPass_text -eq $readPass2_text){
+            $passMatch = $true
+        } 
+    }Until ($passMatch)
+    $readPass | ConvertFrom-SecureString | Set-Variable -Name readPass
     "`t`treadPass = " + """$readPass"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
     
@@ -463,8 +477,22 @@ Start-Sleep -s 1
     Start-Sleep -s 1
 
 ##Create a new for the shield useraccount passoword
-    Write-Host "Enter esadmin account password`n" -ForegroundColor Cyan
-    Read-Host ">>>" -AsSecureString | ConvertFrom-SecureString | Set-Variable -Name readESPass
+    Do{
+        Write-Host "Enter the Shield User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass
+        Write-Host "Re-enter the Shield User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass2
+        $readPass_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass))
+        $readPass2_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass2))
+        If ($readPass_text -ne $readPass2_text){
+            $passMatch = $false
+            Write-Host "The password does not match" -ForegroundColor Yellow
+        }
+        If ($readPass_text -eq $readPass2_text){
+            $passMatch = $true
+        } 
+    }Until ($passMatch)
+    $readPass | ConvertFrom-SecureString | Set-Variable -Name readESPass
     "`t`treadESPass = " + """$readESPass"";" | Add-Content .\Config.psd1
     Start-Sleep -s 1
 
