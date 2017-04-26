@@ -565,8 +565,8 @@ else{
     Write-Output "Begin Data Tron:`n"
 
     ##Copy the Data Grid Package
-
-        #start
+    
+        Write-Verbose "Start copying Relativity folders"
 
         If($dontCopyFolders -eq $false){
 
@@ -592,17 +592,22 @@ else{
                 Write-Output "Begin installation of Java on $target.`nExpect a long delay as Java installs."
 
                     Invoke-Command $target -ScriptBlock {
-                        $version = Get-ChildItem 'C:\RelativityDataGrid\jdk-8*' | Select-Object Name -First 1 -ExpandProperty Name
+                        $vers = "$Using:driveLetter`:\RelativityDataGrid\jdk-8*"
+                        $version = Get-ChildItem $vers | Select-Object Name -First 1 -ExpandProperty Name
                         $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
-                        $proc = Start-Process -FilePath $filePath -ArgumentList "/s" -Wait -PassThru -RedirectStandardOutput c:\javainstallog.txt
+                        $jLog = "$Using:driveLetter`:\javainstallog.txt"
+                        $jLoc = "/s INSTALLDIR=""$Using:driveLetter`:\Program Files\Java\jdk8"""
+                        $proc = Start-Process -FilePath $filePath -ArgumentList $jLoc -Wait -PassThru -RedirectStandardOutput $jLog
                         $proc.WaitForExit()
                     } 
         
                 Write-Output "End installation of Java on $target."
             }
         }else{
+
             $javaPath = Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*" | select -Property Path -ExpandProperty Path 
             Write-Host "Java is installed here: $javaPath." -ForegroundColor Green;
+
         }
         if((Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*") -eq $false){
             Write-Host "Java failed to install on $target." 
@@ -618,14 +623,15 @@ else{
 
         if(Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*"){  
                 Invoke-Command $target -ScriptBlock {
-                    $version = Get-ChildItem "$Using:driveLetter`:\Program Files\java\jdk*" | Select-Object Name -First 1 -ExpandProperty Name
-                    $filePath = "$Using:driveLetter`:\Program Files\Java\$version"
-                    & setx KCURA_JAVA_HOME "$filePath" /m
+                    $driveLetter = $Using:driveLetter
+                    $version = Get-ChildItem "$driveLetter`:\Program Files\java\jdk*" | Select-Object Name -First 1 -ExpandProperty Name
+                    $filePath = "$driveLetter`:\Program Files\Java\$version"
+                    & setx KCURA_JAVA_HOME $filePath /m
                     $sysEnv = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","Machine")
                     Write-Output "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnv"
                 }
         }else{
-            Write-Host "Java is not installed on $target.`n" -BackgroundColor Red -ForegroundColor Black;
+            Write-Host "Java is not installed on $target.`n" -ForegroundColor Red;
 
             Write-Host "If you are using the -dontInstallJava switch try the script again without that switch."
             Exit
