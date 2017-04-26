@@ -503,6 +503,7 @@ Write-Host "The configuration is completed. Here is the configuration file creat
 Get-Content .\Config.psd1
 }
 
+#Installation run
 else{
 
     #Import Variables from the psd1 file in the same directory as this script.
@@ -542,7 +543,7 @@ else{
     $esPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
 
-    ##Test the network connection to the target
+    ##Test the network connection to the target passed.
     Write-Output "Checking the connection to $machineName.`n"
     if (Test-Connection -ComputerName $machineName -Quiet -Count 1){
     }else{
@@ -552,12 +553,25 @@ else{
     If($ping -eq "yes"){
         Test-Connection -ComputerName $machineName
     }
+
     #Land back in DataTron Folder.
     Set-Location .\DataTron
     break}
+
     Write-Host "Connection to $machineName successful." -ForegroundColor Green
 
-    #Deprecated TestPSRemoting
+    #Test the drive letter passed.
+    Write-Verbose "Testing the drive letter passed in arguement -driveLetter"
+    $driveLetterString = $driveLetter.ToString()
+    $fullDrive = $driveLetterString.ToUpper() + ":"
+    
+    $getDrive = (Get-WmiObject Win32_LogicalDisk -computer $machineName | select name -ExpandProperty name).Contains($fullDrive)
+    if($getDrive){
+        Write-Verbose "Drive letter $driveLetter found, continuing"
+    }else{
+        Write-Host "The drive $driveLetter was not found.  Check the drive letter on $machineName." -ForegroundColor Red
+        exit
+    }
 
     #Begin The installer.
 
