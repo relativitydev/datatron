@@ -638,11 +638,17 @@ else{
         if(Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*"){  
                 Invoke-Command $target -ScriptBlock {
                     $driveLetter = $Using:driveLetter
-                    $version = Get-ChildItem "$driveLetter`:\Program Files\java\jdk*" | Select-Object Name -First 1 -ExpandProperty Name
+                    $version = (Get-ChildItem "$driveLetter`:\Program Files\Java\jdk*").Name
                     $filePath = "$driveLetter`:\Program Files\Java\$version"
-                    & setx KCURA_JAVA_HOME $filePath /m
-                    $sysEnv = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","Machine")
-                    Write-Output "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnv"
+                    Write-Output "$filePath Is the file path"
+                    [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"User")
+                    [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"Machine")
+                    $sysEnvMachine = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","Machine")
+                    $sysEnvUser = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","User")
+                    Write-Output "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnvMachine"
+                    Write-Output "The KCURA_JAVA_HOME user environmental variable was set to: $sysEnvUser"
+                    $envArgs = "KCURA_JAVA_HOME $filePath /m"
+                    & setx "KCURA_JAVA_HOME" $filePath "/m"
                 }
         }else{
             Write-Host "Java is not installed on $target.`n" -ForegroundColor Red;
@@ -1096,16 +1102,10 @@ else{
 
         foreach($target in $machineName){
             Invoke-Command -ComputerName $target -ScriptBlock {
-                $version = Get-ChildItem "$Using:driveLetter`:\Program Files\java\jdk*" | Select-Object Name -First 1 -ExpandProperty Name
-                $filePath = "$Using:driveLetter`:\Program Files\Java\$version"
-                $env:KCURA_JAVA_HOME = $filePath
-                $env:KCURA_JAVA_HOME
-                $KCURA_JAVA_HOME = $filePath
-                $KCURA_JAVA_HOME
                 Set-Location -Path (Get-Location).Drive.Root
                 Set-Location "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
-                $install = "install"
-                & .\kservice.bat $install
+                #$install = "install"
+                & .\kservice.bat "install"
             }
         }
         Write-Output "Finished installing Elasticsearch service on $target."
