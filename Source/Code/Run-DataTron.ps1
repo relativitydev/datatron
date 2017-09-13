@@ -315,7 +315,7 @@ Start-Sleep -s 1
         Do{ $array = $MonitoringNodeName
             $ping = ""
                 if (Test-Connection -ComputerName $array -Quiet -Count 1){
-                    Write-Host "The connection to $array was successful." -ForegroundColor Green;
+                    Write-Host "The connection to $array was successful.`n" -ForegroundColor Green;
                     $ping = "success"
                     TestPSRemoting
                     LogonLocal 
@@ -558,7 +558,7 @@ else{
     Set-Location .\DataTron
     break}
 
-    Write-Host "Connection to $machineName successful." -ForegroundColor Green
+    Write-Host "Connection to $machineName successful.`n" -ForegroundColor Green
 
     #Test the drive letter passed.
     Write-Verbose "Testing the drive letter passed in arguement -driveLetter"
@@ -619,8 +619,8 @@ else{
             }
         }else{
 
-            $javaPath = Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*" | select -Property Path -ExpandProperty Path 
-            Write-Host "Java is installed here: $javaPath." -ForegroundColor Green;
+            $javaPath = (Get-ChildItem "\\dg-ramp-01\c`$\Program Files\Java\jdk*").Name
+            Write-Host "Java is installed here: $javaPath.`n" -ForegroundColor Green;
 
         }
         if((Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*") -eq $false){
@@ -633,64 +633,63 @@ else{
 
         #start
 
-        Write-Output "Begin setting the environmental variable for Java on $target."
+        Write-Verbose "Begin setting the environmental variable for Java on $target.`n"
 
         if(Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*"){  
                 Invoke-Command $target -ScriptBlock {
                     $driveLetter = $Using:driveLetter
                     $version = (Get-ChildItem "$driveLetter`:\Program Files\Java\jdk*").Name
                     $filePath = "$driveLetter`:\Program Files\Java\$version"
-                    Write-Output "$filePath Is the file path"
+                    Write-Verbose "$filePath Is the file path"
                     [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"User")
                     [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"Machine")
                     $sysEnvMachine = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","Machine")
                     $sysEnvUser = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","User")
-                    Write-Output "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnvMachine"
-                    Write-Output "The KCURA_JAVA_HOME user environmental variable was set to: $sysEnvUser"
+                    Write-Verbose "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnvMachine"
+                    Write-Verbose "The KCURA_JAVA_HOME user environmental variable was set to: $sysEnvUser"
                     $envArgs = "KCURA_JAVA_HOME $filePath /m"
-                    & setx "KCURA_JAVA_HOME" $filePath "/m"
+                    & setx "KCURA_JAVA_HOME" $filePath "/m" | Out-Null
                 }
         }else{
             Write-Host "Java is not installed on $target.`n" -ForegroundColor Red;
 
-            Write-Host "If you are using the -dontInstallJava switch try the script again without that switch."
+            Write-Host "If you are using the -dontInstallJava switch try the script again without that switch.`n"
             Exit
         }
     
 
-        Write-Output "End setting the environmental variable for Java on $target."
+        Write-Verbose "End setting the environmental variable for Java on $target.`n"
 
         #end
-
-
 
 
     ##Install the certs into Windows and Java
 
         #start
 
-        Write-Output "Begin adding certificates to Windows and Java to $target."
+        Write-Verbose "Begin adding certificates to Windows and Java to $target.`n"
 
         Invoke-Command $target -ScriptBlock {
             #Windows
 
             $certdir = "$Using:driveLetter`:\RelativityDataGrid\*.cer"
             $certname = Get-ChildItem -Path $certdir | Select-Object name -ExpandProperty Name 
-            Import-Certificate -FilePath "$Using:driveLetter`:\RelativityDataGrid\$certname" -CertStoreLocation Cert:\LocalMachine\Root
-
+            Import-Certificate -FilePath "$Using:driveLetter`:\RelativityDataGrid\$certname" -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+            Write-Verbose "Done importing certificate."
 
             #Java
-            $installedVersion =  Get-ChildItem "$Using:driveLetter`:\Program Files\Java\jdk*" | Select-Object Name -First 1 -ExpandProperty Name
+            $installedVersion =  (Get-ChildItem "$Using:driveLetter`:\Program Files\Java\jdk*").Name
             $keyTool = "$Using:driveLetter`:\Program Files\Java\$installedVersion\bin\keytool.exe"
             $keystore = "$Using:driveLetter`:\Program Files\Java\$installedVersion\jre\lib\security\cacerts"
             $list = "-importcert","-noprompt","-alias","shield","-keystore","""$keystore""","-storepass","changeit","-file","""$Using:driveLetter`:\RelativityDataGrid\$certname"""
             Set-Location -Path (Get-Location).Drive.Root 
             Set-Location "$Using:driveLetter`:\Program Files\Java\$installedVersion\bin"
-            & .\keytool.exe $list 2>&1 | %{ "$_" }
+            & .\keytool.exe $list 2>&1 | %{ "$_" } | Out-Null
+            Write-Verbose "Done with import from keytool."
         }
 
 
-        Write-OutPut "End adding certificates to Windows and Java to $target."
+        Write-Verbose "End adding certificates to Windows and Java to $target."
 
         #end
 
@@ -708,7 +707,7 @@ else{
         $nodeType = "Monitor"
         }
 
-        Write-Output "Updating the elasticsearch YML on $target the selected role is $nodeType."
+        Write-Verbose "Updating the elasticsearch YML on $target the selected role is $nodeType."
 
         foreach($target in $machineName){
 
@@ -1090,7 +1089,7 @@ else{
 
         }
 
-        Write-Output "YML Update Completed."
+        Write-Verbose "YML Update Completed."
 
         #end
 
@@ -1098,17 +1097,16 @@ else{
 
         #start
 
-        Write-Output "Installing Elasticsearch service on $target."
+        Write-Host "Installing Elasticsearch service on $target.`n" -ForegroundColor Green
 
         foreach($target in $machineName){
             Invoke-Command -ComputerName $target -ScriptBlock {
                 Set-Location -Path (Get-Location).Drive.Root
                 Set-Location "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
-                #$install = "install"
-                & .\kservice.bat "install"
+                & .\kservice.bat "install" | Out-Null
             }
         }
-        Write-Output "Finished installing Elasticsearch service on $target."
+        Write-Verbose "Finished installing Elasticsearch service on $target."
 
         #end
 
@@ -1169,7 +1167,6 @@ else{
         $svcD=gwmi win32_service -computername $mName -filter "name like '%elastic%'"
         write-host "----------------------------------------------------------------" 
  
-        write-host "Services found:"  $svcD.Count -foregroundcolor "green"
         $svcD | ForEach-Object {
  
         write-host "Service to change user and pasword: "   $_.name -foregroundcolor "green"
@@ -1233,24 +1230,20 @@ else{
 
     ##Make ESUsers
 
-        #start
 
-        Write-Host "Setting the elastic search username and password on $target."
+        Write-Host "Setting the elastic search username and password on $target.`n" -ForegroundColor Green
 
         Invoke-Command -ComputerName $machineName -ScriptBlock {
             Set-Location -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\shield"
             $list = ".\esusers.bat useradd " + $Using:esUsername + " -p " + $Using:esPassword + " -r admin"
             $result = Invoke-Expression $list
-            & .\esusers.bat list
+            & .\esusers.bat list | Out-Null
         }
 
-        Write-Host "Esuser added."
-
-        #end
+        Write-Verbose "Esuser added."
 
 
-
-    Write-Output "End Data Grid Installation."
+    Write-Verbose "End Data Grid Installation."
     ##End Initial For Loop
     } 
 
@@ -1260,13 +1253,13 @@ else{
     function Start-ESService {
         ##Check the elastic search service windows service status
 
-        Write-Output "Checking the elastic search service."
+        Write-Host "Checking the elastic search service.`n" -ForegroundColor Green
 
         $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
          Select-Object -Property Status -ExpandProperty Status
 
         if("$check" -eq "Running"){
-            Write-Host "The elasticserch service is running."
+            Write-Verbose "The elasticserch service is running.`n"
         }
         if("$check" -eq "Stopped"){
             Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName | Start-Service
@@ -1283,7 +1276,7 @@ else{
     $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
      Select-Object -Property Status -ExpandProperty Status
 
-    Write-Host "The elasticsearch servie is: $check."
+    Write-Host "The elasticsearch service is: $check.`n" -ForegroundColor Green
     }
 
     Check-ESService
@@ -1291,7 +1284,7 @@ else{
     ##Hook up with Elastic
 
     Function Ping-ES{
-        Write-Host "The node can take some time to start.`nThe script will attempt to contact the node 6 times with 15 second pauses."
+        Write-Host "The script will attempt to contact the node 6 times with 15 second pauses.`n" -ForegroundColor Green
 
         $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsername,$esPassword)))
         $i=0;
@@ -1306,8 +1299,11 @@ else{
             Catch{
                 $ErrorMessage = $_.Exception.Message
             } 
-
-        Write-Output "The script has attempted to contact the node $i times"
+        if ($i -eq 1){
+            Write-Host "Attempted to contact the node once." -ForegroundColor Green
+        }else{
+            Write-Host "Attempted to contact the node $i times." -ForegroundColor Green
+        }
              if($i -eq 6){
              write-Host "The node cannot be contacted.  Here are the last 250 lines of the log file.  Good luck human!" -foregroundcolor Red
              Invoke-Command -ComputerName $target -ScriptBlock {Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\logs\$Using:Clustername.log -Tail 250}
