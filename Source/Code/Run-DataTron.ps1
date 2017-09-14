@@ -600,20 +600,13 @@ else{
                 Write-Host "An Execption has occurred.`n" -ForegroundColor Red;
                 Write-Host "The Exeception Message is:`n $_.Exception.Message`n" -ForegroundColor Yellow;
                 if((Get-Service -ComputerName $target -Name ela*).Status -eq "Running"){
-                    Write-Host "The elastic service is already running.`n" -ForegroundColor Yellow
-                    Write-Host "Do you want to stop the service and continue with the install?`n" -ForegroundColor Red
+                    Write-Host "The elastic service is installed and running.`n" -ForegroundColor Yellow
+                    Write-Host "Do you want to remove the service and continue with the install?`n" -ForegroundColor Red
                     Do{
                     $answer = Read-Host "Enter Y or N"
                     if ($answer -eq "Y"){
-                        Invoke-Command $target -ScriptBlock {Stop-Service -Name ela*}
-                        Do{
-                            $serviceState = Get-Service -ComputerName $target -Name ela*
-                            Write-Host $serviceState.DisplayName "is" $serviceState.Status
-                            Start-Sleep -s 10
-                            $i = 0
-                            $i++
-                        
-                        }Until($serviceState.Status.ToString() = "Stopped" -or $i -eq 10) 
+                        Invoke-Command $target -ScriptBlock {cd\; cd "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin"; .\kservice.bat "remove"}
+
                     }
                     if ($answer -eq "N"){
                         cd .\Datatron
@@ -675,8 +668,18 @@ else{
                 Set-ItemProperty "HKLM:SYSTEM\CurrentControlSet\Control\Session Manager\Environment" KCURA_JAVA_HOME -value "$Using:driveLetter`:\Program Files\Java\jdk8"
                 }
             $hostName = hostname
-            if(!("$target" -eq $hostName -and (Get-WmiObject -Class Win32_ComputerSystem -ComputerName $target).UserName)){
-                Get-WmiObject win32_operatingsystem -ComputerName $target | Invoke-WMIMethod -name Win32Shutdown -ArgumentList @(4) -ErrorAction SilentlyContinue | Out-Null
+            if(!("$target" -eq $hostName)){
+                if (!(Get-WmiObject -Class Win32_ComputerSystem -ComputerName $target).UserName){
+                    Try{
+                    Get-WmiObject win32_operatingsystem -ComputerName $target | Invoke-WMIMethod -name Win32Shutdown -ArgumentList @(4) -ErrorAction Stop | Out-Null
+                    }Catch [System.Management.ManagementException]{
+                                $ErrorMessage = $_.Exception.Message
+                                $ErrorName = $_.Exception.GetType().FullName
+                                Write-Verbose "An Execption has occurred.`n"
+                                Write-Verbose "The Exeception Message is:`n $ErrorMessage.`n"
+                                Write-Verbose "The Exeception Name is:`n $ErrorName.`n"
+                    }
+                }
             }
 
         }else{
