@@ -542,9 +542,11 @@ else{
     $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($passSecString)
     $esPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
+   
+
 
     ##Test the network connection to the target passed.
-    Write-Output "Checking the connection to $machineName.`n"
+    Write-Host "Checking the connection to $machineName.`n" -ForegroundColor Green
     if (Test-Connection -ComputerName $machineName -Quiet -Count 1){
     }else{
         Write-Host "The connection to $machineName was not succssesfull would you like to try to ping the server?`n" -ForegroundColor Yellow
@@ -584,15 +586,45 @@ else{
 
         If($dontCopyFolders -eq $false){
 
-            Write-Output "Begin Copy Folders to $target"
+            Write-Host "Copying Folders to $target.`n" -ForegroundColor Green
 
             $installPath = "\\" + $target + "\$driveLetter`$\"
 
             # Copies the package to the remote server, the package must be in the DataTron Folder.
             Set-Location -Path (Get-Location).Drive.Root
-            Copy-Item .\DataTron\RelativityDataGrid -Destination $InstallPath -Recurse -force
+            Try{
+                Copy-Item .\DataTron\RelativityDataGrid -Destination $InstallPath -Recurse -force -ErrorAction Stop
+            }Catch [System.IO.IOException]{
+                #$ErrorMessage = $_.Exception.Message
+                $ErrorName = $_.Exception.GetType().FullName
+                Write-Host "An Execption has occurred.`n" -ForegroundColor Red;
+                Write-Host "The Exeception Message is:`n $_.Exception.Message`n" -ForegroundColor Yellow;
+                if((Get-Service -ComputerName $target -Name ela*).Status -eq "Running"){
+                    Write-Host "The elastic service is already running.`n" -ForegroundColor Yellow
+                    Write-Host "Do you want to stop the service and continue with the install?`n" -ForegroundColor Red
+                    Do{
+                    $answer = Read-Host "Enter Y or N"
+                    if ($answer -eq "Y"){
+                        Invoke-Command $target -ScriptBlock {Stop-Service -Name ela*}
+                        Do{
+                            $serviceState = Get-Service -ComputerName $target -Name ela*
+                            Write-Host $serviceState.DisplayName "is" $serviceState.Status
+                            Start-Sleep -s 10
+                            $i = 0
+                            $i++
+                        
+                        }Until($serviceState.Status.ToString() = "Stopped" -or $i -eq 10) 
+                    }
+                    if ($answer -eq "N"){
+                        cd .\Datatron
+                        Exit
+                    }
+                    }Until($answer -eq "Y" -or $answer -eq "N")
+                }
+            }
 
-            Write-Output "Finished copying folders to $target."
+
+            Write-Verbose "Finished copying folders to $target."
         }
         #end
 
@@ -603,7 +635,8 @@ else{
 
             If($dontInstalljava -eq $false){
 
-                Write-Output "Begin installation of Java on $target.`nExpect a long delay as Java installs."
+                Write-Host "Begin installation of Java on $target.`n" -ForegroundColor Green
+                Write-Host "Expect a long delay as Java installs.`n" -ForegroundColor Yellow
 
                     Invoke-Command $target -ScriptBlock {
                         $vers = "$Using:driveLetter`:\RelativityDataGrid\jdk-8*"
@@ -635,21 +668,17 @@ else{
 
         Write-Verbose "Begin setting the environmental variable for Java on $target.`n"
 
-        if(Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*"){  
-                Invoke-Command $target -ScriptBlock {
-                    $driveLetter = $Using:driveLetter
-                    $version = (Get-ChildItem "$driveLetter`:\Program Files\Java\jdk*").Name
-                    $filePath = "$driveLetter`:\Program Files\Java\$version"
-                    Write-Verbose "$filePath Is the file path"
-                    [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"User")
-                    [System.Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME",$filePath,"Machine")
-                    $sysEnvMachine = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","Machine")
-                    $sysEnvUser = [System.Environment]::GetEnvironmentVariable("KCURA_JAVA_HOME","User")
-                    Write-Verbose "The KCURA_JAVA_HOME system environmental variable was set to: $sysEnvMachine"
-                    Write-Verbose "The KCURA_JAVA_HOME user environmental variable was set to: $sysEnvUser"
-                    $envArgs = "KCURA_JAVA_HOME $filePath /m"
-                    & setx "KCURA_JAVA_HOME" $filePath "/m" | Out-Null
+        if(Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*"){
+                 
+            Invoke-Command -ComputerName $target -ScriptBlock {
+                Set-ItemProperty "HKLM:SYSTEM\ControlSet001\Control\Session Manager\Environment" KCURA_JAVA_HOME -value "$Using:driveLetter`:\Program Files\Java\jdk8"
+                Set-ItemProperty "HKLM:SYSTEM\CurrentControlSet\Control\Session Manager\Environment" KCURA_JAVA_HOME -value "$Using:driveLetter`:\Program Files\Java\jdk8"
                 }
+            $hostName = hostname
+            if(!("$target" -eq $hostName -and (Get-WmiObject -Class Win32_ComputerSystem -ComputerName $target).UserName)){
+                Get-WmiObject win32_operatingsystem -ComputerName $target | Invoke-WMIMethod -name Win32Shutdown -ArgumentList @(4) -ErrorAction SilentlyContinue | Out-Null
+            }
+
         }else{
             Write-Host "Java is not installed on $target.`n" -ForegroundColor Red;
 
@@ -1103,7 +1132,7 @@ else{
             Invoke-Command -ComputerName $target -ScriptBlock {
                 Set-Location -Path (Get-Location).Drive.Root
                 Set-Location "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
-                & .\kservice.bat "install" | Out-Null
+                & .\kservice.bat "install"
             }
         }
         Write-Verbose "Finished installing Elasticsearch service on $target."
