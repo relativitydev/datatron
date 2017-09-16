@@ -147,6 +147,7 @@ If($PSVersionTable.PSVersion.Major -lt 4){
 Write-Host "The PowerShell verison is $PSVersionTable.PSVersion.`nVersion 4.0 or higher required."
 Break
 }
+#$VerbosePreference = "SilentyContinue"
 
 function LogonLocal {
 Invoke-Command -ComputerName $array -ScriptBlock {
@@ -231,28 +232,51 @@ Write-Host "Done." -ForegroundColor DarkCyan
 }}
 
 function TestPSRemoting {
-    #Test the PSRemoting
-    Try{
+    <#
+Test a TCP connection with Test-NetConnection over port 5985 and if WinRM is available
+#>
+$connectionTest = Test-NetConnection $array -port 5985
+    If($connectionTest.TcpTestSucceeded){
+        Write-Output "Connection to $array successful.`n"
+        $script:connectionOK = $true
+        Try{
         Invoke-Command -ComputerName $array {} -ErrorAction Stop
-    }
-    Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
-        $ErrorMessage = $_.Exception.Message
-        Write-Host "PowerShell cannot connect to the Windows Remoting service on $array.`n" -ForegroundColor Yellow;
-        Write-Output "Here are the Trusted Hosts listed for this machine.  The output will be blank if no Trusted Hosts exist.`n"
-        Write-Host "Found the following TrustedHosts: " (Get-Item WSMan:\localhost\Client\TrustedHosts).Value -ForegroundColor Green;
-        Write-Host "`nThe computer will be added to the Trusted Host list now if it is missing.`n" -ForegroundColor Green;
-
-        $A = Get-Item wsman:\localhost\Client\TrustedHosts | Select Value -ExpandProperty Value
-        If($A){
-            $A = $A + ",$array"
+        }Catch{
+            $ErrorMessage = $_.Exception.Message
+            $script:connectionOK = $false
+            Write-Host "The Windows Remoting service on $array did not successfully connect.`n" -ForegroundColor Yellow;
+            Write-Verbose "Here are the Trusted Hosts listed for this machine.  The output will be blank if no Trusted Hosts exist.`n"
+            $currentTrustedHosts = (Get-Item WSMan:\localhost\Client\TrustedHosts).Value
+            Write-Verbose "Found the following TrustedHosts: $currentTrustedHosts`n"
+            Write-Verbose "The computer will be added to the Trusted Host list now if it is missing.`n"
+            Write-Verbose "Checking for $array in the Trusted Host list.`n"
+            $trustedHostListString = (Get-Item wsman:\localhost\Client\TrustedHosts).Value
+            $trustedHostListArray = $trustedHostListString -split ','
+            Write-Verbose "Check if the computer is in the trustedHostListArray variable.`n"
+            For($i=0; $i -le $trustHostListArray.Length; $i++){
+                if ($trustedHostListArray.get($i) -eq $array){
+                    Write-Verbose "The computer is already added to the trusted host list."
+                    $script:connectionOK = $true
+                }else{
+                    if($trustedHostListArray.get($i) -eq ""){
+                        Write-Verbose "Adding $array to the list of trusted hosts for WinRM.`n"
+                        $trustedHostListString += "$array"
+                        set-item wsman:\localhost\Client\TrustedHosts -value "$trustedHostListString" -Force
+                        $script:connectionOK = $true
+                    }else{
+                        Write-Verbose "Adding $array to the list of trusted hosts for WinRM.`n"
+                        $trustedHostListString += ",$array"
+                        set-item wsman:\localhost\Client\TrustedHosts -value "$trustedHostListString" -Force
+                        $script:connectionOK = $true
+                    }
+                }
+            }    
         }
-        IF(!$A){
-            $A = $array
-        }
-        set-item wsman:\localhost\Client\TrustedHosts -value "$A" -Force
-        sleep -s 5
-        
-        Write-Host (Get-Item WSMan:\localhost\Client\TrustedHosts).Value "is now added to TrustedHosts the installation will continue.`n" -ForegroundColor Green;
+        $trustedHostListString = (Get-Item wsman:\localhost\Client\TrustedHosts).Value       
+        Write-Verbose " $trustedHostListString is now the TrustedHosts list the installation will continue.`n"
+    }else{
+        Write-OutPut "Communication via port 5985 is unsuccessful.`n"
+        $script:connectionOK = $false
     }
 }
 
@@ -310,67 +334,53 @@ Start-Sleep -s 1
     
 ##Get Monitoring Node Name
     Write-Host "Enter the Name of the Monitoring Node. Press enter to skip adding a monitoring Node.`n" -ForegroundColor Cyan;
-    $MonitoringNodeName = Read-Host ">>>"
-    if($MonitoringNodeName -ne ""){
-        Do{ $array = $MonitoringNodeName
-            $ping = ""
-                if (Test-Connection -ComputerName $array -Quiet -Count 1){
-                    Write-Host "The connection to $array was successful.`n" -ForegroundColor Green;
-                    $ping = "success"
-                    TestPSRemoting
-                    LogonLocal 
-                    "`t`tMonitoringNodeName = " + """$MonitoringNodeName"";" | Add-Content .\Config.psd1
-                    Start-Sleep -s 1        
-                }else{
-                    Write-Host "Could not ping the $MonitoringNodeName`n" -ForegroundColor Yellow
-                    Write-Host "Enter the Name of the Monitoring node or press enter to skip" -ForegroundColor Cyan
-                    $MonitoringNodeName = Read-Host ">>>"
-                    if($MonitoringNodeName -eq ""){
-                        $ping = "success"
-                    }
-            }
-        } Until ($ping -eq "success")
+    $array = Read-Host ">>>"
+    if ($array -ne ""){
+    TestPSRemoting
+    Write-Verbose "The connection is $connectionOK"
+    Write-Verbose "The array variable is set to $array"
     }
-##Get Production Array
+    if ($array -ne "" -and $connectionOK -eq $true){
+        LogonLocal 
+        "`t`tMonitoringNodeName = " + """$array"";" | Add-Content .\Config.psd1
+        Start-Sleep -s 1  
+    }
+    If ($array -ne "" -and $connectionOK -eq $false){
+    Do {
+        Write-Host "Enter the Name of the Monitoring Node. Press enter to skip adding a monitoring Node.`n" -ForegroundColor Cyan;
+        $array = Read-Host ">>>"
+        if ($array -ne ""){
+        TestPSRemoting
+        } 
+    }While (($array -ne "") -and ($connectionOK -eq $false))
+    }
+    
+##Create Formatted Production Array
 
-    $stackVar = "`"" + "[" + "`"" + "`""
-   Do{ 
-       Write-Host "Enter the name of each server in the production cluster.`nIf you are done adding servers type exit" -ForegroundColor Cyan
-       $array = Read-Host ">>>"
-       if($array -eq "exit"){
-           $q = "exit"
-           "`t`tProductionHostsArray = " + $stackVar.Substring(0,$stackVar.Length-3) + "]" + "`";" | Add-Content .\Config.psd1
-           }
-           if($array -ne "exit"){
-                   Write-Output "You entered: $array`n"
-                   Write-Output "Checking the connection to $array.`n"
+$stackVar = "`"" + "[" + "`"" + "`""
+Do{ 
+    Write-Host "Enter the name of each server in the production cluster.`nIf you are done adding servers type exit" -ForegroundColor Cyan
+    $array = Read-Host ">>>"
+    if($array -eq "exit"){
+        $exit = "exit"
+        "`t`tProductionHostsArray = " + $stackVar.Substring(0,$stackVar.Length-3) + "]" + "`";" | Add-Content .\Config.psd1
+        }
+        if($array -ne "exit"){
+            Write-Output "You entered: $array`n"
+            Write-Output "Checking the connection to $array.`n"
            
-               $ping = ""
+            TestPSRemoting
 
-               if (Test-Connection -ComputerName $array -Quiet -Count 1){
-                   Write-Host "The connection to $array was successful." -ForegroundColor Green;
-                   $ping = "success"
-
-                   Try{
-                   Invoke-Command -ComputerName $array {} -ErrorAction Stop
-                   }Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
-                   Write-Verbose "Starting ps remote test"
-                   TestPSREmoting
-                   Write-Verbose "Ending test"
-                   }Finally{
-                   LogonLocal
-                   }
-               }else{
-                   Write-Host "The connection to $array was not succssesfull.  You can try $array again or enter a new server name.`n" -ForegroundColor Red;
-               }
-               if($ping -eq "success"){
-                   $stackVar += $array + "`"" + "`"" + "," + "`"" + "`""
-               }
-               if($ping -eq ""){
-                   Clear-Variable array
-               }
-           }
-       }Until($q -eq "exit")
+            if ($connectionOK -and $stackVar.Contains($array) -eq $false){
+                $stackVar += $array + "`"" + "`"" + "," + "`"" + "`""
+                LogonLocal
+            }
+            if($connectionOK -eq $false){
+                Write-Host "The connection to $array was not succssesfull.  You can try $array again or enter a new server name.`n" -ForegroundColor Red;
+                Clear-Variable array
+            }
+        }
+    }Until($exit -eq "exit")
 Start-Sleep -s 1
 
 ##Get the produciton cluster name
