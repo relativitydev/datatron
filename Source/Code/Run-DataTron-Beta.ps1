@@ -147,7 +147,7 @@ If($PSVersionTable.PSVersion.Major -lt 4){
 Write-Host "The PowerShell verison is $PSVersionTable.PSVersion.`nVersion 4.0 or higher required."
 Break
 }
-$ProgressPreference='SilentlyContinue'
+
 
 function LogonLocal {
 Invoke-Command -ComputerName $array -ScriptBlock {
@@ -232,17 +232,19 @@ Write-Host "Done." -ForegroundColor DarkCyan
 }}
 
 function TestPSRemoting {
-
-$connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
-    If($connectionTest){
-        Write-Host "Connection to $array over port 5985 is successful.`n" -ForegroundColor Green;
+    <#
+Test a TCP connection with Test-NetConnection over port 5985 and if WinRM is available
+#>
+$connectionTest = Test-NetConnection $array -port 5985
+    If($connectionTest.TcpTestSucceeded){
+        Write-Output "Connection to $array successful.`n"
         $script:connectionOK = $true
         Try{
         Invoke-Command -ComputerName $array {} -ErrorAction Stop
         }Catch{
             $ErrorMessage = $_.Exception.Message
             $script:connectionOK = $false
-            Write-Verbose "The Windows Remoting service on $array did not successfully connect.`n"
+            Write-Host "The Windows Remoting service on $array did not successfully connect.`n" -ForegroundColor Yellow;
             Write-Verbose "Here are the Trusted Hosts listed for this machine.  The output will be blank if no Trusted Hosts exist.`n"
             $currentTrustedHosts = (Get-Item WSMan:\localhost\Client\TrustedHosts).Value
             Write-Verbose "Found the following TrustedHosts: $currentTrustedHosts`n"
@@ -254,30 +256,18 @@ $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
             For($i=0; $i -le $trustHostListArray.Length; $i++){
                 if ($trustedHostListArray.get($i) -eq $array){
                     Write-Verbose "The computer is already added to the trusted host list."
-                    Try{
-                        Invoke-Command -ComputerName $array {} -ErrorAction Stop
-                        $script:connectionOK = $true
-                        Write-Host "The connection to $array was successful." -ForegroundColor Green
-                        }Catch{$script:connectionOK = $false}
+                    $script:connectionOK = $true
                 }else{
                     if($trustedHostListArray.get($i) -eq ""){
                         Write-Verbose "Adding $array to the list of trusted hosts for WinRM.`n"
                         $trustedHostListString += "$array"
                         set-item wsman:\localhost\Client\TrustedHosts -value "$trustedHostListString" -Force
-                        Try{
-                            Invoke-Command -ComputerName $array {} -ErrorAction Stop
-                            $script:connectionOK = $true
-                            Write-Host "The connection to $array was successful." -ForegroundColor Green
-                            }Catch{$script:connectionOK = $false}
+                        $script:connectionOK = $true
                     }else{
                         Write-Verbose "Adding $array to the list of trusted hosts for WinRM.`n"
                         $trustedHostListString += ",$array"
                         set-item wsman:\localhost\Client\TrustedHosts -value "$trustedHostListString" -Force
-                        Try{
-                            Invoke-Command -ComputerName $array {} -ErrorAction Stop
-                            Write-Host "The connection to $array was successful." -ForegroundColor Green
-                            $script:connectionOK = $true
-                            }Catch{$script:connectionOK = $false}
+                        $script:connectionOK = $true
                     }
                 }
             }    
@@ -291,276 +281,253 @@ $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
 }
 
 if($Config){
-    clear
-    Write-Verbose "Get Datatron Data from the User."
+clear
+##Get Datatron Data from the User
 
-    Function MakeConfigFile{
-    Try{
-        New-Item .\Config.psd1 -type file -Force | Out-Null
-    }
-    Catch [System.IO.IOException]{
+##Create the psd1 file
+Try{
+New-Item .\Config.psd1 -type file -Force | Out-Null
+}
+Catch [System.IO.IOException]{
         $ErrorMessage = $_.Exception.Message
         $ErrorName = $_.Exception.GetType().FullName
         Write-Host "Could not write the Config file to the DataTron Folder.`n" -ForegroundColor Red;
         Write-Output "The Exeception Message is:`n $ErrorMessage.`n"
         Write-Output "The Exeception Name is:`n $ErrorName.`n"
         Exit
-    }
-    "@{" | Out-File .\Config.psd1
-    }
-    MakeConfigFile
+}
 
-    Write-Host "Welcome to DataTron config mode.`n" -ForegroundColor Green
-    Write-Host "We need some input to create a configuration folder to install Relativity Data Grid`n" -ForegroundColor Green
+##Prep the file
+"@{" | Out-File .\Config.psd1
 
-    Function MakeUserName{
-        Write-Host "Enter the Relativity User Account.  Use domain\username format, for workgroup use .\username format." -ForegroundColor Cyan
-        $script:UserName = Read-Host ">>>"
-        "`t`tUserName = " + """$UserName"";" | Add-Content .\Config.psd1
-    }
-    MakeUserName
+
+Write-Host "Welcome to DataTron config mode.`n" -ForegroundColor Green
+Write-Host "We need some input to create a configuration folder to install Relativity Data Grid`n" -ForegroundColor Green
+Start-Sleep -s 1
+
+
+##Get Username
+    Write-Host "Enter the Relativity User Account.  Use domain\username format, for workgroup use .\username format." -ForegroundColor Cyan
+    $UserName = Read-Host ">>>"
+    "`t`tUserName = " + """$UserName"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
     
-    Function MakePassword{
-        Do{
-            Write-Host "Enter the Relativity User Account Password`n" -ForegroundColor Cyan
-            Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass
-            Write-Host "Re-enter the Relativity User Account Password`n" -ForegroundColor Cyan
-            Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass2
-            $readPass_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass))
-            $readPass2_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass2))
-            If ($readPass_text -ne $readPass2_text){
-                $passMatch = $false
-                Write-Host "The password does not match" -ForegroundColor Yellow
-            }
-            If ($readPass_text -eq $readPass2_text){
-                $passMatch = $true
-            } 
-        }Until ($passMatch)
-        $readPass | ConvertFrom-SecureString | Set-Variable -Name readPass
-        "`t`treadPass = " + """$readPass"";" | Add-Content .\Config.psd1
-    }
-    MakePassword
+##Get Password
+    Do{
+        Write-Host "Enter the Relativity User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass
+        Write-Host "Re-enter the Relativity User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass2
+        $readPass_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass))
+        $readPass2_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass2))
+        If ($readPass_text -ne $readPass2_text){
+            $passMatch = $false
+            Write-Host "The password does not match" -ForegroundColor Yellow
+        }
+        If ($readPass_text -eq $readPass2_text){
+            $passMatch = $true
+        } 
+    }Until ($passMatch)
+    $readPass | ConvertFrom-SecureString | Set-Variable -Name readPass
+    "`t`treadPass = " + """$readPass"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
     
-    Function GetProductionClusterName{
-        Write-Host "Enter the Name of the Production Cluster`n" -ForegroundColor Cyan
-        $Clustername = Read-Host ">>>"
-        Write-Verbose "You entered $Clustername for the clustername."
-        Write-Verbose "The valuse of array is  $array."
-        "`t`tClustername = " + """$Clustername"";" | Add-Content .\Config.psd1
+##Get Monitoring Node Name
+    Write-Host "Enter the Name of the Monitoring Node. Press enter to skip adding a monitoring Node.`n" -ForegroundColor Cyan;
+    $array = Read-Host ">>>"
+    if ($array -ne ""){
+    TestPSRemoting
+    Write-Verbose "The connection is $connectionOK"
+    Write-Verbose "The array variable is set to $array"
     }
-    GetProductionClusterName
-
-    Function GetMonitorName{
-        Write-Host "Enter the Name of the Monitoring Cluster`n" -ForegroundColor Cyan
-        $ClusternameMON = Read-Host ">>>"
-        "`t`tClusternameMON = " + """$ClusternameMON"";" | Add-Content .\Config.psd1
+    if ($array -ne "" -and $connectionOK -eq $true){
+        LogonLocal 
+        "`t`tMonitoringNodeName = " + """$array"";" | Add-Content .\Config.psd1
+        Start-Sleep -s 1  
     }
-    GetMonitorName
-
-    Function MinimumMasters{  
-        Do {
-            Write-Host "Enter minimum number of master nodes for the production cluster the value must be a positve odd integer.`n" -ForegroundColor Cyan
-            Try{
-                [int]$MinimumMasterNode = Read-Host ">>>"
-            } Catch [System.Management.Automation.ArgumentTransformationMetadataException]{
-                Write-Output "Please enter a positive odd integer for the minimum number of masters.`n"
-                $pass = $false
-                $MinimumMasterNode = 2
-            }
-            $MinimumMasterNode = [math]::abs($MinimumMasterNode)
-
-            $testODDEven = $MinimumMasterNode % 2
-
-            switch ($testODDEven)
-                {
-                    0 {"You must enter odd number"; $pass = $false}
-                    1 {"`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\Config.psd1; Start-Sleep -s 1; $pass=$true }
-
-                }   
-        } While ($pass -eq $false)
-    }
-    MinimumMasters
-
-    Function MasterPath {
-        Write-Host "Enter data path for the master node.  For example c:\data`n" -ForegroundColor Cyan
-        $PathDataMaster = Read-Host ">>>"
-        "`t`tPathDataMaster = " + """$PathDataMaster"";" | Add-Content .\Config.psd1
-    }
-    MasterPath
-
-    Function ClientPath{
-        Write-Host "Enter data path for the client node(s).  For example c:\data`n" -ForegroundColor Cyan
-        $PathDataClient = Read-Host ">>>"
-        "`t`tPathDataClient = " + """$PathDataClient"";" | Add-Content .\Config.psd1
-    }
-    ClientPath
-
-    Function DataPath{
-        Write-Host "Enter data path for the data node(s).  For example c:\data`n" -ForegroundColor Cyan
-        $PathDataData = Read-Host ">>>"
-        "`t`tPathDataData = " + """$PathDataData"";" | Add-Content .\Config.psd1
-    }
-    DataPath
-
-    Function MonitorPath{
-        Write-Host "Enter data path for the monitoring node(s).  For example c:\data`n" -ForegroundColor Cyan
-        $PathDataMonitor = Read-Host ">>>"
-        "`t`tPathDataMonitor = " + """$PathDataMonitor"";" | Add-Content .\Config.psd1
-    }
-    MonitorPath
-
-    Function SQLServer{
-        Write-Host "Enter names of the SQL servers(s).  This is a comma separated list of Primary and Distributed SQL servers excluding Invariant.`n" -ForegroundColor Cyan
-        $SQLServers = Read-Host ">>>"
-        "`t`tSQLServers = " + """$SQLServers"";" | Add-Content .\Config.psd1
-    }
-    #SQLServer --The need for a SQL Server setting is currently deprecated.
-
-    Function WebServerForShieldAuth {
-        Write-Host "Enter names of the web server for shield authentication`n" -ForegroundColor Cyan
-        $webServer = Read-Host ">>>"
-        $bytes = ""
-    
-        $webRequest = [Net.WebRequest]::Create("https://$webServer/")
-        Try { 
-            $webRequest.GetResponse()
-        }
-        Catch {}
-   
-        $cert = $webRequest.ServicePoint.Certificate
-
-        Try{
-        $bytes = $cert.Export([Security.Cryptography.X509Certificates.X509ContentType]::Cert)
-        }
-        Catch [System.Management.Automation.RuntimeException]{
-            Write-Host "An Execption has occurred. The web server could not be reached.`n" -BackgroundColor Green -ForegroundColor Black;
-        }
-        Try{
-            set-content -value $bytes -encoding byte -path ".\RelativityDataGrid\cert.cer" -ErrorAction Stop
-        }
-        Catch [System.Management.Automation.RuntimeException]{
-            Write-Host "The script will continue but the certificate was not export to the RelativityDataGrid Folder.`n" -ForegroundColor Yellow;
-            Remove-item .\RelativityDataGrid\cert.cer
-        }
-        "`t`twebServer = " + """$webServer"";" | Add-Content .\Config.psd1
-    }
-    WebServerForShieldAuth
-
-    Function BackupLocation{
-        Write-Host "Enter the backup path location`nThis must be an accessible path to the service account." -ForegroundColor Cyan
-        $ping = ""
-        Do{$PathRepoWindows = Read-Host ">>>" 
-            If ($PathRepoWindows){
-                if(![System.IO.Directory]::Exists($PathRepoWindows)){
-                Write-Host "The share location cannot be reached.  Please re-enter the backup location or press enter to skip" -ForegroundColor Yellow
-                }
-                if([System.IO.Directory]::Exists($PathRepoWindows)){
-                $ping = "success"
-                $PathRepo = ($PathRepoWindows -replace "\\", "\\")
-                "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\Config.psd1
-    `            }
-            }
-            If ($PathRepoWindows -eq ""){
-                $ping = "success"
-            } 
-        } Until($ping -eq "success")
-    }
-    BackupLocation
-
-    Function ShieldUser{
-        Write-Host "Enter name for the esadmin account`n" -ForegroundColor Cyan
-        $esUsername = Read-Host ">>>"
-        "`t`tesUsername = " + """$esUsername"";" | Add-Content .\Config.psd1
-    }
-    ShieldUser
-
-    Function MakeShieldPass{
-        Do{
-            Write-Host "Enter the Shield User Account Password`n" -ForegroundColor Cyan
-            Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass
-            Write-Host "Re-enter the Shield User Account Password`n" -ForegroundColor Cyan
-            Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass2
-            $readPass_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass))
-            $readPass2_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass2))
-            If ($readPass_text -ne $readPass2_text){
-                $passMatch = $false
-                Write-Host "The password does not match" -ForegroundColor Yellow
-            }
-            If ($readPass_text -eq $readPass2_text){
-                $passMatch = $true
-            } 
-        }Until ($passMatch)
-        $readPass | ConvertFrom-SecureString | Set-Variable -Name readESPass
-        "`t`treadESPass = " + """$readESPass"";" | Add-Content .\Config.psd1
-
-    "`t`tSecondsToWait = 1;" | Add-Content .\Config.psd1
-
-    }
-    MakeShieldPass
-
-    Function GetMonitoringNodeName{
+    If ($array -ne "" -and $connectionOK -eq $false){
+    Do {
         Write-Host "Enter the Name of the Monitoring Node. Press enter to skip adding a monitoring Node.`n" -ForegroundColor Cyan;
         $array = Read-Host ">>>"
         if ($array -ne ""){
         TestPSRemoting
-        Write-Verbose "The connection is $connectionOK"
-        Write-Verbose "The array variable is set to $array"
-        }
-        if ($array -ne "" -and $connectionOK -eq $true){
-            LogonLocal 
-            "`t`tMonitoringNodeName = " + """$array"";" | Add-Content .\Config.psd1
-            Start-Sleep -s 1  
-        }
-        If ($array -ne "" -and $connectionOK -eq $false){
-        Do {
-            Write-Host "Enter the Name of the Monitoring Node. Press enter to skip adding a monitoring Node.`n" -ForegroundColor Cyan;
-            $array = Read-Host ">>>"
-            if ($array -ne ""){
-            TestPSRemoting
-            } 
-        }While (($array -ne "") -and ($connectionOK -eq $false))
-        }
+        } 
+    }While (($array -ne "") -and ($connectionOK -eq $false))
     }
-    GetMonitoringNodeName
+    
+##Create Formatted Production Array
 
-    Function CreateFormattedProdutionArray{
-    $stackVar = "`"" + "[" + "`"" + "`""
-    Do{ 
-        Write-Host "Enter the name of each server in the production cluster.`nIf you are done adding servers type exit" -ForegroundColor Cyan
-        $array = Read-Host ">>>"
-        Write-Verbose "You entered $array."
-        if($array -eq "exit"){
-            "`t`tProductionHostsArray = " + $stackVar.Substring(0,$stackVar.Length-3) + "]" + "`";" | Add-Content .\Config.psd1
-            Break
-            }
-            if($array -ne "exit"){
-                Write-Output "You entered: $array`n"
-                Write-Output "Checking the connection to $array.`n"
+$stackVar = "`"" + "[" + "`"" + "`""
+Do{ 
+    Write-Host "Enter the name of each server in the production cluster.`nIf you are done adding servers type exit" -ForegroundColor Cyan
+    $array = Read-Host ">>>"
+    if($array -eq "exit"){
+        "`t`tProductionHostsArray = " + $stackVar.Substring(0,$stackVar.Length-3) + "]" + "`";" | Add-Content .\Config.psd1
+        }
+        if($array -ne "exit"){
+            Write-Output "You entered: $array`n"
+            Write-Output "Checking the connection to $array.`n"
            
-                TestPSRemoting
+            TestPSRemoting
 
-                if ($connectionOK -and $stackVar.Contains($array) -eq $false){
-                    $stackVar += $array + "`"" + "`"" + "," + "`"" + "`""
-                    LogonLocal
-                }
-                if($connectionOK -eq $false){
-                    Write-Host "The connection to $array was not succssesfull.  You can try $array again or enter a new server name.`n" -ForegroundColor Red;
-                    Clear-Variable array
-                }
+            if ($connectionOK -and $stackVar.Contains($array) -eq $false){
+                $stackVar += $array + "`"" + "`"" + "," + "`"" + "`""
+                LogonLocal
             }
-        }Until($array -eq "exit")
-    }
-    CreateFormattedProdutionArray
+            if($connectionOK -eq $false){
+                Write-Host "The connection to $array was not succssesfull.  You can try $array again or enter a new server name.`n" -ForegroundColor Red;
+                Clear-Variable array
+            }
+        }
+    }Until($array -eq "exit")
+Start-Sleep -s 1
 
-    Function CompleteConfigAndDisplay{
-    "}" | Add-Content .\Config.psd1
-    cls
-    Write-Host "The configuration is completed. Here is the configuration file created by this setup.`n" -ForegroundColor Green
-    Get-Content .\Config.psd1
+##Get the produciton cluster name
+    Write-Host "Enter the Name of the Production Cluster`n" -ForegroundColor Cyan
+    $Clustername = Read-Host ">>>"
+    "`t`tClustername = " + """$Clustername"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get the monitoring cluster name
+    Write-Host "Enter the Name of the Monitoring Cluster`n" -ForegroundColor Cyan
+    $ClusternameMON = Read-Host ">>>"
+    "`t`tClusternameMON = " + """$ClusternameMON"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get minimum number of master nodes
+    Do {
+        Write-Host "Enter minimum number of master nodes for the production cluster the value must be a positve odd integer.`n" -ForegroundColor Cyan
+        Try{
+        [int]$MinimumMasterNode = Read-Host ">>>"
+        } Catch [System.Management.Automation.ArgumentTransformationMetadataException]{
+        Write-Output "Please enter a positive odd integer for the minimum number of masters.`n"
+        $pass = $false
+        $MinimumMasterNode = 2
+        }
+        $MinimumMasterNode = [math]::abs($MinimumMasterNode)
+
+        $testODDEven = $MinimumMasterNode % 2
+
+        switch ($testODDEven)
+            {
+                0 {"You must enter odd number"; $pass = $false}
+                1 {"`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\Config.psd1; Start-Sleep -s 1; $pass=$true }
+
+            }   
+    } While ($pass -eq $false)
+
+
+##Get the data path for the master node
+    Write-Host "Enter data path for the master node.  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataMaster = Read-Host ">>>"
+    "`t`tPathDataMaster = " + """$PathDataMaster"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get the data path for the client node(s)
+    Write-Host "Enter data path for the client node(s).  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataClient = Read-Host ">>>"
+    "`t`tPathDataClient = " + """$PathDataClient"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get the data path for the data node(s)
+    Write-Host "Enter data path for the data node(s).  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataData = Read-Host ">>>"
+    "`t`tPathDataData = " + """$PathDataData"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get the data path for the monitoring node(s)
+    Write-Host "Enter data path for the monitoring node(s).  For example c:\data`n" -ForegroundColor Cyan
+    $PathDataMonitor = Read-Host ">>>"
+    "`t`tPathDataMonitor = " + """$PathDataMonitor"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get the name of the SQL server(s)
+    Write-Host "Enter names of the SQL servers(s).  This is a comma separated list of Primary and Distributed SQL servers excluding Invariant.`n" -ForegroundColor Cyan
+    $SQLServers = Read-Host ">>>"
+    "`t`tSQLServers = " + """$SQLServers"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get the name of the web server for shield authentication
+    Write-Host "Enter names of the web server for shield authentication`n" -ForegroundColor Cyan
+    $webServer = Read-Host ">>>"
+    $bytes = ""
+    
+    $webRequest = [Net.WebRequest]::Create("https://$webServer/")
+    Try { 
+        $webRequest.GetResponse()
     }
-    CompleteConfigAndDisplay
+    Catch {}
+   
+    $cert = $webRequest.ServicePoint.Certificate
+
+    Try{
+    $bytes = $cert.Export([Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+    }
+    Catch [System.Management.Automation.RuntimeException]{
+        Write-Host "An Execption has occurred. The web server could not be reached.`n" -BackgroundColor Green -ForegroundColor Black;
+    }
+    Try{
+        set-content -value $bytes -encoding byte -path ".\RelativityDataGrid\cert.cer" -ErrorAction Stop
+    }
+    Catch [System.Management.Automation.RuntimeException]{
+        Write-Host "The script will continue but the certificate was not export to the RelativityDataGrid Folder.`n" -ForegroundColor Yellow;
+        Remove-item .\RelativityDataGrid\cert.cer
+    }
+    "`t`twebServer = " + """$webServer"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Get the backup path location
+    Write-Host "Enter the backup path location`nThis must be an accessible path to the service account." -ForegroundColor Cyan
+    $ping = ""
+    Do{$PathRepoWindows = Read-Host ">>>" 
+        If ($PathRepoWindows){
+            if(![System.IO.Directory]::Exists($PathRepoWindows)){
+            Write-Host "The share location cannot be reached.  Please re-enter the backup location or press enter to skip" -ForegroundColor Yellow
+            }
+            if([System.IO.Directory]::Exists($PathRepoWindows)){
+            $ping = "success"
+            $PathRepo = ($PathRepoWindows -replace "\\", "\\")
+            "`t`tPathRepo = " + "`"" + "[" + "`"" + """$PathRepo""" + "`"" +"]" + "`";" | Add-Content .\Config.psd1
+            Start-Sleep -s 1
+`            }
+        }
+        If ($PathRepoWindows -eq ""){
+            $ping = "success"
+        } 
+    } Until($ping -eq "success")
+
+##Create a new for the shield useraccount
+    Write-Host "Enter name for the esadmin account`n" -ForegroundColor Cyan
+    $esUsername = Read-Host ">>>"
+    "`t`tesUsername = " + """$esUsername"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+##Create a new for the shield useraccount passoword
+    Do{
+        Write-Host "Enter the Shield User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass
+        Write-Host "Re-enter the Shield User Account Password`n" -ForegroundColor Cyan
+        Read-Host "<<Enter Password>>" -AsSecureString | Set-Variable -Name readPass2
+        $readPass_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass))
+        $readPass2_text = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($readPass2))
+        If ($readPass_text -ne $readPass2_text){
+            $passMatch = $false
+            Write-Host "The password does not match" -ForegroundColor Yellow
+        }
+        If ($readPass_text -eq $readPass2_text){
+            $passMatch = $true
+        } 
+    }Until ($passMatch)
+    $readPass | ConvertFrom-SecureString | Set-Variable -Name readESPass
+    "`t`treadESPass = " + """$readESPass"";" | Add-Content .\Config.psd1
+    Start-Sleep -s 1
+
+"`t`tSecondsToWait = 1;" | Add-Content .\Config.psd1
+"}" | Add-Content .\Config.psd1
+cls
+Write-Host "The configuration is completed. Here is the configuration file created by this setup.`n" -ForegroundColor Green
+Get-Content .\Config.psd1
 }
-
 
 #Installation run
 else{
@@ -818,20 +785,24 @@ else{
         $esPassword = $Using:esPassword
         $driveLetter = $Using:driveLetter
 
-
+        Function UpdateYMLSetting{
+        param(
+        $driveLetter,
+        $settingName,
+        $settingValue
+        )
+        $yml = Get-Content $driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
+        $result = foreach ($line in $yml) {$line.Replace($settingName, $settingValue)}
+        $result | Out-File $driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+        }
  
                 if ($Using:IsMaster){  
  
                     # Update the clustername
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("cluster.name: <<clustername>>", "cluster.name: " + $Clustername)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii 
-
+                    UpdateYMLSetting -driveLetter $driveLetter -settingName "cluster.name: <<clustername>>" -settingValue "cluster.name: " + $Clustername
+ 
                     # Update the node name
-
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.name: <<nodename>>", "node.name: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+                    UpdateYMLSetting -driveLetter $driveLetter -settingName "node.name: <<nodename>>", "node.name: " -settingValue "node.name: " + $NodeName
  
                     # Update discovery.zen.minimum_master_nodes
                     $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
