@@ -1,77 +1,74 @@
 ﻿<#
 .SYNOPSIS
-This script is used to install Relativity Data Grid to a server or "node", refered to as a "install run". 
+DataTron - the Relativity Data Grid Elastic PowerShell installation script
 
 .DESCRIPTION
 
-DataTron - the Relativity Data Grid PowerShell installation script
 Data Tron is a PowerShell script that installs Relativity Data Grid on remote servers.
 The DataTron PowerShell script is public open source and constantly evolving. 
-GetHub Download link for DataTron PowerShell: DataTron PowerShell download
+GetHub Download link for DataTron PowerShell: https://github.com/relativitydev/datatron
 The download is only the PowerShell script used to install Relativity Data Grid.  
-The DataTron package itself is available from kCura Client Services.  You must be kCura client with a valid Relativity Data Grid license to obtain the DataTron package which includes Relativity Data Grid.
+The DataTron package itself is available from kCura Client Services.  
+You must be kCura client with a valid Relativity Data Grid license to obtain the DataTron package which includes Relativity Data Grid.
 
-Definitions:
-Node:  A machine that will run elastic search and will be part of the production cluster or the monitoring cluster.  The node must have PowerShell installed.
-Command Center: The machine from which this script is run.  It must have PowerShell installed.
+.DEFINITIONS
+
+Node:  A machine that will run elastic search and will be part of the production cluster or the monitoring cluster.  
+The node must have PowerShell installed.
+Command Center: The machine from which this script is run.  It must have PowerShell 4 or higher installed.
 Configuration Run:  A run of the script to create a Config.psd1 file to be used by as Install Run.
 Install run:  A run of the script with intent to install Relativity Data Grid to a node.
 Shield Web Server:  The Relativity web server which the production cluster use for shield authentication.
 
+.ACTIONS
+
 Create the Command Center.
 1.) Unzip the DataTron Folder provided by kCura Client Support on a root drive of the Command Center.
 2.) Unzipped the kibana-4.5.4-windows folder into the newly created DataTron folder.  This package can be downloaded here:  Kibana Download
-3.) Copy the certificate used by the Shield web server it must be in the form of a .cer file into the elasticsearch-main folder in the RelativityDataGrid folder in the DataTron folder.
-4.) Add a valid JDK 8 installer into the elasticsearch-main folder in the RelativityDataGrid folder in the DataTron folder.
-5.) Check the execution policy for the Command Center using, Get-ExecutionPolicy.  If the execution policy is restricted it must be changed to remote signed using.  Set-ExecutionPolicy RemoteSigned.
+3.) Add a valid JDK 8 installer into the elasticsearch-main folder in the RelativityDataGrid folder in the DataTron folder.
+4.) Check the execution policy for the Command Center using, Get-ExecutionPolicy.  
+    If the execution policy is restricted it must be changed to remote signed using.  Set-ExecutionPolicy RemoteSigned.
+
 Do a configuration Run.
+
 The configuration run is kicked off by opening PowerShell as an administration, navigating to the DataTron folder and running the following command:
-.\Run-DataTron6.0.ps1 -Config
+.\Run-DataTron.ps1 -Config
 The configuration requires the following information:
 > The service account username and password.
 > A name for the Production node.
 > A name for the monitoring node (optional: enter blank to skip).
 > The names of all nodes that will be in the production array this will be Master(s), Data(s), and Client(s).
-> You will specify the minimum numbers of masters.  Should be an odd number.  https://www.elastic.co/guide/en/elasticsearch/reference/2.3/modules-node.html#split-brain
+> You will specify the minimum numbers of masters.  
+    Must be an odd number.  https://www.elastic.co/guide/en/elasticsearch/reference/2.3/modules-node.html#split-brain
 > A Data path must be added for each type of node.  For example, c:\data, f:\DataGrid, g:\relativitydatagrid\data, etc.  This is a local drive.
 > The name of all Primary and Distributed SQL servers in the Relativity Environment.  This is a comma separated list.  Do not include Invariant.
-> The Shield Web Server (see above definitions).  This must be the name that will correspond with the name on the certificate added during creation of the Command Center.
+> The Shield Web Server (see above definitions).  
+    This must be the name that will correspond with the name on the certificate added during creation of the Command Center.
+
 Do installation Runs.
 A good order of operations to do the install runs in is as follows:
-Production cluster Master node(s).
+
 Monitoring cluster Monitoring node.
+Production cluster Master node(s).
 Production cluster Data node(s).
 Production cluster Client node(s).
 
-The longest sections of the script are the Install of Java and the copying of folders.  If the script needs to be re-run due so errors there are switches to stop reinstall of java or recopying of the folders.
-You can use one or both switches if needed.
-In the config folder in the RelativityDataGrid folder there is a resetyml.ps1 that will reset the elasticsearch.yml back to default if needed.
-
 .NOTES
 
-The longest sections of the script are the Install of Java and the copying of folders.  If the script needs to be re-run due so errors there are switches to stop reinstall of java or recopying of the folders.
+The longest sections of the script are the Install of Java and the copying of folders.  
+If the script needs to be re-run due so errors there are switches to stop reinstall of java or recopying of the folders.
 You can use one or both switches if needed.
 In the config folder in the RelativityDataGrid folder there is a resetyml.ps1 that will reset the elasticsearch.yml back to default if needed.
 
 .PARAMETER DriveLetter
-The drive letter to host the Relativity Data Grid folder and from which the Elasticsearch service will run.  This must be a single character.  Don't use a colon.
-
-This is a mandatory parameter during a installation run.
+The drive letter to host the Relativity Data Grid folder and from which the Elasticsearch service will run.  
+This must be a single character.  Don't use a colon.
 
 .PARAMETER MachineName
 The name of the server where Relativity Data Grid will be installed.
 
-.PARAMETER IsMaster
-Use this parameter to create a master node for the production cluster.
-
-.PARAMETER IsClient
-Use this parameter to create a client node for the production cluster.
-
-.PARAMETER IsData
-Use this parameter to create a data node for the production cluster.
-
-.PARAMETER IsMonitor
-Use this parameter to create a monitoring node for the monitoring cluster.
+.PARAMETER nodeType
+Indicates the type of node you are creating accepts the values Master, Client, Data or Monitor
 
 .PARAMETER dontCopyFolders
 Specify this switch to skip copying of the Relativity Data Grid folder.
@@ -88,60 +85,55 @@ Use this switch to create a config file for an install run.
 This will create a Config.psd1 file in the directory for and install run.
 This is a switch and cannot be run with any other parameters.
 Once a Config.psd1 file is created the script can be used to do an install run.
+Mistakes made during the Config.psd1 file creation can be manually altered using a Text Editor.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename -IsMaster
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName -nodeType Master
 
- The above will install DataGrid to the drive letter c on the machine named nodename and will make the node a monitoring node for the production cluster.  It is not a member of the production cluster.
+ The above will install DataGrid to the drive letter c on the machine named nodename and will make the node a monitoring node for the production cluster.  
+ It is not a member of the production cluster.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter g -machineName nodename2 -IsMonitor
+.\DataTron\Run-DataTron.ps1 -driveLetter g -machineName nodename2 -nodeType Monitor
 
  The above will install DataGrid to the drive letter g on the machine named nodename2 and will make the node a production master node.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -IsData
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -nodeType Data
 
 The above will install DataGrid to the drive letter c on the machine named nodename3 and will make the node a production data node.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -IsClient
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName nodename3 -nodeTyep Client
+
 The above will install DataGrid to the drive letter c on the machine named nodename3 and will make the node a production client node.
 
 .EXAMPLE
-.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName someserver -IsMaster -dontInstallJava -dontCopyfolders
+.\DataTron\Run-DataTron.ps1 -driveLetter c -machineName someserver -nodeType Master -dontInstallJava -dontCopyfolders
 
 Does an install run but does not install Java and does not copy the installation folders. Both switches can be used or either one singly.
 
 #>
 [CmdletBinding(DefaultParameterSetName='Install')]
 param(
+[Parameter(Mandatory=$true, ParameterSetName = 'Config')]
+[switch]$Config,
+
 [Parameter(Mandatory=$true, ParameterSetName = 'Install')]
 [char]$driveLetter,
 
 [Parameter(Mandatory=$true, ParameterSetName = 'Install')]
 [string[]]$machineName,
 
-[Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[switch]$IsMaster,
-
-[Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[switch]$IsClient,
-
-[Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[switch]$IsData,
-
-[Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[switch]$IsMonitor,
+[Parameter(Mandatory=$true, ParameterSetName = 'Install')]
+[ValidateSet('Master','Data','Client','Monitor')]
+[System.String]$nodeType,
 
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
 [switch]$dontCopyFolders,
 
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
-[switch]$dontInstalljava,
-
-[Parameter(Mandatory=$true, ParameterSetName = 'Config')]
-[switch]$Config
+[switch]$dontInstalljava
 )
 If($PSVersionTable.PSVersion.Major -lt 4){
 Write-Host "The PowerShell verison is $PSVersionTable.PSVersion.`nVersion 4.0 or higher required."
@@ -359,23 +351,25 @@ if($Config){
 
     Function MinimumMasters{  
         Do {
-            Write-Host "Enter minimum number of master nodes for the production cluster the value must be a positve odd integer.`n" -ForegroundColor Cyan
+            Write-Host "Enter number of master nodes. This must be an odd number.`n" -ForegroundColor Cyan
             Try{
-                [int]$MinimumMasterNode = Read-Host ">>>"
+                [decimal]$MinimumMasterNode = Read-Host ">>>"
             } Catch [System.Management.Automation.ArgumentTransformationMetadataException]{
-                Write-Output "Please enter a positive odd integer for the minimum number of masters.`n"
+                Write-Output "The number of master nodes must be odd.`n"
                 $pass = $false
-                $MinimumMasterNode = 2
             }
-            $MinimumMasterNode = [math]::abs($MinimumMasterNode)
+            [decimal]$MinimumMasterNode = [math]::abs($MinimumMasterNode)
 
-            $testODDEven = $MinimumMasterNode % 2
-
-            switch ($testODDEven)
+            switch ($MinimumMasterNode % 2)
                 {
-                    0 {"You must enter odd number"; $pass = $false}
-                    1 {"`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\Config.psd1; Start-Sleep -s 1; $pass=$true }
-
+                0 {
+                    "You must enter odd number"; $pass = $false
+                  }
+                1 {
+                    $MinimumMasterNode = $MinimumMasterNode/2+1;
+                    $MinimumMasterNode = [math]::Floor($MinimumMasterNode);
+                    "`t`tMinimumMasterNode = " + "$MinimumMasterNode;" | Add-Content .\Config.psd1; $pass=$true 
+                  }
                 }   
         } While ($pass -eq $false)
     }
@@ -714,42 +708,19 @@ else{
 
     ##Create environmental variables on the node.
 
-        #start
-
         Write-Verbose "Begin setting the environmental variable for Java on $target.`n"
 
         if(Resolve-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*"){
-                 
             Invoke-Command -ComputerName $target -ScriptBlock {
-                Set-ItemProperty "HKLM:SYSTEM\ControlSet001\Control\Session Manager\Environment" KCURA_JAVA_HOME -value "$Using:driveLetter`:\Program Files\Java\jdk8"
-                Set-ItemProperty "HKLM:SYSTEM\CurrentControlSet\Control\Session Manager\Environment" KCURA_JAVA_HOME -value "$Using:driveLetter`:\Program Files\Java\jdk8"
+                $pathValue = (resolve-path "C:\Program Files\Java\jdk*").Path
+                [Environment]::SetEnvironmentVariable("KCURA_JAVA_HOME", $pathValue, "Machine")               
                 }
-            $hostName = hostname
-            if(!("$target" -eq $hostName)){
-                if (!(Get-WmiObject -Class Win32_ComputerSystem -ComputerName $target).UserName){
-                    Try{
-                    Get-WmiObject win32_operatingsystem -ComputerName $target | Invoke-WMIMethod -name Win32Shutdown -ArgumentList @(4) -ErrorAction Stop | Out-Null
-                    }Catch [System.Management.ManagementException]{
-                                $ErrorMessage = $_.Exception.Message
-                                $ErrorName = $_.Exception.GetType().FullName
-                                Write-Verbose "An Execption has occurred.`n"
-                                Write-Verbose "The Exeception Message is:`n $ErrorMessage.`n"
-                                Write-Verbose "The Exeception Name is:`n $ErrorName.`n"
-                    }
-                }
-            }
-
         }else{
             Write-Host "Java is not installed on $target.`n" -ForegroundColor Red;
-
             Write-Host "If you are using the -dontInstallJava switch try the script again without that switch.`n"
             Exit
         }
-    
-
         Write-Verbose "End setting the environmental variable for Java on $target.`n"
-
-        #end
 
 
     ##Install the certs into Windows and Java
@@ -784,17 +755,6 @@ else{
 
     ##Update the YML file
 
-        #start
-
-        If($IsMaster){
-        $nodeType = "Master"
-        }elseif($IsClient){
-        $nodeType = "Client"
-        }elseif($IsData){
-        $nodeType = "Data"
-        }elseif($IsMonitor){
-        $nodeType = "Monitor"
-        }
 
         Write-Verbose "Updating the elasticsearch YML on $target the selected role is $nodeType."
 
@@ -820,7 +780,7 @@ else{
 
 
  
-                if ($Using:IsMaster){  
+                if ($Using:nodeType -eq 'Master'){  
  
                     # Update the clustername
                     $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
@@ -916,7 +876,7 @@ else{
 
                 }
  
-                elseif ($Using:IsClient) {
+                elseif ($Using:nodeType -eq 'Client') {
  
                     # Update the clustername
                     $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
@@ -1012,7 +972,7 @@ else{
                     }
                 }
  
-                elseif ($Using:IsData){
+                elseif ($Using:nodeType -eq 'Data'){
                     # Update the clustername
                     $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
                     $result = foreach ($line in $yml) {$line.Replace("cluster.name: <<clustername>>", "cluster.name: " + $Clustername)}
@@ -1102,7 +1062,7 @@ else{
                     }
                 }
  
-                elseif ($Using:IsMonitor) {
+                elseif ($Using:nodeType -eq 'Monitor') {
  
                     # Update the clustername
                     $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
@@ -1186,22 +1146,18 @@ else{
 
         #end
 
-    ##Install ElasticSearch service
-
-        #start
-
         Write-Host "Installing Elasticsearch service on $target.`n" -ForegroundColor Green
 
         foreach($target in $machineName){
             Invoke-Command -ComputerName $target -ScriptBlock {
+                $JavaPath = Resolve-Path "$Using:driveLetter`:\Program Files\Java\jdk*"
+                $env:KCURA_JAVA_HOME = $JavaPath
                 Set-Location -Path (Get-Location).Drive.Root
                 Set-Location "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
                 & .\kservice.bat "install"
             }
         }
         Write-Verbose "Finished installing Elasticsearch service on $target."
-
-        #end
 
 
     ##Update the service name and password
@@ -1327,6 +1283,8 @@ else{
         Write-Host "Setting the elastic search username and password on $target.`n" -ForegroundColor Green
 
         Invoke-Command -ComputerName $machineName -ScriptBlock {
+            $JavaPath = Resolve-Path "$Using:driveLetter`:\Program Files\Java\jdk*"
+            $env:KCURA_JAVA_HOME = $JavaPath
             Set-Location -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\shield"
             $list = ".\esusers.bat useradd " + $Using:esUsername + " -p " + $Using:esPassword + " -r admin"
             $result = Invoke-Expression $list
