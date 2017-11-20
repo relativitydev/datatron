@@ -683,7 +683,7 @@ else{
                 Write-Host "Expect a long delay as Java installs.`n" -ForegroundColor Yellow
 
                     Invoke-Command $target -ScriptBlock {
-                        $vers = "$Using:driveLetter`:\RelativityDataGrid\jdk-8*"
+                        $vers = "$Using:driveLetter`:\RelativityDataGrid\jdk8*"
                         $version = Get-ChildItem $vers | Select-Object Name -First 1 -ExpandProperty Name
                         $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
                         $jLog = "$Using:driveLetter`:\javainstallog.txt"
