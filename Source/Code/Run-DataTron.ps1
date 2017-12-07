@@ -114,6 +114,7 @@ The above will install DataGrid to the drive letter c on the machine named noden
 Does an install run but does not install Java and does not copy the installation folders. Both switches can be used or either one singly.
 
 #>
+#region Parameters.
 [CmdletBinding(DefaultParameterSetName='Install')]
 param(
 [Parameter(Mandatory=$true, ParameterSetName = 'Config')]
@@ -135,52 +136,58 @@ param(
 [Parameter(Mandatory=$false, ParameterSetName = 'Install')]
 [switch]$dontInstalljava
 )
+$ProgressPreference='SilentlyContinue'
+#endregion
+
+#region Connection Tests
+#region Check PowerShell version.  Break if less than 4.0.
 If($PSVersionTable.PSVersion.Major -lt 4){
 Write-Host "The PowerShell verison is $PSVersionTable.PSVersion.`nVersion 4.0 or higher required."
 Break
 }
-$ProgressPreference='SilentlyContinue'
+#endregion
 
+#region LogonLocal function. Set the UserAccount to have logon as a service right on the remote machine.
 function LogonLocal {
 Invoke-Command -ComputerName $array -ScriptBlock {
+#region Set $accountToAdd to just the username from the $UserName variable.
 $UserName = $Using:UserName
-$separator = "\"
-$split = $UserName.Split($separator, [System.StringSplitOptions]::RemoveEmptyEntries)
+$split = $UserName.Split("\", [System.StringSplitOptions]::RemoveEmptyEntries)
 $accountToAdd = $split[1]
+#endregion
 
-$sidstr = $null
+#region Set $sidstr to the value of the AccountDomainSid
 try {
-	$ntprincipal = new-object System.Security.Principal.NTAccount "$accountToAdd"
-	$sid = $ntprincipal.Translate([System.Security.Principal.SecurityIdentifier])
+	$ntprincipal = new-object System.Security.Principal.NTAccount "$accountToAdd" -ErrorAction Stop
+    Set-Variable -Name sid -Value $ntprincipal.Translate([System.Security.Principal.SecurityIdentifier]) -ErrorAction Stop
 	$sidstr = $sid.Value.ToString()
-} catch {
-	$sidstr = $null
+    }catch [System.Management.Automation.MethodInvocationException]{
+        Write-Host "Check the username in the Config.psd1 file.`n" -ForegroundColor Red;
+    }catch [System.Management.Automation.RuntimeException]{
+        Write-Host "Check the username in the Config.psd1 file.`n" -ForegroundColor Red;
+    }
 }
+#endregion
 
-Write-Verbose "Account: $($accountToAdd)"
-Write-Verbose "Account SID: $($sidstr)"
-
+#region Set $securityPolices array to contain the security policies of the server.
 $tmp = [System.IO.Path]::GetTempFileName()
-
-Write-Verbose "Export current Local Security Policy"
-
-function exportSec{
+function ExportSecurityPolicy{
     secedit.exe /export /cfg "$($tmp)" 
 }
-exportSec | Out-Null
+ExportSecurityPolicy | Out-Null
+$securityPolicies = Get-Content -Path $tmp 
+#endregion
 
-$c = Get-Content -Path $tmp 
-
-$currentSetting = ""
-
-foreach($s in $c) {
-	if( $s -like "SeServiceLogonRight*") {
-		$x = $s.split("=",[System.StringSplitOptions]::RemoveEmptyEntries)
+#region Set $currentSetting to the sids of the accounts that have logon as a service right.
+foreach($securityPolicy in $securityPolicies) {
+	if( $securityPolicy -like "SeServiceLogonRight*") {
+		$x = $securityPolicy.split("=",[System.StringSplitOptions]::RemoveEmptyEntries)
 		$currentSetting = $x[1].Trim()
-
 	}
 }
+#endregion
 
+#region Check current settings if the sid in $sidstr does not exist add it to the Security Policy.
 if( $currentSetting -notlike "*$($sidstr)*" ) {
 	Write-Host "Modify Setting ""Logon as a Service""" -ForegroundColor DarkCyan
 	
@@ -189,9 +196,8 @@ if( $currentSetting -notlike "*$($sidstr)*" ) {
 	} else {
 		$currentSetting = "*$($sidstr),$($currentSetting)"
 	}
-	
-	
-	$outfile = @"
+		
+$outfile = @"
 [Unicode]
 Unicode=yes
 [Version]
@@ -202,7 +208,6 @@ SeServiceLogonRight = $($currentSetting)
 "@
 
 	$tmp2 = [System.IO.Path]::GetTempFileName()
-	
 	
 	Write-Host "Import new settings to Local Security Policy" -ForegroundColor DarkCyan
 	$outfile | Set-Content -Path $tmp2 -Encoding Unicode -Force
@@ -215,14 +220,15 @@ SeServiceLogonRight = $($currentSetting)
 	} finally {	
 		Pop-Location
 	}
-} else {
+} 
+else {
 	Write-Host "NO ACTIONS REQUIRED! Account already in ""Logon as a Service""" -ForegroundColor DarkCyan
 }
+#endregion
+}
+#endregion
 
-Write-Host "Done." -ForegroundColor DarkCyan
-
-}}
-
+#region TestPSRemoting function. Tests the network connection to the host over 5985 PS port.  Add the server to the trusted Host list if needed.
 function TestPSRemoting {
 
 $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
@@ -231,7 +237,7 @@ $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
         $script:connectionOK = $true
         Try{
         Invoke-Command -ComputerName $array {} -ErrorAction Stop
-        }Catch{
+        }Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{
             $ErrorMessage = $_.Exception.Message
             $script:connectionOK = $false
             Write-Verbose "The Windows Remoting service on $array did not successfully connect.`n"
@@ -250,7 +256,7 @@ $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
                         Invoke-Command -ComputerName $array {} -ErrorAction Stop
                         $script:connectionOK = $true
                         Write-Host "The connection to $array was successful." -ForegroundColor Green
-                        }Catch{$script:connectionOK = $false}
+                        }Catch {$script:connectionOK = $false}
                 }else{
                     if($trustedHostListArray.get($i) -eq ""){
                         Write-Verbose "Adding $array to the list of trusted hosts for WinRM.`n"
@@ -260,7 +266,7 @@ $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
                             Invoke-Command -ComputerName $array {} -ErrorAction Stop
                             $script:connectionOK = $true
                             Write-Host "The connection to $array was successful." -ForegroundColor Green
-                            }Catch{$script:connectionOK = $false}
+                            }Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{$script:connectionOK = $false}
                     }else{
                         Write-Verbose "Adding $array to the list of trusted hosts for WinRM.`n"
                         $trustedHostListString += ",$array"
@@ -269,7 +275,7 @@ $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
                             Invoke-Command -ComputerName $array {} -ErrorAction Stop
                             Write-Host "The connection to $array was successful." -ForegroundColor Green
                             $script:connectionOK = $true
-                            }Catch{$script:connectionOK = $false}
+                            }Catch [System.Management.Automation.Remoting.PSRemotingTransportException]{$script:connectionOK = $false}
                     }
                 }
             }    
@@ -281,7 +287,10 @@ $connectionTest = Test-NetConnection $array -port 5985 -InformationLevel Quiet
         $script:connectionOK = $false
     }
 }
+#endregion
+#endregion
 
+#region Configuration Run
 if($Config){
     clear
     Write-Verbose "Get Datatron Data from the User."
@@ -554,22 +563,18 @@ if($Config){
     }
     CompleteConfigAndDisplay
 }
+#endregion
 
-
-#Installation run
+#region Installation Run.
 else{
 
-    #Import Variables from the psd1 file in the same directory as this script.
+    #region Import Variables from the psd1 file in the same directory as this script.
     Set-Location -Path (Get-Location).Drive.Root
     $currentScriptDir = ".\DataTron"
     Import-LocalizedData -BaseDirectory $currentScriptDir -FileName Config.psd1 -BindingVariable Data
-
-
-    #Variables for "Update the servicename"
     [string]$UserName = $Data.UserName
     [string]$readPass = $Data.readPass
     [int]$SecondsToWait = $Data.SecondsToWait
-    #Variables for "Update YML"
     [String]$MonitoringNodeName = $Data.MonitoringNodeName
     [String[]]$ProductionHostsArray = $Data.ProductionHostsArray
     [String]$Clustername = $Data.Clustername
@@ -582,11 +587,11 @@ else{
     [String]$SQLServers = $Data.SQLServers
     [String]$WebServer = $Data.WebServer
     [String]$PathRepo = $Data.PathRepo
-    #Variables for shield
     [string]$esUsername = $Data.esUsername
     [string]$readESPass = $Data.readESPass
+    #endregion
 
-    #Convert $readPass to clear text
+    #region Convert the obfuscated passwords into plain text.
     $readPass| ConvertTo-SecureString | Set-Variable -Name passSecString
     $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($passSecString)
     $Password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
@@ -594,26 +599,24 @@ else{
     $readESPass| ConvertTo-SecureString | Set-Variable -Name passSecString
     $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($passSecString)
     $esPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+    #endregion
 
-
-    ##Test the network connection to the target passed.
+    #region Test the network connection to the target passed.
     Write-Host "Checking the connection to $machineName.`n" -ForegroundColor Green
     if (Test-Connection -ComputerName $machineName -Quiet -Count 1){
     }else{
         Write-Host "The connection to $machineName was not succssesfull would you like to try to ping the server?`n" -ForegroundColor Yellow
-        $ping = Read-Host "Press enter to not ping $machineName and stop the script.`nType yes to ping $machineName.`n"
+        $ping = Read-Host "Press enter to stop the script.`nType yes to ping $machineName again.`n"
 
     If($ping -eq "yes"){
         Test-Connection -ComputerName $machineName
     }
-
-    #Land back in DataTron Folder.
     Set-Location .\DataTron
     break}
-
     Write-Host "Connection to $machineName successful.`n" -ForegroundColor Green
+    #endregion
 
-    #Test the drive letter passed.
+    #region Test the drive letter exits from the driveLetter parameter.
     Write-Verbose "Testing the drive letter passed in arguement -driveLetter"
     $driveLetterString = $driveLetter.ToString()
     $fullDrive = $driveLetterString.ToUpper() + ":"
@@ -625,15 +628,15 @@ else{
         Write-Host "The drive $driveLetter was not found.  Check the drive letter on $machineName." -ForegroundColor Red
         exit
     }
+    #endregion
 
-    #Begin The installer.
-
+    #region The installer.
     Foreach($target in $machineName){ 
     Write-Output "Begin Data Tron:`n"
 
-    ##Copy the Data Grid Package
+    #region Copy the Data Grid Package.
     
-        Write-Verbose "Start copying Relativity folders"
+        Write-Verbose "Start copying Relativity Data Grid folders"
 
         If($dontCopyFolders -eq $false){
 
@@ -670,11 +673,9 @@ else{
 
             Write-Verbose "Finished copying folders to $target."
         }
-        #end
+     #endregion
 
-    #Install Java Silently.
-
-        #start
+    #region Install Java Silently.
         IF((Test-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*") -eq $false){
 
             If($dontInstalljava -eq $false){
@@ -683,7 +684,7 @@ else{
                 Write-Host "Expect a long delay as Java installs.`n" -ForegroundColor Yellow
 
                     Invoke-Command $target -ScriptBlock {
-                        $vers = "$Using:driveLetter`:\RelativityDataGrid\jdk8*"
+                        $vers = "$Using:driveLetter`:\RelativityDataGrid\jdk*"
                         $version = Get-ChildItem $vers | Select-Object Name -First 1 -ExpandProperty Name
                         $filePath = "$Using:driveLetter`:\RelativityDataGrid\$version"
                         $jLog = "$Using:driveLetter`:\javainstallog.txt"
@@ -704,9 +705,9 @@ else{
             Write-Host "Java failed to install on $target." 
             Exit
         }
-        #end
+    #endregion
 
-    ##Create environmental variables on the node.
+    #region Create environmental variables on the node.
 
         Write-Verbose "Begin setting the environmental variable for Java on $target.`n"
 
@@ -721,14 +722,10 @@ else{
             Exit
         }
         Write-Verbose "End setting the environmental variable for Java on $target.`n"
+    #endregion
 
-
-    ##Install the certs into Windows and Java
-
-        #start
-
+    #region Install the certs into Windows and Java
         Write-Verbose "Begin adding certificates to Windows and Java to $target.`n"
-
         Invoke-Command $target -ScriptBlock {
             #Windows
 
@@ -747,20 +744,17 @@ else{
             & .\keytool.exe $list 2>&1 | %{ "$_" } | Out-Null
             Write-Verbose "Done with import from keytool."
         }
-
-
         Write-Verbose "End adding certificates to Windows and Java to $target."
+    #endregion
 
-        #end
-
-    ##Update the YML file
-
+    #region Update the YML file.
 
         Write-Verbose "Updating the elasticsearch YML on $target the selected role is $nodeType."
 
         foreach($target in $machineName){
 
         Invoke-Command -ComputerName $target -ScriptBlock {
+        #region Import the variables with Using statements.
         $Clustername = $Using:Clustername
         $ClusternameMON = $Using:ClusternameMON
         $NodeName = $Using:machineName
@@ -777,9 +771,8 @@ else{
         $esUsername = $Using:esUsername
         $esPassword = $Using:esPassword
         $driveLetter = $Using:driveLetter
+        #endregion
 
-
- 
                 if ($Using:nodeType -eq 'Master'){  
  
                     # Update the clustername
@@ -875,7 +868,7 @@ else{
 
 
                 }
- 
+
                 elseif ($Using:nodeType -eq 'Client') {
  
                     # Update the clustername
@@ -1134,35 +1127,30 @@ else{
                             Write-Output "The Exeception Name is:`n $ErrorName.`n"
                         }
                 }
-
-            #end script block
             }
-
-        #end foreach loop in Update YML
-
         }
-
         Write-Verbose "YML Update Completed."
+    #endregion
 
-        #end
+    #region TODO update the kservice.bat for the correct RAM requirements.
+    #endregion
 
-        Write-Host "Installing Elasticsearch service on $target.`n" -ForegroundColor Green
+    #region Install the Elastic Service
+    Write-Host "Installing Elasticsearch service on $target.`n" -ForegroundColor Green
 
-        foreach($target in $machineName){
-            Invoke-Command -ComputerName $target -ScriptBlock {
-                $JavaPath = Resolve-Path "$Using:driveLetter`:\Program Files\Java\jdk*"
-                $env:KCURA_JAVA_HOME = $JavaPath
-                Set-Location -Path (Get-Location).Drive.Root
-                Set-Location "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
-                & .\kservice.bat "install"
-            }
+    foreach($target in $machineName){
+        Invoke-Command -ComputerName $target -ScriptBlock {
+            $JavaPath = Resolve-Path "$Using:driveLetter`:\Program Files\Java\jdk*"
+            $env:KCURA_JAVA_HOME = $JavaPath
+            Set-Location -Path (Get-Location).Drive.Root
+            Set-Location "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\"
+            & .\kservice.bat "install"
         }
-        Write-Verbose "Finished installing Elasticsearch service on $target."
+    }
+    Write-Verbose "Finished installing Elasticsearch service on $target."
+    #endregion
 
-
-    ##Update the service name and password
-
-        #start
+    #region Update the service name and password.
 
         Invoke-Command $machineName -ScriptBlock {
 
@@ -1275,11 +1263,9 @@ else{
 
         }
 
-        #end
+    #endregion
 
-    ##Make ESUsers
-
-
+    #region Create an esuser on each node.
         Write-Host "Setting the elastic search username and password on $target.`n" -ForegroundColor Green
 
         Invoke-Command -ComputerName $machineName -ScriptBlock {
@@ -1290,20 +1276,17 @@ else{
             $result = Invoke-Expression $list
             & .\esusers.bat list | Out-Null
         }
-
         Write-Verbose "Esuser added."
-
+    #endregion
 
     Write-Verbose "End Data Grid Installation."
-    ##End Initial For Loop
     } 
+    #endregion
 
+    #region Post-Install
 
-    ##Post-Install
-
+    #region Start-ESService function.  Starts the Elastic Service.
     function Start-ESService {
-        ##Check the elastic search service windows service status
-
         Write-Host "Checking the elastic search service.`n" -ForegroundColor Green
 
         $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
@@ -1317,11 +1300,10 @@ else{
             Start-Sleep -s 10
         }
     }
-
+    #endregion
     Start-ESService
 
-
-    ##Check the ES service
+    #region Check-ESService function. Check if the Elastic service is started.
 
     Function Check-ESService{
     $check = Get-Service -Name elasticsearch-service-x64 -ComputerName $machineName |
@@ -1329,11 +1311,10 @@ else{
 
     Write-Host "The elasticsearch service is: $check.`n" -ForegroundColor Green
     }
-
+    #endregion
     Check-ESService
 
-    ##Hook up with Elastic
-
+    #region Ping-ES function. Ping Elastic, wait for 5 passes, after 5 passes grab and display the log file.
     Function Ping-ES{
         Write-Host "The script will attempt to contact the node 6 times with 15 second pauses.`n" -ForegroundColor Green
 
@@ -1372,15 +1353,14 @@ else{
 
          }Until ($responceName -eq $machineName)
      }
-
+     #endregion
      Ping-ES
 
+    #region Additional tasks for the Monitor server Note the nodeType variable is coming from the top section of Update YML.
+    if($nodeType -eq "Monitor"){
+    Write-Output "This a monitoring node some additional work must be done.`nStopping the elasticsearch service."
 
-    ##Additional tasks for the Monitor server Note the nodeType variable is coming from the top section of Update YML
-     if($nodeType -eq "Monitor"){
-             Write-Output "This a monitoring node some additional work must be done.`nStopping the elasticsearch service."
-
-    #Add Custom marvel template.
+    #region Add Custom marvel template.
 
         Write-Output "By default the marvel template has one replica.  Adding a custom marvel template to correct."
 
@@ -1390,11 +1370,11 @@ else{
             -URI "http://$machineName`:9200/_template/custom_marvel" -Method 'PUT' -ContentType 'application/json' -Body "$body"
 
         Write-Output "Above is the system responce from elastic.`n"
+    #endregion
 
-     #Add Custom kibana template.
+    #region Add Custom kibana template.
 
         Write-Output "By default Kibana's template has one replica.  Adding a custom Kibana template to correct."
-
 
             $body = "{ ""template""`: "".kibana"", ""order""`: 1, ""settings""`: { ""number_of_shards""`: 1, ""number_of_replicas""`: 0 } }"
 
@@ -1402,9 +1382,9 @@ else{
             -URI "http://$machineName`:9200/_template/custom_kibana" -Method 'PUT' -ContentType 'application/json' -Body "$body"
 
         Write-Output "Above is the system responce from elastic.`n"
+    #endregion
 
-     #Correct the number of replicas for marvel indexes if they exist.
-
+    #region Correct the number of replicas for marvel indexes if they exist.
         Write-Output "The inital indexes most likely have already been created with the incorrect number of replicas.`n"
 
         Write-Output "Updating the initial marvel indexes if they exist.`n"
@@ -1417,7 +1397,9 @@ else{
         catch [System.Net.WebException]{
             Write-Output "Marvel indexes were not found to update."    
         }
-      #Copy Kibana folders if they do not exist
+    #endregion
+
+    #region Copy Kibana folders if they do not exist
 
         Write-Output "Kibana is a visualization tool that includes Sense and the Marvel Application."
         Pop-Location
@@ -1428,9 +1410,6 @@ else{
         }
         If((Test-Path "\\$target\$driveLetter`$\RelativityDataGrid\kibana-4.5.4-windows") -eq $false){
 
-                #Copy Kibana folders
-                    #start
-
                         Write-Output "Begin copying Kibana folders to $machineName."
 
                         $installPath = "\\" + $machineName + "\$driveLetter`$\RelativityDataGrid"
@@ -1440,73 +1419,71 @@ else{
                         Copy-Item .\DataTron\kibana-4.5.4-windows -Destination $InstallPath -Recurse -force
 
                         Write-Output "End Copy Kibana Folders to $target."
+            }
+    #endregion
 
-                    #end
+    #region Configuring Kibana
+
+    Write-Output "Kibana needs to be configured to connect to the monitoing node's network host settings.`n"
+
+    foreach($target in $machineName){
+
+        Invoke-Command -ComputerName $target -ScriptBlock {
+            $NodeName = $Using:machineName
+            $driveLetter = $Using:driveLetter
+
+            Write-Output "Configuring Kibana YML on  $NodeName.`n"
+
+                # Update the server host
+                $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
+                $result = foreach ($line in $yml) {$line.Replace("# server.host: `"0.0.0.0`"", "server.host: " + $NodeName)}
+                $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
+
+                # Update the server port
+                $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
+                $result = foreach ($line in $yml) {$line.Replace("# server.port: 5601", "server.port: 5601")}
+                $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
+
+                # Update the elasticsearch URL
+                $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
+                $result = foreach ($line in $yml) {$line.Replace("# elasticsearch.url: ""http://localhost:9200`"", "elasticsearch.url: http://$NodeName`:9200")}
+                $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
+
+            Write-Output "Finished Kibana YML Configuration."
+  
+            Write-Output "Installing the Marvel application into Kibana.`n"
+
+            Try{
+                $ErrorActionPreference = "Stop";
+                Set-Location -Path (Get-Location).Drive.Root
+                & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana.bat "plugin" "--install" "marvel" "--url" "file:///RelativityDataGrid/kibana-4.5.4-windows/marvel-2.3.5.tar.gz"
+            }
+            Catch [System.Management.Automation.RemoteException]
+            {
+                Write-Host "Marvel is aleady installed.`n" -ForegroundColor Green;
             }
 
-        ##Configuring Kibana
+            Write-Output "Installing the Sense application to Kibana.`n"
 
-        Write-Output "Kibana needs to be configured to connect to the monitoing node's network host settings.`n"
-
-
-            ##Update Kibana YML
-
-                foreach($target in $machineName){
-
-                    Invoke-Command -ComputerName $target -ScriptBlock {
-                        $NodeName = $Using:machineName
-                        $driveLetter = $Using:driveLetter
-
-                        Write-Output "Configuring Kibana YML on  $NodeName.`n"
-
-                            # Update the server host
-                            $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                            $result = foreach ($line in $yml) {$line.Replace("# server.host: `"0.0.0.0`"", "server.host: " + $NodeName)}
-                            $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                            # Update the server port
-                            $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                            $result = foreach ($line in $yml) {$line.Replace("# server.port: 5601", "server.port: 5601")}
-                            $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                            # Update the elasticsearch URL
-                            $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                            $result = foreach ($line in $yml) {$line.Replace("# elasticsearch.url: ""http://localhost:9200`"", "elasticsearch.url: http://$NodeName`:9200")}
-                            $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                        Write-Output "Finished Kibana YML Configuration."
-  
-                        Write-Output "Installing the Marvel application into Kibana.`n"
-
-                        Try{
-                            $ErrorActionPreference = "Stop";
-                            Set-Location -Path (Get-Location).Drive.Root
-                            & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana.bat "plugin" "--install" "marvel" "--url" "file:///RelativityDataGrid/kibana-4.5.4-windows/marvel-2.3.5.tar.gz"
-                        }
-                        Catch [System.Management.Automation.RemoteException]
-                        {
-                            Write-Host "Marvel is aleady installed.`n" -ForegroundColor Green;
-                        }
-
-                        Write-Output "Installing the Sense application to Kibana.`n"
-
-                        Try{
-                            & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
-                        }
-                        Catch [System.Management.Automation.RemoteException]
-                        {
-                            Write-Host "Sense is aleady installed.`n" -ForegroundColor Green;
-                        }
-                        Write-Output "Finished installing plugins to Kibana."
-                    }
-                }
-            Write-Output "Finished Data Grid Install for the Monitoring node."
-
-            
-        #end if statement tasks for monitor cluster
+            Try{
+                & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
+            }
+            Catch [System.Management.Automation.RemoteException]
+            {
+                Write-Host "Sense is aleady installed.`n" -ForegroundColor Green;
+            }
+            Write-Output "Finished installing plugins to Kibana."
+        }
     }
+    #endregion
 
-#Land back in DataTron Folder.
-Set-Location -Path (Get-Location).Drive.Root
-Set-Location .\Datatron
+    Write-Output "Finished Data Grid Install for the Monitoring node."
+    }
+    #endregion
+
+    Set-Location -Path (Get-Location).Drive.Root
+    Set-Location .\Datatron
+    #endregion
 }
+#endregion
+#endscript
