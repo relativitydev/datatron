@@ -589,6 +589,8 @@ else{
     [String]$PathRepo = $Data.PathRepo
     [string]$esUsername = $Data.esUsername
     [string]$readESPass = $Data.readESPass
+    $esUsernameMarvel = "marvel"
+    $esPasswordMarvel = "marvel"
     #endregion
 
     #region Convert the obfuscated passwords into plain text.
@@ -674,6 +676,29 @@ else{
             Write-Verbose "Finished copying folders to $target."
         }
      #endregion
+
+    #region Set the Java Heap Size in kservice.bat
+
+    #region Calculate the Heap Size for Java
+    $getRAM = Get-WmiObject -Class "Win32_ComputerSystem" -Namespace "root\CIMV2" -ComputerName $target
+    [int]$javaRAM = ([math]::Round($getRAM.TotalPhysicalMemory/1024/1024/1024))/2
+    #endregion
+
+    #region kServiceLineUpdater function.  
+    Invoke-Command -ComputerName $target -ScriptBlock {
+        $driveLetter = $Using:driveLetter
+        $javaRAM = $Using:javaRAM
+        function kServiceLineUpdater ($oldSetting, $newSetting){
+        $yml = Get-Content $driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\kservice.bat -Raw
+        $result = foreach ($line in $yml) {$line.Replace($oldSetting, $newSetting)}
+        $result | Out-File $driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\kservice.bat -Encoding ascii 
+        }
+        kServiceLineUpdater ("if `"%ES_MIN_MEM%`" `=`= `"`" set ES_MIN_MEM=256m") ("if `"%ES_MIN_MEM%`" `=`= `"`" set ES_MIN_MEM=$javaRAM`g")
+        kServiceLineUpdater ("if `"%ES_MAX_MEM%`" `=`= `"`" set ES_MAX_MEM=1g") ("if `"%ES_MAX_MEM%`" `=`= `"`" set ES_MAX_MEM=$javaRAM`g")
+    }
+    #endregion
+
+    #endregion
 
     #region Install Java Silently.
         IF((Test-Path "\\$target\$driveLetter`$\Program Files\Java\jdk*") -eq $false){
@@ -771,368 +796,114 @@ else{
         $esUsername = $Using:esUsername
         $esPassword = $Using:esPassword
         $driveLetter = $Using:driveLetter
+        $esUsernameMarvel = $Using:esUsernameMarvel
+        $esPasswordMarvel = $Using:esPasswordMarvel
+        $monitoringNodeShieldsetting = @"
+host: ["http://$MonitoringNodeName`:9200"]
+  auth:
+   username: $esUsernameMarvel
+   password: $esPasswordMarvel
+"@
+
         #endregion
+        
+        Write-Verbose "Starting YML Update"
+                function YmlLineUpdate ($oldSetting, $newSetting){
+                $yml = Get-Content $driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
+                $result = foreach ($line in $yml) {$line.Replace($oldSetting, $newSetting)}
+                $result | Out-File $driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii 
+                }
 
-                if ($Using:nodeType -eq 'Master'){  
- 
-                    # Update the clustername
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("cluster.name: <<clustername>>", "cluster.name: " + $Clustername)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii 
-
-                    # Update the node name
-
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.name: <<nodename>>", "node.name: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update discovery.zen.minimum_master_nodes
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("discovery.zen.minimum_master_nodes: 1", "discovery.zen.minimum_master_nodes: " + $MinimumMasterNode)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update discovery.zen.ping.unicast.hosts
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("discovery.zen.ping.unicast.hosts: [""<<host1>>"",""<<host2:port>>""]", "discovery.zen.ping.unicast.hosts: " + $ProductionHostsArray)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
+                function MonitoringNameYMLSetting{
                     if($MonitoringNodeName){
-                    #Update the marvel setting
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "host: [""http://" + $MonitoringNodeName + ":9200""]")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
+                        #Update the marvel setting
+                        YmlLineUpdate ("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]") ($monitoringNodeShieldsetting)
                     }else{
                         #Remove the marvel setting
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("marvel.agent.exporters:", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("id1:", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("type: http", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
+                        YmlLineUpdate ("marvel.agent.exporters:") ("")
+                        YmlLineUpdate ("id1:") ("")
+                        YmlLineUpdate ("type: http") ("")
+                        YmlLineUpdate ("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]") ("")
                         try{
                             Write-Host "No monitoring cluster specified marvel plugin folder has already been removed.`n" -ForegroundColor Green;
-                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
+                            Remove-Item -Path "$driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
                         }
                         catch [System.Management.Automation.ItemNotFoundException]{
-                            $ErrorMessage = $_.Exception.Message
-                            $ErrorName = $_.Exception.GetType().FullName
                             Write-Host "Marvel Plugin folder has already been removed.`n" -ForegroundColor Green;
-                            Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
-                            Write-Output "The Exeception Name is:`n $ErrorName.`n"
                         }
                     }
+                }
 
-                    #Update the path data
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("path.data: C:\RelativityDataGrid\data", "path.data: " + $PathDataMaster)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
-
-                    # Update the network host
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("network.host: 0.0.0.0", "network.host: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # SQL server white list
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("#sqlserver_whitelist: <<comma delimited sql servers >>", "sqlserver_whitelist: " + $SQLServers)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the kCuraBearerRealm
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("publicJWKsUrl: https://<<server>>/Relativity/Identity/.well-known/jwks", "publicJWKsUrl: https://" + $WebServer + "/Relativity/Identity/.well-known/jwks")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the value for node.date
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.data: true", "node.data: false")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
+                function PathRepoSetting{
                     if($PathRepo -ne "[""""]"){
                         # Update the repo path $PathRepo
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
+                        YmlLineUpdate ("#path.repo: [""\\\\MY_SERVER\\Snapshots""]") ("path.repo: " + " $PathRepo")
                     }
+                }
 
+                function ProductionClusterSettings{
+                    YmlLineUpdate ("cluster.name: <<clustername>>") ("cluster.name: " + $Clustername)
+                    YmlLineUpdate ("node.name: <<nodename>>") ("node.name: " + $NodeName)
+                    YmlLineUpdate ("discovery.zen.minimum_master_nodes: 1") ("discovery.zen.minimum_master_nodes: " + $MinimumMasterNode)
+                    YmlLineUpdate ("discovery.zen.ping.unicast.hosts: [""<<host1>>"",""<<host2:port>>""]") ("discovery.zen.ping.unicast.hosts: " + $ProductionHostsArray)
+                    YmlLineUpdate ("network.host: 0.0.0.0") ("network.host: " + $NodeName)
+                    YmlLineUpdate ("#sqlserver_whitelist: <<comma delimited sql servers >>") ("sqlserver_whitelist: " + $SQLServers)
+                    YmlLineUpdate ("publicJWKsUrl: https://<<server>>/Relativity/Identity/.well-known/jwks") ("publicJWKsUrl: https://" + $WebServer + "/Relativity/Identity/.well-known/jwks")
 
+                }
+
+                function MonitoringClusterSettings{
+                    YmlLineUpdate ("cluster.name: <<clustername>>") ("cluster.name: " + $ClusternameMON)
+                    YmlLineUpdate ("node.name: <<nodename>>") ("node.name: " + $NodeName)
+                    YmlLineUpdate ("discovery.zen.ping.unicast.hosts: [""<<host1>>"",""<<host2:port>>""]") ("discovery.zen.ping.unicast.hosts: " + "[""" + $MonitoringNodeName + """]")
+                    YmlLineUpdate ("action.destructive_requires_name: true") ("action.destructive_requires_name: false")
+                    YmlLineUpdate ("action.auto_create_index: false,.security") ("action.auto_create_index: true")
+                    YmlLineUpdate ("path.data: C:\RelativityDataGrid\data") ("path.data: " + $PathDataMonitor)
+                    YmlLineUpdate ("network.host: 0.0.0.0") ("network.host: " + $NodeName)
+                    YmlLineUpdate ("marvel.agent.exporters:") ("")
+                    YmlLineUpdate ("id1:") ("")
+                    YmlLineUpdate ("type: http") ("")
+                    YmlLineUpdate ("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]") ("")
+                    try{
+                        Write-Output "This is a monitoring node the marvel plugin folder will be removed.`n"
+                        Remove-Item -Path "$driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
+                    }
+                    catch [System.Management.Automation.ItemNotFoundException]{
+                        Write-Output "Marvel Plugin folder has already been removed.`n"
+                    }
+                }
+
+                if ($Using:nodeType -eq 'Master'){
+                    YmlLineUpdate ("path.data: C:\RelativityDataGrid\data") ("path.data: " + $PathDataMaster)
+                    YmlLineUpdate ("node.data: true") ("node.data: false")
+                    ProductionClusterSettings
+                    MonitoringNameYMLSetting
+                    PathRepoSetting
                 }
 
                 elseif ($Using:nodeType -eq 'Client') {
- 
-                    # Update the clustername
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("cluster.name: <<clustername>>", "cluster.name: " + $Clustername)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the node name
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.name: <<nodename>>", "node.name: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update discovery.zen.minimum_master_nodes
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("discovery.zen.minimum_master_nodes: 1", "discovery.zen.minimum_master_nodes: " + $MinimumMasterNode)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
-                    # Update discovery.zen.ping.unicast.hosts
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("discovery.zen.ping.unicast.hosts: [""<<host1>>"",""<<host2:port>>""]", "discovery.zen.ping.unicast.hosts: " + $ProductionHostsArray)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
-                    if($MonitoringNodeName){
-                    #Update the marvel setting
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "host: [""http://" + $MonitoringNodeName + ":9200""]")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-                    }else{
-                        #Remove the marvel setting
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("marvel.agent.exporters:", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("id1:", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("type: http", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
-                        try{
-                            Write-Host "No monitoring cluster specified marvel plugin folder has already been removed.`n" -ForegroundColor Green;
-                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
-                        }
-                        catch [System.Management.Automation.ItemNotFoundException]{
-                            $ErrorMessage = $_.Exception.Message
-                            $ErrorName = $_.Exception.GetType().FullName
-                            Write-Verbose "Marvel Plugin folder has already been removed.`n"
-                            Write-Verbose "The Exeception Message is:`n $ErrorMessage.`n"    
-                            Write-Verbose "The Exeception Name is:`n $ErrorName.`n"
-                        }
-                    }
-                    
-                    #Update the path data
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("path.data: C:\RelativityDataGrid\data", "path.data: " + $PathDataClient)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the network host
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("network.host: 0.0.0.0", "network.host: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # SQL server white list
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("#sqlserver_whitelist: <<comma delimited sql servers >>", "sqlserver_whitelist: " + $SQLServers)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the kCuraBearerRealm
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("publicJWKsUrl: https://<<server>>/Relativity/Identity/.well-known/jwks", "publicJWKsUrl: https://" + $WebServer + "/Relativity/Identity/.well-known/jwks")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the value for node.data
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.data: true", "node.data: false")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the value for node.master
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.master: true", "node.master: false")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    if($PathRepo -ne "[""""]"){
-                        # Update the repo path $PathRepo
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-                    }
+                    YmlLineUpdate ("path.data: C:\RelativityDataGrid\data") ("path.data: " + $PathDataClient)
+                    YmlLineUpdate ("node.data: true") ("node.data: false")
+                    YmlLineUpdate ("node.master: true") ("node.master: false")
+                    ProductionClusterSettings
+                    MonitoringNameYMLSetting
+                    PathRepoSetting
                 }
  
                 elseif ($Using:nodeType -eq 'Data'){
-                    # Update the clustername
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("cluster.name: <<clustername>>", "cluster.name: " + $Clustername)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
-                    # Update the node name
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.name: <<nodename>>", "node.name: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update discovery.zen.minimum_master_nodes
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("discovery.zen.minimum_master_nodes: 1", "discovery.zen.minimum_master_nodes: " + $MinimumMasterNode)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update discovery.zen.ping.unicast.hosts
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("discovery.zen.ping.unicast.hosts: [""<<host1>>"",""<<host2:port>>""]", "discovery.zen.ping.unicast.hosts: " + $ProductionHostsArray)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    if($MonitoringNodeName){
-                    #Update the marvel setting
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "host: [""http://" + $MonitoringNodeName + ":9200""]")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-                    }else{
-                        #Remove the marvel setting
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("marvel.agent.exporters:", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("id1:", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("type: http", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
-                        try{
-                            Write-Host "No monitoring cluster specified marvel plugin folder has already been removed.`n"  -ForegroundColor Green;
-                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
-                        }
-                        catch [System.Management.Automation.ItemNotFoundException]{
-                            $ErrorMessage = $_.Exception.Message
-                            $ErrorName = $_.Exception.GetType().FullName
-                            Write-Host "Marvel Plugin folder has already been removed.`n" -ForegroundColor Green;
-                            Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
-                            Write-Output "The Exeception Name is:`n $ErrorName.`n"
-                        }
-                    }
- 
-                    #Update the path data
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("path.data: C:\RelativityDataGrid\data", "path.data: " + $PathDataData)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the network host
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("network.host: 0.0.0.0", "network.host: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # SQL server white list
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("#sqlserver_whitelist: <<comma delimited sql servers >>", "sqlserver_whitelist: " + $SQLServers)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the kCuraBearerRealm
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("publicJWKsUrl: https://<<server>>/Relativity/Identity/.well-known/jwks", "publicJWKsUrl: https://" + $WebServer + "/Relativity/Identity/.well-known/jwks")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the value for node.master
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.master: true", "node.master: false")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    if($PathRepo -ne "[""""]"){
-                        # Update the repo path $PathRepo
-                        $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                        $result = foreach ($line in $yml) {$line.Replace("#path.repo: [""\\\\MY_SERVER\\Snapshots""]", "path.repo: " + " $PathRepo")}
-                        $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-                    }
+                    YmlLineUpdate ("path.data: C:\RelativityDataGrid\data") ("path.data: " + $PathDataClient)
+                    YmlLineUpdate ("node.master: true") ("node.master: false")
+                    ProductionClusterSettings
+                    MonitoringNameYMLSetting
+                    PathRepoSetting
                 }
  
                 elseif ($Using:nodeType -eq 'Monitor') {
- 
-                    # Update the clustername
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("cluster.name: <<clustername>>", "cluster.name: " + $ClusternameMON)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the node name
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("node.name: <<nodename>>", "node.name: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update discovery.zen.ping.unicast.hosts
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("discovery.zen.ping.unicast.hosts: [""<<host1>>"",""<<host2:port>>""]", "discovery.zen.ping.unicast.hosts: " + "[""" + $MonitoringNodeName + """]")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    #Update action.destructive_requires_name
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("action.destructive_requires_name: true", "action.destructive_requires_name: false")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    #Update action.auto_create_index
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("action.auto_create_index: false,.security", "action.auto_create_index: true")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    #Update the path data
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("path.data: C:\RelativityDataGrid\data", "path.data: " + $PathDataMonitor)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Update the network host
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("network.host: 0.0.0.0", "network.host: " + $NodeName)}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    # Turn off Shield (only for monitoring nodes)
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("#shield.enabled: false", "shield.enabled: false")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    #Remove the marvel setting
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("marvel.agent.exporters:", "")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("id1:", "")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("type: http", "")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
- 
-                    $yml = Get-Content $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Raw
-                    $result = foreach ($line in $yml) {$line.Replace("host: [""http://<<your-es-monitoring-machine-name-01>>:9200"",""http://<<your-es-monitoring-machine-name-02>>:9200""]", "")}
-                    $result | Out-File $Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml -Encoding ascii
-
-                        try{
-                            Write-Output "This is a monitoring node the marvel plugin folder will be removed.`n"
-                            Remove-Item -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\plugins\marvel-agent" -Recurse -ErrorAction Stop
-                        }
-                        catch [System.Management.Automation.ItemNotFoundException]{
-                            $ErrorMessage = $_.Exception.Message
-                            $ErrorName = $_.Exception.GetType().FullName
-                            Write-Output "Marvel Plugin folder has already been removed.`n"
-
-                            Write-Output "The Exeception Message is:`n $ErrorMessage.`n"    
-                            Write-Output "The Exeception Name is:`n $ErrorName.`n"
-                        }
+                    MonitoringClusterSettings
                 }
             }
         }
         Write-Verbose "YML Update Completed."
-    #endregion
-
-    #region TODO update the kservice.bat for the correct RAM requirements.
     #endregion
 
     #region Install the Elastic Service
@@ -1159,8 +930,7 @@ else{
         $SecondsToWait =$Using:SecondsToWait
         $UserName = $Using:UserName
 
-        function PowerShell-PrintErrorCodes ($strReturnCode)
-        {
+        function PowerShell-PrintErrorCodes ($strReturnCode){
         #This function will print the right value. The error code list was extracted using the MSDN documentation for the change method as December 2014
         Switch ($strReturnCode)
             {
@@ -1265,7 +1035,8 @@ else{
 
     #endregion
 
-    #region Create an esuser on each node.
+    #region Create an esuser for each node.
+    if ($nodeType -ne "Monitor"){
         Write-Host "Setting the elastic search username and password on $target.`n" -ForegroundColor Green
 
         Invoke-Command -ComputerName $machineName -ScriptBlock {
@@ -1277,6 +1048,20 @@ else{
             & .\esusers.bat list | Out-Null
         }
         Write-Verbose "Esuser added."
+    }
+    if ($nodeType -eq "Monitor"){
+        Write-Host "Setting the elastic search username and password on $target.`n" -ForegroundColor Green
+
+        Invoke-Command -ComputerName $machineName -ScriptBlock {
+            $JavaPath = Resolve-Path "$Using:driveLetter`:\Program Files\Java\jdk*"
+            $env:KCURA_JAVA_HOME = $JavaPath
+            Set-Location -Path "$Using:driveLetter`:\RelativityDataGrid\elasticsearch-main\bin\shield"
+            $list = ".\esusers.bat useradd " + $Using:esUsernameMarvel + " -p " + $Using:esPasswordMarvel + " -r admin"
+            $result = Invoke-Expression $list
+            & .\esusers.bat list | Out-Null
+        }
+        Write-Verbose "Esuser added."
+    }
     #endregion
 
     Write-Verbose "End Data Grid Installation."
@@ -1284,6 +1069,9 @@ else{
     #endregion
 
     #region Post-Install
+
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsername,$esPassword)))
+    $base64AuthInfoMonitor = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsernameMarvel,$esPasswordMarvel)))
 
     #region Start-ESService function.  Starts the Elastic Service.
     function Start-ESService {
@@ -1315,15 +1103,13 @@ else{
     Check-ESService
 
     #region Ping-ES function. Ping Elastic, wait for 5 passes, after 5 passes grab and display the log file.
-    Function Ping-ES{
+    Function Ping-ES($base64Auth){
         Write-Host "The script will attempt to contact the node 6 times with 15 second pauses.`n" -ForegroundColor Green
-
-        $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $esUsername,$esPassword)))
         $i=0;
         Do{ ++$i;
 
             Try{
-            $responceName = Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+            $responceName = Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64Auth)}`
              -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json' |
              Select-Object -Property name -ExpandProperty name
 
@@ -1344,7 +1130,7 @@ else{
 
 
              if($responceName -eq $machineName){
-                 Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+                 Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64Auth)}`
              -URI "http://$machineName`:9200" -Method 'GET' -ContentType 'application/json'
              }else{
                  Start-Sleep -s 15
@@ -1354,7 +1140,12 @@ else{
          }Until ($responceName -eq $machineName)
      }
      #endregion
-     Ping-ES
+     if($nodeType -ne "Monitor"){
+     Ping-ES($base64AuthInfo)
+     }
+     if($nodeType -eq "Monitor"){
+     Ping-ES($base64AuthInfoMonitor)
+     }
 
     #region Additional tasks for the Monitor server Note the nodeType variable is coming from the top section of Update YML.
     if($nodeType -eq "Monitor"){
@@ -1366,7 +1157,7 @@ else{
 
             $body = "{ ""template""`: "".marvel*"", ""order""`: 1, ""settings""`: { ""number_of_shards""`: 1, ""number_of_replicas""`: 0 } }"
 
-            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfoMonitor)}`
             -URI "http://$machineName`:9200/_template/custom_marvel" -Method 'PUT' -ContentType 'application/json' -Body "$body"
 
         Write-Output "Above is the system responce from elastic.`n"
@@ -1378,7 +1169,7 @@ else{
 
             $body = "{ ""template""`: "".kibana"", ""order""`: 1, ""settings""`: { ""number_of_shards""`: 1, ""number_of_replicas""`: 0 } }"
 
-            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfoMonitor)}`
             -URI "http://$machineName`:9200/_template/custom_kibana" -Method 'PUT' -ContentType 'application/json' -Body "$body"
 
         Write-Output "Above is the system responce from elastic.`n"
@@ -1391,7 +1182,7 @@ else{
         Try{
             $body = "{ ""index"" `: { ""number_of_replicas"" `: 0 } }"
 
-            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}`
+            Invoke-RestMethod -Headers @{Authorization=("Basic {0}" -f $base64AuthInfoMonitor)}`
             -URI "http://$machineName`:9200/.m*/_settings" -Method 'PUT' -ContentType 'application/json' -Body "$body" -ErrorAction Stop
         }
         catch [System.Net.WebException]{
@@ -1429,30 +1220,36 @@ else{
     foreach($target in $machineName){
 
         Invoke-Command -ComputerName $target -ScriptBlock {
+            #region Variable declaration.
             $NodeName = $Using:machineName
             $driveLetter = $Using:driveLetter
+            $esUsernameMarvel = $Using:esUsernameMarvel
+            $esPasswordMarvel = $Using:esPasswordMarvel
+            #endregion
+
+            #region YmlLineUpdateKibana function.  
+            function YmlLineUpdateKibana ($oldSetting, $newSetting){
+            $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
+            $result = foreach ($line in $yml) {$line.Replace($oldSetting, $newSetting)}
+            $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii 
+            }
+            #endregion
 
             Write-Output "Configuring Kibana YML on  $NodeName.`n"
 
-                # Update the server host
-                $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                $result = foreach ($line in $yml) {$line.Replace("# server.host: `"0.0.0.0`"", "server.host: " + $NodeName)}
-                $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                # Update the server port
-                $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                $result = foreach ($line in $yml) {$line.Replace("# server.port: 5601", "server.port: 5601")}
-                $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
-
-                # Update the elasticsearch URL
-                $yml = Get-Content $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Raw
-                $result = foreach ($line in $yml) {$line.Replace("# elasticsearch.url: ""http://localhost:9200`"", "elasticsearch.url: http://$NodeName`:9200")}
-                $result | Out-File $driveLetter`:\RelativityDataGrid\kibana-4.5.4-windows\config\kibana.yml -Encoding ascii
+            #region Update Kibana YML file.
+            YmlLineUpdateKibana ("# server.host: `"0.0.0.0`"") ("server.host: " + $NodeName)
+            YmlLineUpdateKibana ("# server.port: 5601") ("server.port: 5601")
+            YmlLineUpdateKibana ("# elasticsearch.url: ""http://localhost:9200`"") ("elasticsearch.url: http://$NodeName`:9200")
+            YmlLineUpdateKibana ("# elasticsearch.username: `"user`"") ("elasticsearch.username: $esUsernameMarvel")
+            YmlLineUpdateKibana ("# elasticsearch.password: `"pass`"") ("elasticsearch.password: $esPasswordMarvel")
+            #endregion
 
             Write-Output "Finished Kibana YML Configuration."
   
             Write-Output "Installing the Marvel application into Kibana.`n"
 
+            #region Check for Marvel plugin in Kibana.  Install if missing.
             Try{
                 $ErrorActionPreference = "Stop";
                 Set-Location -Path (Get-Location).Drive.Root
@@ -1462,9 +1259,11 @@ else{
             {
                 Write-Host "Marvel is aleady installed.`n" -ForegroundColor Green;
             }
+            #endregion
 
             Write-Output "Installing the Sense application to Kibana.`n"
 
+            #region Check for Sense plugin in Kibana.  Install if missing.
             Try{
                 & .\RelativityDataGrid\kibana-4.5.4-windows\bin\kibana "plugin" "--install" "sense" "-u" "file:///RelativityDataGrid/kibana-4.5.4-windows/sense-2.0.0-beta7.tar.gz"
             }
@@ -1472,6 +1271,7 @@ else{
             {
                 Write-Host "Sense is aleady installed.`n" -ForegroundColor Green;
             }
+            #endregion
             Write-Output "Finished installing plugins to Kibana."
         }
     }
@@ -1487,3 +1287,4 @@ else{
 }
 #endregion
 #endscript
+Read-Host "Press any key to continue."
