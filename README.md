@@ -1,4 +1,4 @@
-# datatron
+# datatron 2.0 (MSI Version Experimental)
 This is an experiment branch and does not function at this time.
 
 ![alt text](https://github.com/relativitydev/datatron/blob/2.0/sorry-folks-parks-closed-moose-out-front-shoulda-told-ya.jpg)
