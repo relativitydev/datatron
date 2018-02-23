@@ -13,19 +13,41 @@ namespace DataTron
         {
             string[] lines = File.ReadAllLines("DataGridResponseFile.txt");
 
-            string clusterName = (Array.Find(lines, element => element.StartsWith("ClusterName ="))).Replace("ClusterName = ", "");
-            string nodeName = (Array.Find(lines, element => element.StartsWith("NodeName = "))).Replace("NodeName = ", "");
-            bool nodeMaster = Convert.ToBoolean(((Array.Find(lines, element => element.StartsWith("IsMaster ="))).Replace("UnicastHosts =", "IsMaster =")));
-            bool nodeData = Convert.ToBoolean(((Array.Find(lines, element => element.StartsWith("IsData ="))).Replace("IsData =", "")));
-            int minimumMasterNode = Convert.ToInt32(((Array.Find(lines, element => element.StartsWith("MasterNodeNumber = "))).Replace("MasterNodeNumber = ", "")));
-            string unicastHosts = ((Array.Find(lines, element => element.StartsWith("UnicastHosts = "))).Replace("UnicastHosts = ", ""));
-            
-            bool destructiveRequiresName;
-            bool autoCreateIndex;
-            string monitoringNodeName;
-            string dataPath;
-            string pathRepository;
-            string esUserName;
+
+            string ParseResponseString(string StringToParse, string[] linesArray)
+            {
+                string ParsedResponce = (Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "");
+                return ParsedResponce;
+            }
+
+            bool ParseResponseBool(string StringToParse, string[] linesArray)
+            {
+                bool ParsedResponce = Convert.ToBoolean(((Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "")));
+                return ParsedResponce;
+            }
+
+            int ParseResponseInt(string StringToParse, string[] linesArray)
+            {
+                int ParsedResponce = Convert.ToInt32(((Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "")));
+                return ParsedResponce;
+            }
+
+            string clusterName = ParseResponseString("ClusterName =", lines);
+            bool nodeMaster = ParseResponseBool("IsMaster =", lines);
+            int minimumMasterNode = ParseResponseInt("MasterNodeNumber = ", lines);
+            string nodeName = ParseResponseString("NodeName = ", lines);
+            bool nodeData = ParseResponseBool("IsData = ", lines);
+            string unicastHosts = ParseResponseString("UnicastHosts = ", lines);
+            string monitoringNodeName = ParseResponseString("MonitoringNodeName = ", lines);
+            //Work on assigning these correctly
+
+            bool destructiveRequiresName = true;
+            bool autoCreateIndex = false;
+
+            //string monitoringNodeName = ((Array.Find(lines, element => element.StartsWith("MonitoringNodeName = "))).Replace("MonitoringNodeName = ", ""));
+            string dataPath = ((Array.Find(lines, element => element.StartsWith("DataPath = "))).Replace("DataPath = ", ""));
+            string pathRepository = ((Array.Find(lines, element => element.StartsWith("PathRepository ="))).Replace("PathRepository =", ""));
+            string esUserName = ((Array.Find(lines, element => element.StartsWith("EsUserName ="))).Replace("EsUserName =", ""));
             string esPassWord;
             string authenticationWebServer;
             string serviceAccountUserName;
