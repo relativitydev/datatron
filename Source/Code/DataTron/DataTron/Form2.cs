@@ -23,5 +23,13 @@ namespace DataTron
             form1.Show();
             Close();
         }
+
+        private void btnGetJavaHome_Click(object sender, EventArgs e)
+        {
+            string JavaHome = Environment.GetEnvironmentVariable("KCURA_JAVA_HOME");
+            textBoxJavaHome.Text = JavaHome.Replace("\\\\","\\");
+        }
+
+
     }
 }
