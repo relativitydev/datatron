@@ -45,15 +45,15 @@
             this.textBoxNodeName = new System.Windows.Forms.TextBox();
             this.textBoxMasterNode = new System.Windows.Forms.TextBox();
             this.textBoxDataNode = new System.Windows.Forms.TextBox();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.textBox7 = new System.Windows.Forms.TextBox();
-            this.textBox8 = new System.Windows.Forms.TextBox();
-            this.textBox9 = new System.Windows.Forms.TextBox();
-            this.textBox10 = new System.Windows.Forms.TextBox();
-            this.textBox11 = new System.Windows.Forms.TextBox();
-            this.textBox12 = new System.Windows.Forms.TextBox();
-            this.textBox13 = new System.Windows.Forms.TextBox();
+            this.textBoxNumberMasters = new System.Windows.Forms.TextBox();
+            this.textBoxMonitorNode = new System.Windows.Forms.TextBox();
+            this.textBoxMonitoringNodeName = new System.Windows.Forms.TextBox();
+            this.textBoxDataPath = new System.Windows.Forms.TextBox();
+            this.textBoxBackupLoc = new System.Windows.Forms.TextBox();
+            this.textBoxESUser = new System.Windows.Forms.TextBox();
+            this.textBoxESPassword = new System.Windows.Forms.TextBox();
+            this.textBoxRelUser = new System.Windows.Forms.TextBox();
+            this.textBoxRelPass = new System.Windows.Forms.TextBox();
             this.btnLoadResponce = new System.Windows.Forms.Button();
             this.btnForm1Next = new System.Windows.Forms.Button();
             this.btnCreateResponseFile = new System.Windows.Forms.Button();
@@ -145,9 +145,9 @@
             this.lblEsUserName.AutoSize = true;
             this.lblEsUserName.Location = new System.Drawing.Point(27, 251);
             this.lblEsUserName.Name = "lblEsUserName";
-            this.lblEsUserName.Size = new System.Drawing.Size(119, 13);
+            this.lblEsUserName.Size = new System.Drawing.Size(121, 13);
             this.lblEsUserName.TabIndex = 0;
-            this.lblEsUserName.Text = "Elastic REST Password";
+            this.lblEsUserName.Text = "Elastic REST Username";
             // 
             // lblElasticPassword
             // 
@@ -204,68 +204,68 @@
             this.textBoxDataNode.Size = new System.Drawing.Size(100, 20);
             this.textBoxDataNode.TabIndex = 1;
             // 
-            // textBox5
+            // textBoxNumberMasters
             // 
-            this.textBox5.Location = new System.Drawing.Point(239, 109);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(100, 20);
-            this.textBox5.TabIndex = 1;
+            this.textBoxNumberMasters.Location = new System.Drawing.Point(239, 109);
+            this.textBoxNumberMasters.Name = "textBoxNumberMasters";
+            this.textBoxNumberMasters.Size = new System.Drawing.Size(100, 20);
+            this.textBoxNumberMasters.TabIndex = 1;
             // 
-            // textBox6
+            // textBoxMonitorNode
             // 
-            this.textBox6.Location = new System.Drawing.Point(239, 138);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(100, 20);
-            this.textBox6.TabIndex = 1;
+            this.textBoxMonitorNode.Location = new System.Drawing.Point(239, 138);
+            this.textBoxMonitorNode.Name = "textBoxMonitorNode";
+            this.textBoxMonitorNode.Size = new System.Drawing.Size(100, 20);
+            this.textBoxMonitorNode.TabIndex = 1;
             // 
-            // textBox7
+            // textBoxMonitoringNodeName
             // 
-            this.textBox7.Location = new System.Drawing.Point(239, 162);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(100, 20);
-            this.textBox7.TabIndex = 1;
+            this.textBoxMonitoringNodeName.Location = new System.Drawing.Point(239, 162);
+            this.textBoxMonitoringNodeName.Name = "textBoxMonitoringNodeName";
+            this.textBoxMonitoringNodeName.Size = new System.Drawing.Size(100, 20);
+            this.textBoxMonitoringNodeName.TabIndex = 1;
             // 
-            // textBox8
+            // textBoxDataPath
             // 
-            this.textBox8.Location = new System.Drawing.Point(239, 188);
-            this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(100, 20);
-            this.textBox8.TabIndex = 1;
+            this.textBoxDataPath.Location = new System.Drawing.Point(239, 188);
+            this.textBoxDataPath.Name = "textBoxDataPath";
+            this.textBoxDataPath.Size = new System.Drawing.Size(100, 20);
+            this.textBoxDataPath.TabIndex = 1;
             // 
-            // textBox9
+            // textBoxBackupLoc
             // 
-            this.textBox9.Location = new System.Drawing.Point(239, 215);
-            this.textBox9.Name = "textBox9";
-            this.textBox9.Size = new System.Drawing.Size(100, 20);
-            this.textBox9.TabIndex = 1;
+            this.textBoxBackupLoc.Location = new System.Drawing.Point(239, 215);
+            this.textBoxBackupLoc.Name = "textBoxBackupLoc";
+            this.textBoxBackupLoc.Size = new System.Drawing.Size(100, 20);
+            this.textBoxBackupLoc.TabIndex = 1;
             // 
-            // textBox10
+            // textBoxESUser
             // 
-            this.textBox10.Location = new System.Drawing.Point(239, 241);
-            this.textBox10.Name = "textBox10";
-            this.textBox10.Size = new System.Drawing.Size(100, 20);
-            this.textBox10.TabIndex = 1;
+            this.textBoxESUser.Location = new System.Drawing.Point(239, 241);
+            this.textBoxESUser.Name = "textBoxESUser";
+            this.textBoxESUser.Size = new System.Drawing.Size(100, 20);
+            this.textBoxESUser.TabIndex = 1;
             // 
-            // textBox11
+            // textBoxESPassword
             // 
-            this.textBox11.Location = new System.Drawing.Point(239, 267);
-            this.textBox11.Name = "textBox11";
-            this.textBox11.Size = new System.Drawing.Size(100, 20);
-            this.textBox11.TabIndex = 1;
+            this.textBoxESPassword.Location = new System.Drawing.Point(239, 267);
+            this.textBoxESPassword.Name = "textBoxESPassword";
+            this.textBoxESPassword.Size = new System.Drawing.Size(100, 20);
+            this.textBoxESPassword.TabIndex = 1;
             // 
-            // textBox12
+            // textBoxRelUser
             // 
-            this.textBox12.Location = new System.Drawing.Point(239, 292);
-            this.textBox12.Name = "textBox12";
-            this.textBox12.Size = new System.Drawing.Size(100, 20);
-            this.textBox12.TabIndex = 1;
+            this.textBoxRelUser.Location = new System.Drawing.Point(239, 292);
+            this.textBoxRelUser.Name = "textBoxRelUser";
+            this.textBoxRelUser.Size = new System.Drawing.Size(100, 20);
+            this.textBoxRelUser.TabIndex = 1;
             // 
-            // textBox13
+            // textBoxRelPass
             // 
-            this.textBox13.Location = new System.Drawing.Point(239, 318);
-            this.textBox13.Name = "textBox13";
-            this.textBox13.Size = new System.Drawing.Size(100, 20);
-            this.textBox13.TabIndex = 1;
+            this.textBoxRelPass.Location = new System.Drawing.Point(239, 318);
+            this.textBoxRelPass.Name = "textBoxRelPass";
+            this.textBoxRelPass.Size = new System.Drawing.Size(100, 20);
+            this.textBoxRelPass.TabIndex = 1;
             // 
             // btnLoadResponce
             // 
@@ -305,15 +305,15 @@
             this.Controls.Add(this.btnCreateResponseFile);
             this.Controls.Add(this.btnForm1Next);
             this.Controls.Add(this.btnLoadResponce);
-            this.Controls.Add(this.textBox13);
-            this.Controls.Add(this.textBox12);
-            this.Controls.Add(this.textBox11);
-            this.Controls.Add(this.textBox10);
-            this.Controls.Add(this.textBox9);
-            this.Controls.Add(this.textBox8);
-            this.Controls.Add(this.textBox7);
-            this.Controls.Add(this.textBox6);
-            this.Controls.Add(this.textBox5);
+            this.Controls.Add(this.textBoxRelPass);
+            this.Controls.Add(this.textBoxRelUser);
+            this.Controls.Add(this.textBoxESPassword);
+            this.Controls.Add(this.textBoxESUser);
+            this.Controls.Add(this.textBoxBackupLoc);
+            this.Controls.Add(this.textBoxDataPath);
+            this.Controls.Add(this.textBoxMonitoringNodeName);
+            this.Controls.Add(this.textBoxMonitorNode);
+            this.Controls.Add(this.textBoxNumberMasters);
             this.Controls.Add(this.textBoxDataNode);
             this.Controls.Add(this.textBoxMasterNode);
             this.Controls.Add(this.textBoxNodeName);
@@ -358,15 +358,15 @@
         private System.Windows.Forms.TextBox textBoxNodeName;
         private System.Windows.Forms.TextBox textBoxMasterNode;
         private System.Windows.Forms.TextBox textBoxDataNode;
-        private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.TextBox textBox7;
-        private System.Windows.Forms.TextBox textBox8;
-        private System.Windows.Forms.TextBox textBox9;
-        private System.Windows.Forms.TextBox textBox10;
-        private System.Windows.Forms.TextBox textBox11;
-        private System.Windows.Forms.TextBox textBox12;
-        private System.Windows.Forms.TextBox textBox13;
+        private System.Windows.Forms.TextBox textBoxNumberMasters;
+        private System.Windows.Forms.TextBox textBoxMonitorNode;
+        private System.Windows.Forms.TextBox textBoxMonitoringNodeName;
+        private System.Windows.Forms.TextBox textBoxDataPath;
+        private System.Windows.Forms.TextBox textBoxBackupLoc;
+        private System.Windows.Forms.TextBox textBoxESUser;
+        private System.Windows.Forms.TextBox textBoxESPassword;
+        private System.Windows.Forms.TextBox textBoxRelUser;
+        private System.Windows.Forms.TextBox textBoxRelPass;
         private System.Windows.Forms.Button btnLoadResponce;
         private System.Windows.Forms.Button btnForm1Next;
         private System.Windows.Forms.Button btnCreateResponseFile;
