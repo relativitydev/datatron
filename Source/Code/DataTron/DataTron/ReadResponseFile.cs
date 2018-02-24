@@ -14,71 +14,59 @@ namespace DataTron
             string[] lines = File.ReadAllLines("DataGridResponseFile.txt");
 
 
-            string ParseResponseString(string StringToParse, string[] linesArray)
+            string ParseResponse(string StringToParse, string[] linesArray)
             {
                 string ParsedResponce = (Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "");
                 return ParsedResponce;
             }
 
-            bool ParseResponseBool(string StringToParse, string[] linesArray)
-            {
-                bool ParsedResponce = Convert.ToBoolean(((Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "")));
-                return ParsedResponce;
-            }
-
-            int ParseResponseInt(string StringToParse, string[] linesArray)
-            {
-                int ParsedResponce = Convert.ToInt32(((Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "")));
-                return ParsedResponce;
-            }
-
-            string clusterName = ParseResponseString("ClusterName =", lines);
-            bool nodeMaster = ParseResponseBool("IsMaster =", lines);
-            bool nodeData = ParseResponseBool("IsData = ", lines);
-            bool nodeMonitor = ParseResponseBool("IsMonitor = ", lines);
-            int minimumMasterNode = ParseResponseInt("MasterNodeNumber = ", lines);
-            string nodeName = ParseResponseString("NodeName = ", lines);          
-            string unicastHosts = ParseResponseString("UnicastHosts = ", lines);
-            string monitoringNodeName = ParseResponseString("MonitoringNodeName = ", lines);
-            string dataPath = ParseResponseString("DataPath = ", lines);
-            string pathRepository = ParseResponseString("PathRepository =", lines);
-            string esUserName = ParseResponseString("EsUserName = ", lines);
-            string esPassWord = ParseResponseString("EsPassWord = ", lines);
-            string authenticationWebServer = ParseResponseString("AuthenticationWebServer = ", lines);
-            string serviceAccountUserName = ParseResponseString("ServiceAccountUserName = ", lines);
-            string serviceAccountPassWord = ParseResponseString("ServiceAccountUserName = ", lines);
+            string clusterName = ParseResponse("ClusterName =", lines);
+            string nodeMaster = ParseResponse("IsMaster =", lines);
+            string nodeData = ParseResponse("IsData = ", lines);
+            string nodeMonitor = ParseResponse("IsMonitor = ", lines);
+            string minimumMasterNode = ParseResponse("MasterNodeNumber = ", lines);
+            string nodeName = ParseResponse("NodeName = ", lines);          
+            string unicastHosts = ParseResponse("UnicastHosts = ", lines);
+            string monitoringNodeName = ParseResponse("MonitoringNodeName = ", lines);
+            string dataPath = ParseResponse("DataPath = ", lines);
+            string pathRepository = ParseResponse("PathRepository =", lines);
+            string esUserName = ParseResponse("EsUserName = ", lines);
+            string esPassWord = ParseResponse("EsPassWord = ", lines);
+            string authenticationWebServer = ParseResponse("AuthenticationWebServer = ", lines);
+            string serviceAccountUserName = ParseResponse("ServiceAccountUserName = ", lines);
+            string serviceAccountPassWord = ParseResponse("ServiceAccountUserName = ", lines);
             
-            bool DestructionRequired()
+            string DestructionRequired()
             { 
-                if (nodeMonitor)
+                if (Convert.ToBoolean(nodeMonitor))
                 {
-                    bool destruct = false;
+                    string destruct = "false";
                     return destruct;
                 }
                 else
                 {
-                    bool destruct = true;
+                    string destruct = "true";
                     return destruct;
                 }
 
             }
-            bool destructiveRequiresName = DestructionRequired();
+            string destructiveRequiresName = DestructionRequired();
 
-            bool AutoCreateIndex()
+            string AutoCreateIndex()
             {
-                if (nodeMonitor)
+                if (Convert.ToBoolean(nodeMonitor))
                 {
-                    bool autocreate = true;
+                    string autocreate = "true";
                     return autocreate;
                 }
                 else
                 {
-                    bool autocreate = false;
+                    string autocreate = "false";
                     return autocreate;
                 }
 
             }
-            bool autoCreateIndex = AutoCreateIndex();
+            string autoCreateIndex = AutoCreateIndex();
 
             Node Node1 = new Node(clusterName, nodeName, nodeMaster, nodeData, minimumMasterNode, unicastHosts, destructiveRequiresName, autoCreateIndex, monitoringNodeName, dataPath, pathRepository, esUserName, esPassWord, authenticationWebServer, serviceAccountUserName, serviceAccountPassWord);
 

@@ -10,12 +10,12 @@ namespace DataTron
     {
         private string _clusterName;
         private string _nodeName;
-        private bool _nodeMaster;
-        private bool _nodeData;
-        private int _minimumMasterNode;
+        private string _nodeMaster;
+        private string _nodeData;
+        private string _minimumMasterNode;
         private string _unicastHosts;
-        private bool _destructiveRequiresName;
-        private bool _autoCreateIndex;
+        private string _destructiveRequiresName;
+        private string _autoCreateIndex;
         private string _monitoringNodeName;
         private string _dataPath;
         private string _pathRepository;
@@ -25,7 +25,7 @@ namespace DataTron
         private string _serviceAccountUserName;
         private string _serviceAccountPassWord;
 
-        public Node(string clusterName, string nodeName, bool nodeMaster, bool nodeData, int minimumMasterNode, string unicastHosts, bool destructiveRequiresName, bool autoCreateIndex, string monitoringNodeName, string dataPath, string pathRepository, string esUserName, string esPassWord, string authenticationWebServer, string serviceAccountUserName, string serviceAccountPassWord)
+        public Node(string clusterName, string nodeName, string nodeMaster, string nodeData, string minimumMasterNode, string unicastHosts, string destructiveRequiresName, string autoCreateIndex, string monitoringNodeName, string dataPath, string pathRepository, string esUserName, string esPassWord, string authenticationWebServer, string serviceAccountUserName, string serviceAccountPassWord)
         {
             ClusterName = clusterName;
             NodeName = nodeName;
@@ -47,12 +47,12 @@ namespace DataTron
 
         public string ClusterName { get => _clusterName; set => _clusterName = value; }
         public string NodeName { get => _nodeName; set => _nodeName = value; }
-        public bool NodeMaster { get => _nodeMaster; set => _nodeMaster = value; }
-        public bool NodeData { get => _nodeData; set => _nodeData = value; }
-        public int MinimumMasterNode { get => _minimumMasterNode; set => _minimumMasterNode = value; }
+        public string NodeMaster { get => _nodeMaster; set => _nodeMaster = value; }
+        public string NodeData { get => _nodeData; set => _nodeData = value; }
+        public string MinimumMasterNode { get => _minimumMasterNode; set => _minimumMasterNode = value; }
         public string UnicastHosts { get => _unicastHosts; set => _unicastHosts = value; }
-        public bool DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = value; }
-        public bool AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
+        public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = value; }
+        public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
         public string MonitoringNodeName { get => _monitoringNodeName; set => _monitoringNodeName = value; }
         public string DataPath { get => _dataPath; set => _dataPath = value; }
         public string PathRepository { get => _pathRepository; set => _pathRepository = value; }
