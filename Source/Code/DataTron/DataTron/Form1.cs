@@ -38,5 +38,10 @@ namespace DataTron
 
             MessageBox.Show("Response File Created.", "Task Complete.");
         }
+
+        private void btnLoadResponce_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

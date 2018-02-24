@@ -275,6 +275,7 @@
             this.btnLoadResponce.TabIndex = 2;
             this.btnLoadResponce.Text = "Load Responce File";
             this.btnLoadResponce.UseVisualStyleBackColor = true;
+            this.btnLoadResponce.Click += new System.EventHandler(this.btnLoadResponce_Click);
             // 
             // btnForm1Next
             // 
