@@ -41,6 +41,10 @@ namespace DataTron
 
         private void btnLoadResponce_Click(object sender, EventArgs e)
         {
+            ReadResponseFile responseFile = new ReadResponseFile();
+            Node Node1 = responseFile.ReadResponseFileText();
+
+            textBoxClusterName.Text = Node1.ClusterName;
 
         }
     }
