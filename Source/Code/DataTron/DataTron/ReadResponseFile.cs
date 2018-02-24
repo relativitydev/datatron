@@ -34,7 +34,7 @@ namespace DataTron
             string esPassWord = ParseResponse("EsPassWord = ", lines);
             string authenticationWebServer = ParseResponse("AuthenticationWebServer = ", lines);
             string serviceAccountUserName = ParseResponse("ServiceAccountUserName = ", lines);
-            string serviceAccountPassWord = ParseResponse("ServiceAccountUserName = ", lines);
+            string serviceAccountPassWord = ParseResponse("ServiceAccountPassWord = ", lines);
             
             string DestructionRequired()
             { 
@@ -68,7 +68,7 @@ namespace DataTron
             }
             string autoCreateIndex = AutoCreateIndex();
 
-            Node Node1 = new Node(clusterName, nodeName, nodeMaster, nodeData, minimumMasterNode, unicastHosts, destructiveRequiresName, autoCreateIndex, monitoringNodeName, dataPath, pathRepository, esUserName, esPassWord, authenticationWebServer, serviceAccountUserName, serviceAccountPassWord);
+            Node Node1 = new Node(clusterName, nodeName, nodeMaster, nodeData, nodeMonitor, minimumMasterNode, unicastHosts, destructiveRequiresName, autoCreateIndex, monitoringNodeName, dataPath, pathRepository, esUserName, esPassWord, authenticationWebServer, serviceAccountUserName, serviceAccountPassWord);
 
             return Node1;
         }

@@ -45,6 +45,20 @@ namespace DataTron
             Node Node1 = responseFile.ReadResponseFileText();
 
             textBoxClusterName.Text = Node1.ClusterName;
+            textBoxNodeName.Text = Node1.NodeName;
+            textBoxMasterNode.Text = Node1.NodeMaster;
+            textBoxDataNode.Text = Node1.NodeData;
+            textBoxNumberMasters.Text = Node1.MinimumMasterNode;
+            textBoxMonitorNode.Text = Node1.NodeMonitor;
+            textBoxMonitoringNodeName.Text = Node1.MonitoringNodeName;
+            textBoxDataPath.Text = Node1.DataPath;
+            textBoxBackupLoc.Text = Node1.PathRepository;
+            textBoxESUser.Text = Node1.EsUserName;
+            textBoxESPassword.Text = Node1.EsPassWord;
+            textBoxRelUser.Text = Node1.ServiceAccountUserName;
+            textBoxRelPass.Text = Node1.ServiceAccountPassWord;
+
+
 
         }
     }

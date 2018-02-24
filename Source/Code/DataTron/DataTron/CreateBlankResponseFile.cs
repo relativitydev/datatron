@@ -78,6 +78,8 @@ ServiceAccountUserName =
 
 #The Relativity Service Account password
 
+ServiceAccountPassWord = 
+
 ";
         public static void MakeResponseFile()
         {

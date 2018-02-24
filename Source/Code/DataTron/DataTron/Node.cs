@@ -12,6 +12,7 @@ namespace DataTron
         private string _nodeName;
         private string _nodeMaster;
         private string _nodeData;
+        private string _nodeMonitor;
         private string _minimumMasterNode;
         private string _unicastHosts;
         private string _destructiveRequiresName;
@@ -25,11 +26,12 @@ namespace DataTron
         private string _serviceAccountUserName;
         private string _serviceAccountPassWord;
 
-        public Node(string clusterName, string nodeName, string nodeMaster, string nodeData, string minimumMasterNode, string unicastHosts, string destructiveRequiresName, string autoCreateIndex, string monitoringNodeName, string dataPath, string pathRepository, string esUserName, string esPassWord, string authenticationWebServer, string serviceAccountUserName, string serviceAccountPassWord)
+        public Node(string clusterName, string nodeName, string nodeMaster, string nodeData, string nodeMonitor, string minimumMasterNode, string unicastHosts, string destructiveRequiresName, string autoCreateIndex, string monitoringNodeName, string dataPath, string pathRepository, string esUserName, string esPassWord, string authenticationWebServer, string serviceAccountUserName, string serviceAccountPassWord)
         {
             ClusterName = clusterName;
             NodeName = nodeName;
             NodeMaster = nodeMaster;
+            NodeMonitor = nodeMonitor;
             NodeData = nodeData;
             MinimumMasterNode = minimumMasterNode;
             UnicastHosts = unicastHosts;
@@ -43,6 +45,7 @@ namespace DataTron
             AuthenticationWebServer = authenticationWebServer;
             ServiceAccountUserName = serviceAccountUserName;
             ServiceAccountPassWord = serviceAccountPassWord;
+            
         }
 
         public string ClusterName { get => _clusterName; set => _clusterName = value; }
@@ -61,5 +64,6 @@ namespace DataTron
         public string AuthenticationWebServer { get => _authenticationWebServer; set => _authenticationWebServer = value; }
         public string ServiceAccountUserName { get => _serviceAccountUserName; set => _serviceAccountUserName = value; }
         public string ServiceAccountPassWord { get => _serviceAccountPassWord; set => _serviceAccountPassWord = value; }
+        public string NodeMonitor { get => _nodeMonitor; set => _nodeMonitor = value; }
     }
 }
