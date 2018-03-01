@@ -7,12 +7,13 @@ using System.IO;
 
 namespace DataTron
 {
-    class ReadResponseFile
+    class LoadResponseFile
     {
-        public Node ReadResponseFileText()
+        public static void ReadResponseFileText(Node node)
         {
             string[] lines = File.ReadAllLines("DataGridResponseFile.txt");
 
+            //TODO make sure there are no begin or trailing spaces.  Use a regex?
 
             string ParseResponse(string StringToParse, string[] linesArray)
             {
@@ -20,57 +21,23 @@ namespace DataTron
                 return ParsedResponce;
             }
 
-            string clusterName = ParseResponse("ClusterName =", lines);
-            string nodeMaster = ParseResponse("IsMaster =", lines);
-            string nodeData = ParseResponse("IsData = ", lines);
-            string nodeMonitor = ParseResponse("IsMonitor = ", lines);
-            string minimumMasterNode = ParseResponse("MasterNodeNumber = ", lines);
-            string nodeName = ParseResponse("NodeName = ", lines);          
-            string unicastHosts = ParseResponse("UnicastHosts = ", lines);
-            string monitoringNodeName = ParseResponse("MonitoringNodeName = ", lines);
-            string dataPath = ParseResponse("DataPath = ", lines);
-            string pathRepository = ParseResponse("PathRepository =", lines);
-            string esUserName = ParseResponse("EsUserName = ", lines);
-            string esPassWord = ParseResponse("EsPassWord = ", lines);
-            string authenticationWebServer = ParseResponse("AuthenticationWebServer = ", lines);
-            string serviceAccountUserName = ParseResponse("ServiceAccountUserName = ", lines);
-            string serviceAccountPassWord = ParseResponse("ServiceAccountPassWord = ", lines);
-            
-            string DestructionRequired()
-            { 
-                if (Convert.ToBoolean(nodeMonitor))
-                {
-                    string destruct = "false";
-                    return destruct;
-                }
-                else
-                {
-                    string destruct = "true";
-                    return destruct;
-                }
+            node.ClusterName = ParseResponse("ClusterName =", lines);
+            node.NodeMaster = ParseResponse("IsMaster =", lines);
+            node.NodeData = ParseResponse("IsData = ", lines);
+            node.NodeMonitor = ParseResponse("IsMonitor = ", lines);
+            node.MinimumMasterNode = ParseResponse("MasterNodeNumber = ", lines);
+            node.NodeMonitor = ParseResponse("NodeName = ", lines);          
+            node.UnicastHosts = ParseResponse("UnicastHosts = ", lines);
+            node.MonitoringNodeName = ParseResponse("MonitoringNodeName = ", lines);
+            node.DataPath = ParseResponse("DataPath = ", lines);
+            node.PathRepository= ParseResponse("PathRepository =", lines);
+            node.EsUserName = ParseResponse("EsUserName = ", lines);
+            node.EsPassWord = ParseResponse("EsPassWord = ", lines);
+            node.AuthenticationWebServer = ParseResponse("AuthenticationWebServer = ", lines);
+            node.ServiceAccountUserName = ParseResponse("ServiceAccountUserName = ", lines);
+            node.ServiceAccountUserName = ParseResponse("ServiceAccountPassWord = ", lines);
 
-            }
-            string destructiveRequiresName = DestructionRequired();
-
-            string AutoCreateIndex()
-            {
-                if (Convert.ToBoolean(nodeMonitor))
-                {
-                    string autocreate = "true";
-                    return autocreate;
-                }
-                else
-                {
-                    string autocreate = "false";
-                    return autocreate;
-                }
-
-            }
-            string autoCreateIndex = AutoCreateIndex();
-
-            Node Node1 = new Node(clusterName, nodeName, nodeMaster, nodeData, nodeMonitor, minimumMasterNode, unicastHosts, destructiveRequiresName, autoCreateIndex, monitoringNodeName, dataPath, pathRepository, esUserName, esPassWord, authenticationWebServer, serviceAccountUserName, serviceAccountPassWord);
-
-            return Node1;
+        
         }
     }
 }

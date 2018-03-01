@@ -12,9 +12,11 @@ namespace DataTron
 {
     public partial class Form1 : Form
     {
+        Node node = new Node();
         public Form1()
         {
             InitializeComponent();
+            
         }
 
         private void btnForm1Next_Click(object sender, EventArgs e)
@@ -41,24 +43,21 @@ namespace DataTron
 
         private void btnLoadResponce_Click(object sender, EventArgs e)
         {
-            ReadResponseFile responseFile = new ReadResponseFile();
-            Node Node1 = responseFile.ReadResponseFileText();
+            LoadResponseFile.ReadResponseFileText(node);
 
-            textBoxClusterName.Text = Node1.ClusterName;
-            textBoxNodeName.Text = Node1.NodeName;
-            textBoxMasterNode.Text = Node1.NodeMaster;
-            textBoxDataNode.Text = Node1.NodeData;
-            textBoxNumberMasters.Text = Node1.MinimumMasterNode;
-            textBoxMonitorNode.Text = Node1.NodeMonitor;
-            textBoxMonitoringNodeName.Text = Node1.MonitoringNodeName;
-            textBoxDataPath.Text = Node1.DataPath;
-            textBoxBackupLoc.Text = Node1.PathRepository;
-            textBoxESUser.Text = Node1.EsUserName;
-            textBoxESPassword.Text = Node1.EsPassWord;
-            textBoxRelUser.Text = Node1.ServiceAccountUserName;
-            textBoxRelPass.Text = Node1.ServiceAccountPassWord;
-
-
+            textBoxClusterName.Text = node.ClusterName;
+            textBoxNodeName.Text = node.NodeName;
+            textBoxMasterNode.Text = node.NodeMaster;
+            textBoxDataNode.Text = node.NodeData;
+            textBoxNumberMasters.Text = node.MinimumMasterNode;
+            textBoxMonitorNode.Text = node.NodeMonitor;
+            textBoxMonitoringNodeName.Text = node.MonitoringNodeName;
+            textBoxDataPath.Text = node.DataPath;
+            textBoxBackupLoc.Text = node.PathRepository;
+            textBoxESUser.Text = node.EsUserName;
+            textBoxESPassword.Text = node.EsPassWord;
+            textBoxRelUser.Text = node.ServiceAccountUserName;
+            textBoxRelPass.Text = node.ServiceAccountPassWord;
 
         }
     }

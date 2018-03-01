@@ -26,37 +26,42 @@ namespace DataTron
         private string _serviceAccountUserName;
         private string _serviceAccountPassWord;
 
-        public Node(string clusterName, string nodeName, string nodeMaster, string nodeData, string nodeMonitor, string minimumMasterNode, string unicastHosts, string destructiveRequiresName, string autoCreateIndex, string monitoringNodeName, string dataPath, string pathRepository, string esUserName, string esPassWord, string authenticationWebServer, string serviceAccountUserName, string serviceAccountPassWord)
-        {
-            ClusterName = clusterName;
-            NodeName = nodeName;
-            NodeMaster = nodeMaster;
-            NodeMonitor = nodeMonitor;
-            NodeData = nodeData;
-            MinimumMasterNode = minimumMasterNode;
-            UnicastHosts = unicastHosts;
-            DestructiveRequiresName = destructiveRequiresName;
-            AutoCreateIndex = autoCreateIndex;
-            MonitoringNodeName = monitoringNodeName;
-            DataPath = dataPath;
-            PathRepository = pathRepository;
-            EsUserName = esUserName;
-            EsPassWord = esPassWord;
-            AuthenticationWebServer = authenticationWebServer;
-            ServiceAccountUserName = serviceAccountUserName;
-            ServiceAccountPassWord = serviceAccountPassWord;
-            
-        }
 
+        public string NodeMonitor { get => _nodeMonitor; set => _nodeMonitor = value; }
         public string ClusterName { get => _clusterName; set => _clusterName = value; }
         public string NodeName { get => _nodeName; set => _nodeName = value; }
         public string NodeMaster { get => _nodeMaster; set => _nodeMaster = value; }
         public string NodeData { get => _nodeData; set => _nodeData = value; }
         public string MinimumMasterNode { get => _minimumMasterNode; set => _minimumMasterNode = value; }
         public string UnicastHosts { get => _unicastHosts; set => _unicastHosts = value; }
-        public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = value; }
-        public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
         public string MonitoringNodeName { get => _monitoringNodeName; set => _monitoringNodeName = value; }
+        static string DestructionRequired(string NodeMonitor)
+        {
+            if (Convert.ToBoolean(NodeMonitor))
+            {
+                string destruct = "false";
+                return destruct;
+            }
+            else
+            {
+                string destruct = "true";
+                return destruct;
+            }
+        }
+        static string AutoCreateIndexSetting(string NodeMonitor)
+        {
+            if (Convert.ToBoolean(NodeMonitor))
+            {
+                string autocreate = "true";
+                return autocreate;
+            }
+            else
+            {
+                string autocreate = "false";
+                return autocreate;
+            }
+
+        }
         public string DataPath { get => _dataPath; set => _dataPath = value; }
         public string PathRepository { get => _pathRepository; set => _pathRepository = value; }
         public string EsUserName { get => _esUserName; set => _esUserName = value; }
@@ -64,6 +69,8 @@ namespace DataTron
         public string AuthenticationWebServer { get => _authenticationWebServer; set => _authenticationWebServer = value; }
         public string ServiceAccountUserName { get => _serviceAccountUserName; set => _serviceAccountUserName = value; }
         public string ServiceAccountPassWord { get => _serviceAccountPassWord; set => _serviceAccountPassWord = value; }
-        public string NodeMonitor { get => _nodeMonitor; set => _nodeMonitor = value; }
+        public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = DestructionRequired(NodeMonitor); }
+        public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = AutoCreateIndexSetting(NodeMonitor); }
+  
     }
 }
