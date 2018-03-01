@@ -36,7 +36,7 @@ namespace DataTron
             node.AuthenticationWebServer = ParseResponse("AuthenticationWebServer = ", lines);
             node.ServiceAccountUserName = ParseResponse("ServiceAccountUserName = ", lines);
             node.ServiceAccountUserName = ParseResponse("ServiceAccountPassWord = ", lines);
-
+            node.NodeName = ParseResponse("NodeName = ", lines);
         
         }
     }

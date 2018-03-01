@@ -58,6 +58,7 @@ namespace DataTron
             textBoxESPassword.Text = node.EsPassWord;
             textBoxRelUser.Text = node.ServiceAccountUserName;
             textBoxRelPass.Text = node.ServiceAccountPassWord;
+            textBoxNodeName.Text = node.NodeName;
 
         }
     }
