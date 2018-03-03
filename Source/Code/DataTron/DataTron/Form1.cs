@@ -20,6 +20,25 @@ namespace DataTron
             
         }
 
+        void PopulateNodeWithTextBoxValues()
+        {
+            textBoxClusterName.Text = node.ClusterName;
+            textBoxNodeName.Text = node.NodeName;
+            textBoxMasterNode.Text = node.NodeMaster;
+            textBoxDataNode.Text = node.NodeData;
+            textBoxNumberMasters.Text = node.MinimumMasterNode;
+            textBoxMonitorNode.Text = node.NodeMonitor;
+            textBoxMonitoringNode.Text = node.MonitoringNode;
+            textBoxDataPath.Text = node.DataPath;
+            textBoxBackupLoc.Text = node.PathRepository;
+            textBoxESUser.Text = node.EsUserName;
+            textBoxESPassword.Text = node.EsPassWord;
+            textBoxRelUser.Text = node.ServiceAccountUserName;
+            textBoxRelPass.Text = node.ServiceAccountPassWord;
+            textBoxUnicastHosts.Text = node.UnicastHosts;
+            textBoxAuthWebServer.Text = node.AuthenticationWebServer;
+        }
+
         private void btnForm1Next_Click(object sender, EventArgs e)
         {
             Form2 form2 = new Form2();
@@ -46,23 +65,22 @@ namespace DataTron
         {
             LoadResponseFile.ReadResponseFileText(node);
 
-            textBoxClusterName.Text = node.ClusterName;
-            textBoxNodeName.Text = node.NodeName;
-            textBoxMasterNode.Text = node.NodeMaster;
-            textBoxDataNode.Text = node.NodeData;
-            textBoxNumberMasters.Text = node.MinimumMasterNode;
-            textBoxMonitorNode.Text = node.NodeMonitor;
-            textBoxMonitoringNode.Text = node.MonitoringNode;
-            textBoxDataPath.Text = node.DataPath;
-            textBoxBackupLoc.Text = node.PathRepository;
-            textBoxESUser.Text = node.EsUserName;
-            textBoxESPassword.Text = node.EsPassWord;
-            textBoxRelUser.Text = node.ServiceAccountUserName;
-            textBoxRelPass.Text = node.ServiceAccountPassWord;
-            textBoxUnicastHosts.Text = node.UnicastHosts;
-            textBoxAuthWebServer.Text = node.AuthenticationWebServer;
+            PopulateNodeWithTextBoxValues();
+
+            MessageBox.Show("Response File Loaded.");
         }
 
+        private void checkBoxNoResponseFile_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxNoResponseFile.Checked)
+            {
+                PopulateNodeWithTextBoxValues();
+
+                MessageBox.Show("Values loaded to memory, No reponse file created.");
+            }
+        }
+
+        #region //Event Handlers for Text Box changes
         private void textBoxClusterName_TextChanged(object sender, EventArgs e)
         {
             node.ClusterName = textBoxClusterName.Text;
@@ -204,29 +222,8 @@ namespace DataTron
 
             MessageBox.Show("Response File Updated.");
         }
+        #endregion
 
-        private void checkBoxNoResponseFile_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBoxNoResponseFile.Checked)
-            {
-                textBoxClusterName.Text = node.ClusterName;
-                textBoxNodeName.Text = node.NodeName;
-                textBoxMasterNode.Text = node.NodeMaster;
-                textBoxDataNode.Text = node.NodeData;
-                textBoxNumberMasters.Text = node.MinimumMasterNode;
-                textBoxMonitorNode.Text = node.NodeMonitor;
-                textBoxMonitoringNode.Text = node.MonitoringNode;
-                textBoxDataPath.Text = node.DataPath;
-                textBoxBackupLoc.Text = node.PathRepository;
-                textBoxESUser.Text = node.EsUserName;
-                textBoxESPassword.Text = node.EsPassWord;
-                textBoxRelUser.Text = node.ServiceAccountUserName;
-                textBoxRelPass.Text = node.ServiceAccountPassWord;
-                textBoxUnicastHosts.Text = node.UnicastHosts;
-                textBoxAuthWebServer.Text = node.AuthenticationWebServer;
 
-                MessageBox.Show("Values loaded to memory, No reponse file created.");
-            }
-        }
     }
 }

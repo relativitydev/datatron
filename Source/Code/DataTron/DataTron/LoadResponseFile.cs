@@ -11,16 +11,22 @@ namespace DataTron
     {
         public static void ReadResponseFileText(Node node)
         {
+            try
+            {
+                string[] Trylines = File.ReadAllLines("DataGridResponseFile.txt");                
+            }
+            catch (FileNotFoundException)
+            {
+                CreateBlankResponseFile.MakeResponseFile();
+            }
             string[] lines = File.ReadAllLines("DataGridResponseFile.txt");
 
             //TODO make sure there are no begin or trailing spaces.  Use a regex?
 
             string ParseResponse(string StringToParse, string[] linesArray)
             {
-                //TODO Try catch this exception will occur if there is a blank value in the Response File.
 
                 string ParsedResponce = (Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "");
-
                 return ParsedResponce;
             }
             node.ClusterName = ParseResponse("ClusterName = ", lines);
