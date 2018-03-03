@@ -87,27 +87,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\elasticsearch" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\elasticsearch.bat" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\elasticsearch.in.bat" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\elasticsearch.in.sh" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\kservice.bat" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\plugin" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\plugin.bat" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\shield\.in.bat" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\shield\esusers" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\shield\esusers.bat" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\shield\syskeygen" />
-    <None Include="RelativityDatGrid\elasticsearch-main\bin\shield\syskeygen.bat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Content Include="RelativityDatGrid\elasticsearch-main\bin\elasticsearch-service-mgr.exe" />
-    <Content Include="RelativityDatGrid\elasticsearch-main\bin\elasticsearch-service-x64.exe" />
-    <Content Include="RelativityDatGrid\elasticsearch-main\bin\elasticsearch-service-x86.exe" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

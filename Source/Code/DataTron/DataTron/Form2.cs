@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,8 +35,8 @@ namespace DataTron
             FolderBrowserDialog DialogBox = new FolderBrowserDialog();
             DialogBox.ShowDialog();
             string installPath = DialogBox.SelectedPath;
-            MessageBox.Show("You choose " + installPath);
-            
+            Directory.Move("RelativityDataGrid", installPath + "\\RelativityDataGridTest");
+            MessageBox.Show("Created the package at " + installPath);
         }
 
         private void btnSetJavaHeap_Click(object sender, EventArgs e)
