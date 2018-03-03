@@ -28,9 +28,9 @@ namespace DataTron
             node.NodeData = ParseResponse("IsData = ", lines);
             node.NodeMonitor = ParseResponse("IsMonitor = ", lines);
             node.MinimumMasterNode = ParseResponse("MasterNodeNumber = ", lines);
-            node.NodeMonitor = ParseResponse("NodeName = ", lines);          
+            node.MonitoringNode = ParseResponse("MonitoringNode = ", lines);          
             node.UnicastHosts = ParseResponse("UnicastHosts = ", lines);
-            node.MonitoringNodeName = ParseResponse("MonitoringNodeName = ", lines);
+            node.MonitoringNode = ParseResponse("MonitoringNode = ", lines);
             node.DataPath = ParseResponse("DataPath = ", lines);
             node.PathRepository= ParseResponse("PathRepository = ", lines);
             node.EsUserName = ParseResponse("EsUserName = ", lines);

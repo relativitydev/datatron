@@ -29,7 +29,7 @@ UnicastHosts =
 
 #Enter true if the node will fuction as a master node, monitoring node, or a combined role node.
 
-IsMaster =
+IsMaster = 
 
 #Enter true if the node will fuction as a data nodem, monitoring node, or a combined role node.
 
@@ -45,22 +45,22 @@ MasterNodeNumber =
 
 #Enter the name of the Monitoring Node if it exists otherwise leave blank
 
-MonitoringNodeName =
+MonitoringNode = 
 
 #Ener the path where data will be stored on this node.  Note a blank file will be created for client and master types.  The folder is created by the 
 
 installer.
 
-DataPath =
+DataPath = 
 
 #Enter the network location of the backup.  This backup location must be exist and shared to the Relativity Service Account.
 
-PathRepository =
+PathRepository = 
 
 #Elastic uses a plugin called shield with a REST username and password to protect the cluster from unauthorized access.  
 #Create a new username.  This is not a domain account and is used solely for authentication with shield.
 
-EsUserName =
+EsUserName = 
 
 #Create a pssword for the shield account above.
 
@@ -70,11 +70,11 @@ EsPassWord =
 #This can be a single Relativity server name or a load balance URL.
 #The Web server or load balancer must have a valid SSL certificate.
 
-AuthenticationWebServer =
+AuthenticationWebServer = 
 
 #The Relativity Service Account user name use the domain\username format.  If the Service Account is not in a domain use the .\username format.
 
-ServiceAccountUserName =
+ServiceAccountUserName = 
 
 #The Relativity Service Account password
 

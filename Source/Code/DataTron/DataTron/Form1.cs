@@ -52,7 +52,7 @@ namespace DataTron
             textBoxDataNode.Text = node.NodeData;
             textBoxNumberMasters.Text = node.MinimumMasterNode;
             textBoxMonitorNode.Text = node.NodeMonitor;
-            textBoxMonitoringNodeName.Text = node.MonitoringNodeName;
+            textBoxMonitoringNode.Text = node.MonitoringNode;
             textBoxDataPath.Text = node.DataPath;
             textBoxBackupLoc.Text = node.PathRepository;
             textBoxESUser.Text = node.EsUserName;
@@ -60,6 +60,7 @@ namespace DataTron
             textBoxRelUser.Text = node.ServiceAccountUserName;
             textBoxRelPass.Text = node.ServiceAccountPassWord;
             textBoxUnicastHosts.Text = node.UnicastHosts;
+            textBoxAuthWebServer.Text = node.AuthenticationWebServer;
         }
 
         private void textBoxClusterName_TextChanged(object sender, EventArgs e)
@@ -92,9 +93,9 @@ namespace DataTron
             node.NodeMonitor = textBoxMonitorNode.Text;
         }
 
-        private void textBoxMonitoringNodeName_TextChanged(object sender, EventArgs e)
+        private void textBoxMonitoringNode_TextChanged(object sender, EventArgs e)
         {
-            node.MonitoringNodeName = textBoxMonitoringNodeName.Text;
+            node.MonitoringNode = textBoxMonitoringNode.Text;
         }
 
         private void textBoxDataPath_TextChanged(object sender, EventArgs e)
@@ -132,27 +133,100 @@ namespace DataTron
             node.UnicastHosts = textBoxUnicastHosts.Text;
         }
 
+        private void textBoxAuthWebServer_TextChanged(object sender, EventArgs e)
+        {
+            node.AuthenticationWebServer = textBoxAuthWebServer.Text;
+        }
+
         private void btnUpdateResponse_Click(object sender, EventArgs e)
         {
-            textBoxClusterName.Text = node.ClusterName;
-            textBoxNodeName.Text = node.NodeName;
-            textBoxMasterNode.Text = node.NodeMaster;
-            textBoxDataNode.Text = node.NodeData;
-            textBoxNumberMasters.Text = node.MinimumMasterNode;
-            textBoxMonitorNode.Text = node.NodeMonitor;
-            textBoxMonitoringNodeName.Text = node.MonitoringNodeName;
-            textBoxDataPath.Text = node.DataPath;
-            textBoxBackupLoc.Text = node.PathRepository;
-            textBoxESUser.Text = node.EsUserName;
-            textBoxESPassword.Text = node.EsPassWord;
-            textBoxRelUser.Text = node.ServiceAccountUserName;
-            textBoxRelPass.Text = node.ServiceAccountPassWord;
-            textBoxUnicastHosts.Text = node.UnicastHosts;
-
             string[] lines = File.ReadAllLines("DataGridResponseFile.txt");
-            lines = UpdateResponseFile.UpdateResponseFileText(node, "ClusterName = ", node.ClusterName, lines);
 
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "ClusterName = ", textBoxClusterName.Text, lines);
             File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "NodeName = ", textBoxNodeName.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "UnicastHosts = ", textBoxUnicastHosts.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "IsMaster = ", textBoxMasterNode.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "IsData = ", textBoxDataNode.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "IsMonitor = ", textBoxMonitorNode.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "MasterNodeNumber = ", textBoxNumberMasters.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "MonitoringNode = ", textBoxMonitoringNode.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "DataPath = ", textBoxDataPath.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "PathRepository = ", textBoxBackupLoc.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "EsUserName = ", textBoxESUser.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "EsPassWord = ", textBoxESPassword.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "AuthenticationWebServer = ", textBoxAuthWebServer.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "ServiceAccountUserName = ", textBoxRelUser.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "ServiceAccountPassWord = ", textBoxRelPass.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            MessageBox.Show("Response File Updated.");
+        }
+
+        private void checkBoxNoResponseFile_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxNoResponseFile.Checked)
+            {
+                textBoxClusterName.Text = node.ClusterName;
+                textBoxNodeName.Text = node.NodeName;
+                textBoxMasterNode.Text = node.NodeMaster;
+                textBoxDataNode.Text = node.NodeData;
+                textBoxNumberMasters.Text = node.MinimumMasterNode;
+                textBoxMonitorNode.Text = node.NodeMonitor;
+                textBoxMonitoringNode.Text = node.MonitoringNode;
+                textBoxDataPath.Text = node.DataPath;
+                textBoxBackupLoc.Text = node.PathRepository;
+                textBoxESUser.Text = node.EsUserName;
+                textBoxESPassword.Text = node.EsPassWord;
+                textBoxRelUser.Text = node.ServiceAccountUserName;
+                textBoxRelPass.Text = node.ServiceAccountPassWord;
+                textBoxUnicastHosts.Text = node.UnicastHosts;
+                textBoxAuthWebServer.Text = node.AuthenticationWebServer;
+
+                MessageBox.Show("Values loaded to memory, No reponse file created.");
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace DataTron
 
                 for(int i= 0; i < linesArray.Length; i++)
                 {
-                    if (linesArray[i].Contains(StringToParse))
+                    if (linesArray[i].StartsWith(StringToParse))
                     {
                         linesArray[i] = StringToParse + NewValue;
                         Console.WriteLine(linesArray[i]);

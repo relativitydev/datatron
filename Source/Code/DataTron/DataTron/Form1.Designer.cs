@@ -34,7 +34,7 @@
             this.lblDataNode = new System.Windows.Forms.Label();
             this.lblMinMaster = new System.Windows.Forms.Label();
             this.lbl = new System.Windows.Forms.Label();
-            this.lblMonitoringNodeName = new System.Windows.Forms.Label();
+            this.lblMonitoringNode = new System.Windows.Forms.Label();
             this.lblDataPath = new System.Windows.Forms.Label();
             this.lblBackupLocation = new System.Windows.Forms.Label();
             this.lblEsUserName = new System.Windows.Forms.Label();
@@ -47,7 +47,7 @@
             this.textBoxDataNode = new System.Windows.Forms.TextBox();
             this.textBoxNumberMasters = new System.Windows.Forms.TextBox();
             this.textBoxMonitorNode = new System.Windows.Forms.TextBox();
-            this.textBoxMonitoringNodeName = new System.Windows.Forms.TextBox();
+            this.textBoxMonitoringNode = new System.Windows.Forms.TextBox();
             this.textBoxDataPath = new System.Windows.Forms.TextBox();
             this.textBoxBackupLoc = new System.Windows.Forms.TextBox();
             this.textBoxESUser = new System.Windows.Forms.TextBox();
@@ -61,6 +61,8 @@
             this.lblUnicastHosts = new System.Windows.Forms.Label();
             this.textBoxUnicastHosts = new System.Windows.Forms.TextBox();
             this.checkBoxNoResponseFile = new System.Windows.Forms.CheckBox();
+            this.lblAuthWebServer = new System.Windows.Forms.Label();
+            this.textBoxAuthWebServer = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // lblClusterName
@@ -117,14 +119,14 @@
             this.lbl.TabIndex = 0;
             this.lbl.Text = "Monitoring Node";
             // 
-            // lblMonitoringNodeName
+            // lblMonitoringNode
             // 
-            this.lblMonitoringNodeName.AutoSize = true;
-            this.lblMonitoringNodeName.Location = new System.Drawing.Point(117, 162);
-            this.lblMonitoringNodeName.Name = "lblMonitoringNodeName";
-            this.lblMonitoringNodeName.Size = new System.Drawing.Size(116, 13);
-            this.lblMonitoringNodeName.TabIndex = 0;
-            this.lblMonitoringNodeName.Text = "Monitoring Node Name";
+            this.lblMonitoringNode.AutoSize = true;
+            this.lblMonitoringNode.Location = new System.Drawing.Point(117, 162);
+            this.lblMonitoringNode.Name = "lblMonitoringNode";
+            this.lblMonitoringNode.Size = new System.Drawing.Size(116, 13);
+            this.lblMonitoringNode.TabIndex = 0;
+            this.lblMonitoringNode.Text = "Monitoring Node Name";
             // 
             // lblDataPath
             // 
@@ -228,13 +230,13 @@
             this.textBoxMonitorNode.TabIndex = 1;
             this.textBoxMonitorNode.TextChanged += new System.EventHandler(this.textBoxMonitorNode_TextChanged);
             // 
-            // textBoxMonitoringNodeName
+            // textBoxMonitoringNode
             // 
-            this.textBoxMonitoringNodeName.Location = new System.Drawing.Point(239, 162);
-            this.textBoxMonitoringNodeName.Name = "textBoxMonitoringNodeName";
-            this.textBoxMonitoringNodeName.Size = new System.Drawing.Size(100, 20);
-            this.textBoxMonitoringNodeName.TabIndex = 1;
-            this.textBoxMonitoringNodeName.TextChanged += new System.EventHandler(this.textBoxMonitoringNodeName_TextChanged);
+            this.textBoxMonitoringNode.Location = new System.Drawing.Point(239, 162);
+            this.textBoxMonitoringNode.Name = "textBoxMonitoringNode";
+            this.textBoxMonitoringNode.Size = new System.Drawing.Size(100, 20);
+            this.textBoxMonitoringNode.TabIndex = 1;
+            this.textBoxMonitoringNode.TextChanged += new System.EventHandler(this.textBoxMonitoringNode_TextChanged);
             // 
             // textBoxDataPath
             // 
@@ -350,12 +352,32 @@
             this.checkBoxNoResponseFile.TabIndex = 8;
             this.checkBoxNoResponseFile.Text = "Do Not Use Response File";
             this.checkBoxNoResponseFile.UseVisualStyleBackColor = true;
+            this.checkBoxNoResponseFile.CheckedChanged += new System.EventHandler(this.checkBoxNoResponseFile_CheckedChanged);
+            // 
+            // lblAuthWebServer
+            // 
+            this.lblAuthWebServer.AutoSize = true;
+            this.lblAuthWebServer.Location = new System.Drawing.Point(98, 372);
+            this.lblAuthWebServer.Name = "lblAuthWebServer";
+            this.lblAuthWebServer.Size = new System.Drawing.Size(135, 13);
+            this.lblAuthWebServer.TabIndex = 9;
+            this.lblAuthWebServer.Text = "Authentication Web Server";
+            // 
+            // textBoxAuthWebServer
+            // 
+            this.textBoxAuthWebServer.Location = new System.Drawing.Point(240, 372);
+            this.textBoxAuthWebServer.Name = "textBoxAuthWebServer";
+            this.textBoxAuthWebServer.Size = new System.Drawing.Size(100, 20);
+            this.textBoxAuthWebServer.TabIndex = 10;
+            this.textBoxAuthWebServer.TextChanged += new System.EventHandler(this.textBoxAuthWebServer_TextChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(836, 391);
+            this.ClientSize = new System.Drawing.Size(836, 406);
+            this.Controls.Add(this.textBoxAuthWebServer);
+            this.Controls.Add(this.lblAuthWebServer);
             this.Controls.Add(this.checkBoxNoResponseFile);
             this.Controls.Add(this.textBoxUnicastHosts);
             this.Controls.Add(this.lblUnicastHosts);
@@ -369,7 +391,7 @@
             this.Controls.Add(this.textBoxESUser);
             this.Controls.Add(this.textBoxBackupLoc);
             this.Controls.Add(this.textBoxDataPath);
-            this.Controls.Add(this.textBoxMonitoringNodeName);
+            this.Controls.Add(this.textBoxMonitoringNode);
             this.Controls.Add(this.textBoxMonitorNode);
             this.Controls.Add(this.textBoxNumberMasters);
             this.Controls.Add(this.textBoxDataNode);
@@ -382,7 +404,7 @@
             this.Controls.Add(this.lblEsUserName);
             this.Controls.Add(this.lblBackupLocation);
             this.Controls.Add(this.lblDataPath);
-            this.Controls.Add(this.lblMonitoringNodeName);
+            this.Controls.Add(this.lblMonitoringNode);
             this.Controls.Add(this.lbl);
             this.Controls.Add(this.lblMinMaster);
             this.Controls.Add(this.lblDataNode);
@@ -405,7 +427,7 @@
         private System.Windows.Forms.Label lblDataNode;
         private System.Windows.Forms.Label lblMinMaster;
         private System.Windows.Forms.Label lbl;
-        private System.Windows.Forms.Label lblMonitoringNodeName;
+        private System.Windows.Forms.Label lblMonitoringNode;
         private System.Windows.Forms.Label lblDataPath;
         private System.Windows.Forms.Label lblBackupLocation;
         private System.Windows.Forms.Label lblEsUserName;
@@ -418,7 +440,7 @@
         private System.Windows.Forms.TextBox textBoxDataNode;
         private System.Windows.Forms.TextBox textBoxNumberMasters;
         private System.Windows.Forms.TextBox textBoxMonitorNode;
-        private System.Windows.Forms.TextBox textBoxMonitoringNodeName;
+        private System.Windows.Forms.TextBox textBoxMonitoringNode;
         private System.Windows.Forms.TextBox textBoxDataPath;
         private System.Windows.Forms.TextBox textBoxBackupLoc;
         private System.Windows.Forms.TextBox textBoxESUser;
@@ -432,6 +454,8 @@
         private System.Windows.Forms.Label lblUnicastHosts;
         private System.Windows.Forms.TextBox textBoxUnicastHosts;
         private System.Windows.Forms.CheckBox checkBoxNoResponseFile;
+        private System.Windows.Forms.Label lblAuthWebServer;
+        private System.Windows.Forms.TextBox textBoxAuthWebServer;
     }
 }
 

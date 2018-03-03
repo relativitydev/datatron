@@ -17,7 +17,7 @@ namespace DataTron
         private string _unicastHosts;
         private string _destructiveRequiresName;
         private string _autoCreateIndex;
-        private string _monitoringNodeName;
+        private string _monitoringNode;
         private string _dataPath;
         private string _pathRepository;
         private string _esUserName;
@@ -34,7 +34,7 @@ namespace DataTron
         public string NodeData { get => _nodeData; set => _nodeData = value; }
         public string MinimumMasterNode { get => _minimumMasterNode; set => _minimumMasterNode = value; }
         public string UnicastHosts { get => _unicastHosts; set => _unicastHosts = value; }
-        public string MonitoringNodeName { get => _monitoringNodeName; set => _monitoringNodeName = value; }
+        public string MonitoringNode { get => _monitoringNode; set => _monitoringNode = value; }
         static string DestructionRequired(string NodeMonitor)
         {
             if (Convert.ToBoolean(NodeMonitor))
