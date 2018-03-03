@@ -195,7 +195,7 @@
             this.textBoxNodeName.Location = new System.Drawing.Point(239, 34);
             this.textBoxNodeName.Name = "textBoxNodeName";
             this.textBoxNodeName.Size = new System.Drawing.Size(100, 20);
-            this.textBoxNodeName.TabIndex = 1;
+            this.textBoxNodeName.TabIndex = 2;
             this.textBoxNodeName.TextChanged += new System.EventHandler(this.textBoxNodeName_TextChanged);
             // 
             // textBoxMasterNode
@@ -203,7 +203,7 @@
             this.textBoxMasterNode.Location = new System.Drawing.Point(239, 57);
             this.textBoxMasterNode.Name = "textBoxMasterNode";
             this.textBoxMasterNode.Size = new System.Drawing.Size(100, 20);
-            this.textBoxMasterNode.TabIndex = 1;
+            this.textBoxMasterNode.TabIndex = 3;
             this.textBoxMasterNode.TextChanged += new System.EventHandler(this.textBoxMasterNode_TextChanged);
             // 
             // textBoxDataNode
@@ -211,7 +211,7 @@
             this.textBoxDataNode.Location = new System.Drawing.Point(239, 83);
             this.textBoxDataNode.Name = "textBoxDataNode";
             this.textBoxDataNode.Size = new System.Drawing.Size(100, 20);
-            this.textBoxDataNode.TabIndex = 1;
+            this.textBoxDataNode.TabIndex = 4;
             this.textBoxDataNode.TextChanged += new System.EventHandler(this.textBoxDataNode_TextChanged);
             // 
             // textBoxNumberMasters
@@ -219,7 +219,7 @@
             this.textBoxNumberMasters.Location = new System.Drawing.Point(239, 109);
             this.textBoxNumberMasters.Name = "textBoxNumberMasters";
             this.textBoxNumberMasters.Size = new System.Drawing.Size(100, 20);
-            this.textBoxNumberMasters.TabIndex = 1;
+            this.textBoxNumberMasters.TabIndex = 5;
             this.textBoxNumberMasters.TextChanged += new System.EventHandler(this.textBoxNumberMasters_TextChanged);
             // 
             // textBoxMonitorNode
@@ -227,7 +227,7 @@
             this.textBoxMonitorNode.Location = new System.Drawing.Point(239, 138);
             this.textBoxMonitorNode.Name = "textBoxMonitorNode";
             this.textBoxMonitorNode.Size = new System.Drawing.Size(100, 20);
-            this.textBoxMonitorNode.TabIndex = 1;
+            this.textBoxMonitorNode.TabIndex = 6;
             this.textBoxMonitorNode.TextChanged += new System.EventHandler(this.textBoxMonitorNode_TextChanged);
             // 
             // textBoxMonitoringNode
@@ -235,7 +235,7 @@
             this.textBoxMonitoringNode.Location = new System.Drawing.Point(239, 162);
             this.textBoxMonitoringNode.Name = "textBoxMonitoringNode";
             this.textBoxMonitoringNode.Size = new System.Drawing.Size(100, 20);
-            this.textBoxMonitoringNode.TabIndex = 1;
+            this.textBoxMonitoringNode.TabIndex = 7;
             this.textBoxMonitoringNode.TextChanged += new System.EventHandler(this.textBoxMonitoringNode_TextChanged);
             // 
             // textBoxDataPath
@@ -243,7 +243,7 @@
             this.textBoxDataPath.Location = new System.Drawing.Point(239, 188);
             this.textBoxDataPath.Name = "textBoxDataPath";
             this.textBoxDataPath.Size = new System.Drawing.Size(100, 20);
-            this.textBoxDataPath.TabIndex = 1;
+            this.textBoxDataPath.TabIndex = 8;
             this.textBoxDataPath.TextChanged += new System.EventHandler(this.textBoxDataPath_TextChanged);
             // 
             // textBoxBackupLoc
@@ -251,7 +251,7 @@
             this.textBoxBackupLoc.Location = new System.Drawing.Point(239, 215);
             this.textBoxBackupLoc.Name = "textBoxBackupLoc";
             this.textBoxBackupLoc.Size = new System.Drawing.Size(100, 20);
-            this.textBoxBackupLoc.TabIndex = 1;
+            this.textBoxBackupLoc.TabIndex = 9;
             this.textBoxBackupLoc.TextChanged += new System.EventHandler(this.textBoxBackupLoc_TextChanged);
             // 
             // textBoxESUser
@@ -259,7 +259,7 @@
             this.textBoxESUser.Location = new System.Drawing.Point(239, 241);
             this.textBoxESUser.Name = "textBoxESUser";
             this.textBoxESUser.Size = new System.Drawing.Size(100, 20);
-            this.textBoxESUser.TabIndex = 1;
+            this.textBoxESUser.TabIndex = 10;
             this.textBoxESUser.TextChanged += new System.EventHandler(this.textBoxESUser_TextChanged);
             // 
             // textBoxESPassword
@@ -267,7 +267,7 @@
             this.textBoxESPassword.Location = new System.Drawing.Point(239, 267);
             this.textBoxESPassword.Name = "textBoxESPassword";
             this.textBoxESPassword.Size = new System.Drawing.Size(100, 20);
-            this.textBoxESPassword.TabIndex = 1;
+            this.textBoxESPassword.TabIndex = 11;
             this.textBoxESPassword.TextChanged += new System.EventHandler(this.textBoxESPassword_TextChanged);
             // 
             // textBoxRelUser
@@ -275,7 +275,7 @@
             this.textBoxRelUser.Location = new System.Drawing.Point(239, 292);
             this.textBoxRelUser.Name = "textBoxRelUser";
             this.textBoxRelUser.Size = new System.Drawing.Size(100, 20);
-            this.textBoxRelUser.TabIndex = 1;
+            this.textBoxRelUser.TabIndex = 12;
             this.textBoxRelUser.TextChanged += new System.EventHandler(this.textBoxRelUser_TextChanged);
             // 
             // textBoxRelPass
@@ -283,7 +283,7 @@
             this.textBoxRelPass.Location = new System.Drawing.Point(239, 318);
             this.textBoxRelPass.Name = "textBoxRelPass";
             this.textBoxRelPass.Size = new System.Drawing.Size(100, 20);
-            this.textBoxRelPass.TabIndex = 1;
+            this.textBoxRelPass.TabIndex = 13;
             this.textBoxRelPass.TextChanged += new System.EventHandler(this.textBoxRelPass_TextChanged);
             // 
             // btnLoadResponce
@@ -291,7 +291,8 @@
             this.btnLoadResponce.Location = new System.Drawing.Point(635, 41);
             this.btnLoadResponce.Name = "btnLoadResponce";
             this.btnLoadResponce.Size = new System.Drawing.Size(180, 23);
-            this.btnLoadResponce.TabIndex = 2;
+            this.btnLoadResponce.TabIndex = 0;
+            this.btnLoadResponce.TabStop = false;
             this.btnLoadResponce.Text = "Load Responce File";
             this.btnLoadResponce.UseVisualStyleBackColor = true;
             this.btnLoadResponce.Click += new System.EventHandler(this.btnLoadResponce_Click);
@@ -301,7 +302,7 @@
             this.btnForm1Next.Location = new System.Drawing.Point(635, 267);
             this.btnForm1Next.Name = "btnForm1Next";
             this.btnForm1Next.Size = new System.Drawing.Size(180, 23);
-            this.btnForm1Next.TabIndex = 3;
+            this.btnForm1Next.TabIndex = 0;
             this.btnForm1Next.Text = "Next";
             this.btnForm1Next.UseVisualStyleBackColor = true;
             this.btnForm1Next.Click += new System.EventHandler(this.btnForm1Next_Click);
@@ -311,7 +312,8 @@
             this.btnCreateResponseFile.Location = new System.Drawing.Point(635, 12);
             this.btnCreateResponseFile.Name = "btnCreateResponseFile";
             this.btnCreateResponseFile.Size = new System.Drawing.Size(180, 23);
-            this.btnCreateResponseFile.TabIndex = 4;
+            this.btnCreateResponseFile.TabIndex = 0;
+            this.btnCreateResponseFile.TabStop = false;
             this.btnCreateResponseFile.Text = "Create Blank Response File";
             this.btnCreateResponseFile.UseVisualStyleBackColor = true;
             this.btnCreateResponseFile.Click += new System.EventHandler(this.btnCreateResponseFile_Click);
@@ -321,7 +323,8 @@
             this.btnUpdateResponse.Location = new System.Drawing.Point(635, 70);
             this.btnUpdateResponse.Name = "btnUpdateResponse";
             this.btnUpdateResponse.Size = new System.Drawing.Size(180, 23);
-            this.btnUpdateResponse.TabIndex = 5;
+            this.btnUpdateResponse.TabIndex = 0;
+            this.btnUpdateResponse.TabStop = false;
             this.btnUpdateResponse.Text = "Update Response File";
             this.btnUpdateResponse.UseVisualStyleBackColor = true;
             this.btnUpdateResponse.Click += new System.EventHandler(this.btnUpdateResponse_Click);
@@ -340,7 +343,7 @@
             this.textBoxUnicastHosts.Location = new System.Drawing.Point(239, 345);
             this.textBoxUnicastHosts.Name = "textBoxUnicastHosts";
             this.textBoxUnicastHosts.Size = new System.Drawing.Size(551, 20);
-            this.textBoxUnicastHosts.TabIndex = 7;
+            this.textBoxUnicastHosts.TabIndex = 14;
             this.textBoxUnicastHosts.TextChanged += new System.EventHandler(this.textBoxUnicastHosts_TextChanged);
             // 
             // checkBoxNoResponseFile
@@ -349,7 +352,8 @@
             this.checkBoxNoResponseFile.Location = new System.Drawing.Point(635, 104);
             this.checkBoxNoResponseFile.Name = "checkBoxNoResponseFile";
             this.checkBoxNoResponseFile.Size = new System.Drawing.Size(152, 17);
-            this.checkBoxNoResponseFile.TabIndex = 8;
+            this.checkBoxNoResponseFile.TabIndex = 0;
+            this.checkBoxNoResponseFile.TabStop = false;
             this.checkBoxNoResponseFile.Text = "Do Not Use Response File";
             this.checkBoxNoResponseFile.UseVisualStyleBackColor = true;
             this.checkBoxNoResponseFile.CheckedChanged += new System.EventHandler(this.checkBoxNoResponseFile_CheckedChanged);
@@ -368,7 +372,7 @@
             this.textBoxAuthWebServer.Location = new System.Drawing.Point(240, 372);
             this.textBoxAuthWebServer.Name = "textBoxAuthWebServer";
             this.textBoxAuthWebServer.Size = new System.Drawing.Size(100, 20);
-            this.textBoxAuthWebServer.TabIndex = 10;
+            this.textBoxAuthWebServer.TabIndex = 15;
             this.textBoxAuthWebServer.TextChanged += new System.EventHandler(this.textBoxAuthWebServer_TextChanged);
             // 
             // Form1
