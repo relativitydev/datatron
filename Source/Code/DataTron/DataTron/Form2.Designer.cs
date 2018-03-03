@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
             this.btnForm2Back = new System.Windows.Forms.Button();
             this.btnForm2Next = new System.Windows.Forms.Button();
             this.btnCopyPackage = new System.Windows.Forms.Button();
@@ -44,7 +45,7 @@
             // 
             // btnForm2Back
             // 
-            this.btnForm2Back.Location = new System.Drawing.Point(409, 282);
+            this.btnForm2Back.Location = new System.Drawing.Point(730, 267);
             this.btnForm2Back.Name = "btnForm2Back";
             this.btnForm2Back.Size = new System.Drawing.Size(182, 23);
             this.btnForm2Back.TabIndex = 0;
@@ -54,7 +55,7 @@
             // 
             // btnForm2Next
             // 
-            this.btnForm2Next.Location = new System.Drawing.Point(409, 324);
+            this.btnForm2Next.Location = new System.Drawing.Point(730, 318);
             this.btnForm2Next.Name = "btnForm2Next";
             this.btnForm2Next.Size = new System.Drawing.Size(182, 23);
             this.btnForm2Next.TabIndex = 1;
@@ -69,6 +70,7 @@
             this.btnCopyPackage.TabIndex = 2;
             this.btnCopyPackage.Text = "Copy Data Grid Package to Disk";
             this.btnCopyPackage.UseVisualStyleBackColor = true;
+            this.btnCopyPackage.Click += new System.EventHandler(this.btnCopyPackage_Click);
             // 
             // btnSetJavaHeap
             // 
@@ -78,6 +80,7 @@
             this.btnSetJavaHeap.TabIndex = 2;
             this.btnSetJavaHeap.Text = "Set Java Heap";
             this.btnSetJavaHeap.UseVisualStyleBackColor = true;
+            this.btnSetJavaHeap.Click += new System.EventHandler(this.btnSetJavaHeap_Click);
             // 
             // btnInstallJava
             // 
@@ -87,6 +90,7 @@
             this.btnInstallJava.TabIndex = 2;
             this.btnInstallJava.Text = "Install Java";
             this.btnInstallJava.UseVisualStyleBackColor = true;
+            this.btnInstallJava.Click += new System.EventHandler(this.btnInstallJava_Click);
             // 
             // btnSetJavaHome
             // 
@@ -96,6 +100,7 @@
             this.btnSetJavaHome.TabIndex = 2;
             this.btnSetJavaHome.Text = "Set Java Home";
             this.btnSetJavaHome.UseVisualStyleBackColor = true;
+            this.btnSetJavaHome.Click += new System.EventHandler(this.btnSetJavaHome_Click);
             // 
             // btnInstalWebCert
             // 
@@ -105,6 +110,7 @@
             this.btnInstalWebCert.TabIndex = 2;
             this.btnInstalWebCert.Text = "Install Web Server Certificate";
             this.btnInstalWebCert.UseVisualStyleBackColor = true;
+            this.btnInstalWebCert.Click += new System.EventHandler(this.btnInstalWebCert_Click);
             // 
             // btnUpdateYML
             // 
@@ -114,6 +120,7 @@
             this.btnUpdateYML.TabIndex = 2;
             this.btnUpdateYML.Text = "Update YML File";
             this.btnUpdateYML.UseVisualStyleBackColor = true;
+            this.btnUpdateYML.Click += new System.EventHandler(this.btnUpdateYML_Click);
             // 
             // btnInstallService
             // 
@@ -123,6 +130,7 @@
             this.btnInstallService.TabIndex = 2;
             this.btnInstallService.Text = "Install Elastic Service";
             this.btnInstallService.UseVisualStyleBackColor = true;
+            this.btnInstallService.Click += new System.EventHandler(this.btnInstallService_Click);
             // 
             // btnCreateEsUsers
             // 
@@ -132,6 +140,7 @@
             this.btnCreateEsUsers.TabIndex = 2;
             this.btnCreateEsUsers.Text = "Create Elastic REST User";
             this.btnCreateEsUsers.UseVisualStyleBackColor = true;
+            this.btnCreateEsUsers.Click += new System.EventHandler(this.btnCreateEsUsers_Click);
             // 
             // btnGetJavaHome
             // 
@@ -149,13 +158,13 @@
             this.textBoxJavaHome.Name = "textBoxJavaHome";
             this.textBoxJavaHome.Size = new System.Drawing.Size(281, 20);
             this.textBoxJavaHome.TabIndex = 3;
-
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(603, 380);
+            this.BackColor = System.Drawing.Color.Silver;
+            this.ClientSize = new System.Drawing.Size(976, 406);
             this.Controls.Add(this.textBoxJavaHome);
             this.Controls.Add(this.btnCreateEsUsers);
             this.Controls.Add(this.btnInstallService);
@@ -168,9 +177,11 @@
             this.Controls.Add(this.btnCopyPackage);
             this.Controls.Add(this.btnForm2Next);
             this.Controls.Add(this.btnForm2Back);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form2";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Install Elastic";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form2_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -190,5 +201,7 @@
         private System.Windows.Forms.Button btnCreateEsUsers;
         private System.Windows.Forms.Button btnGetJavaHome;
         private System.Windows.Forms.TextBox textBoxJavaHome;
+
+        
     }
 }

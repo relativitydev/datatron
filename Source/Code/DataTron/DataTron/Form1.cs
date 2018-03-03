@@ -43,7 +43,9 @@ namespace DataTron
         {
             Form2 form2 = new Form2();
             form2.Tag = this;
+            form2.node = node;
             form2.Show(this);
+            
             Hide();
         }
 
@@ -222,8 +224,12 @@ namespace DataTron
 
             MessageBox.Show("Response File Updated.");
         }
+
         #endregion
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
+        }
     }
 }
