@@ -59,7 +59,7 @@
             this.btnCreateResponseFile = new System.Windows.Forms.Button();
             this.btnUpdateResponse = new System.Windows.Forms.Button();
             this.lblUnicastHosts = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBoxUnicastHosts = new System.Windows.Forms.TextBox();
             this.checkBoxNoResponseFile = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
@@ -186,6 +186,7 @@
             this.textBoxClusterName.Name = "textBoxClusterName";
             this.textBoxClusterName.Size = new System.Drawing.Size(100, 20);
             this.textBoxClusterName.TabIndex = 1;
+            this.textBoxClusterName.TextChanged += new System.EventHandler(this.textBoxClusterName_TextChanged);
             // 
             // textBoxNodeName
             // 
@@ -193,6 +194,7 @@
             this.textBoxNodeName.Name = "textBoxNodeName";
             this.textBoxNodeName.Size = new System.Drawing.Size(100, 20);
             this.textBoxNodeName.TabIndex = 1;
+            this.textBoxNodeName.TextChanged += new System.EventHandler(this.textBoxNodeName_TextChanged);
             // 
             // textBoxMasterNode
             // 
@@ -200,6 +202,7 @@
             this.textBoxMasterNode.Name = "textBoxMasterNode";
             this.textBoxMasterNode.Size = new System.Drawing.Size(100, 20);
             this.textBoxMasterNode.TabIndex = 1;
+            this.textBoxMasterNode.TextChanged += new System.EventHandler(this.textBoxMasterNode_TextChanged);
             // 
             // textBoxDataNode
             // 
@@ -207,6 +210,7 @@
             this.textBoxDataNode.Name = "textBoxDataNode";
             this.textBoxDataNode.Size = new System.Drawing.Size(100, 20);
             this.textBoxDataNode.TabIndex = 1;
+            this.textBoxDataNode.TextChanged += new System.EventHandler(this.textBoxDataNode_TextChanged);
             // 
             // textBoxNumberMasters
             // 
@@ -214,6 +218,7 @@
             this.textBoxNumberMasters.Name = "textBoxNumberMasters";
             this.textBoxNumberMasters.Size = new System.Drawing.Size(100, 20);
             this.textBoxNumberMasters.TabIndex = 1;
+            this.textBoxNumberMasters.TextChanged += new System.EventHandler(this.textBoxNumberMasters_TextChanged);
             // 
             // textBoxMonitorNode
             // 
@@ -221,6 +226,7 @@
             this.textBoxMonitorNode.Name = "textBoxMonitorNode";
             this.textBoxMonitorNode.Size = new System.Drawing.Size(100, 20);
             this.textBoxMonitorNode.TabIndex = 1;
+            this.textBoxMonitorNode.TextChanged += new System.EventHandler(this.textBoxMonitorNode_TextChanged);
             // 
             // textBoxMonitoringNodeName
             // 
@@ -228,6 +234,7 @@
             this.textBoxMonitoringNodeName.Name = "textBoxMonitoringNodeName";
             this.textBoxMonitoringNodeName.Size = new System.Drawing.Size(100, 20);
             this.textBoxMonitoringNodeName.TabIndex = 1;
+            this.textBoxMonitoringNodeName.TextChanged += new System.EventHandler(this.textBoxMonitoringNodeName_TextChanged);
             // 
             // textBoxDataPath
             // 
@@ -235,6 +242,7 @@
             this.textBoxDataPath.Name = "textBoxDataPath";
             this.textBoxDataPath.Size = new System.Drawing.Size(100, 20);
             this.textBoxDataPath.TabIndex = 1;
+            this.textBoxDataPath.TextChanged += new System.EventHandler(this.textBoxDataPath_TextChanged);
             // 
             // textBoxBackupLoc
             // 
@@ -242,6 +250,7 @@
             this.textBoxBackupLoc.Name = "textBoxBackupLoc";
             this.textBoxBackupLoc.Size = new System.Drawing.Size(100, 20);
             this.textBoxBackupLoc.TabIndex = 1;
+            this.textBoxBackupLoc.TextChanged += new System.EventHandler(this.textBoxBackupLoc_TextChanged);
             // 
             // textBoxESUser
             // 
@@ -249,6 +258,7 @@
             this.textBoxESUser.Name = "textBoxESUser";
             this.textBoxESUser.Size = new System.Drawing.Size(100, 20);
             this.textBoxESUser.TabIndex = 1;
+            this.textBoxESUser.TextChanged += new System.EventHandler(this.textBoxESUser_TextChanged);
             // 
             // textBoxESPassword
             // 
@@ -256,6 +266,7 @@
             this.textBoxESPassword.Name = "textBoxESPassword";
             this.textBoxESPassword.Size = new System.Drawing.Size(100, 20);
             this.textBoxESPassword.TabIndex = 1;
+            this.textBoxESPassword.TextChanged += new System.EventHandler(this.textBoxESPassword_TextChanged);
             // 
             // textBoxRelUser
             // 
@@ -263,6 +274,7 @@
             this.textBoxRelUser.Name = "textBoxRelUser";
             this.textBoxRelUser.Size = new System.Drawing.Size(100, 20);
             this.textBoxRelUser.TabIndex = 1;
+            this.textBoxRelUser.TextChanged += new System.EventHandler(this.textBoxRelUser_TextChanged);
             // 
             // textBoxRelPass
             // 
@@ -270,6 +282,7 @@
             this.textBoxRelPass.Name = "textBoxRelPass";
             this.textBoxRelPass.Size = new System.Drawing.Size(100, 20);
             this.textBoxRelPass.TabIndex = 1;
+            this.textBoxRelPass.TextChanged += new System.EventHandler(this.textBoxRelPass_TextChanged);
             // 
             // btnLoadResponce
             // 
@@ -309,6 +322,7 @@
             this.btnUpdateResponse.TabIndex = 5;
             this.btnUpdateResponse.Text = "Update Response File";
             this.btnUpdateResponse.UseVisualStyleBackColor = true;
+            this.btnUpdateResponse.Click += new System.EventHandler(this.btnUpdateResponse_Click);
             // 
             // lblUnicastHosts
             // 
@@ -319,12 +333,13 @@
             this.lblUnicastHosts.TabIndex = 6;
             this.lblUnicastHosts.Text = "Unicasts Hosts";
             // 
-            // textBox1
+            // textBoxUnicastHosts
             // 
-            this.textBox1.Location = new System.Drawing.Point(239, 345);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(551, 20);
-            this.textBox1.TabIndex = 7;
+            this.textBoxUnicastHosts.Location = new System.Drawing.Point(239, 345);
+            this.textBoxUnicastHosts.Name = "textBoxUnicastHosts";
+            this.textBoxUnicastHosts.Size = new System.Drawing.Size(551, 20);
+            this.textBoxUnicastHosts.TabIndex = 7;
+            this.textBoxUnicastHosts.TextChanged += new System.EventHandler(this.textBoxUnicastHosts_TextChanged);
             // 
             // checkBoxNoResponseFile
             // 
@@ -342,7 +357,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(836, 391);
             this.Controls.Add(this.checkBoxNoResponseFile);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.textBoxUnicastHosts);
             this.Controls.Add(this.lblUnicastHosts);
             this.Controls.Add(this.btnUpdateResponse);
             this.Controls.Add(this.btnCreateResponseFile);
@@ -397,7 +412,7 @@
         private System.Windows.Forms.Label lblElasticPassword;
         private System.Windows.Forms.Label lblRelUserName;
         private System.Windows.Forms.Label lblRelPassword;
-        private System.Windows.Forms.TextBox textBoxClusterName;
+        public System.Windows.Forms.TextBox textBoxClusterName;
         private System.Windows.Forms.TextBox textBoxNodeName;
         private System.Windows.Forms.TextBox textBoxMasterNode;
         private System.Windows.Forms.TextBox textBoxDataNode;
@@ -415,7 +430,7 @@
         private System.Windows.Forms.Button btnCreateResponseFile;
         private System.Windows.Forms.Button btnUpdateResponse;
         private System.Windows.Forms.Label lblUnicastHosts;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textBoxUnicastHosts;
         private System.Windows.Forms.CheckBox checkBoxNoResponseFile;
     }
 }
