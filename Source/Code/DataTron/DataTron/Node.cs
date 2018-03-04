@@ -35,33 +35,6 @@ namespace DataTron
         public string MinimumMasterNode { get => _minimumMasterNode; set => _minimumMasterNode = value; }
         public string UnicastHosts { get => _unicastHosts; set => _unicastHosts = value; }
         public string MonitoringNode { get => _monitoringNode; set => _monitoringNode = value; }
-        static string DestructionRequired(string NodeMonitor)
-        {
-            if (Convert.ToBoolean(NodeMonitor))
-            {
-                string destruct = "false";
-                return destruct;
-            }
-            else
-            {
-                string destruct = "true";
-                return destruct;
-            }
-        }
-        static string AutoCreateIndexSetting(string NodeMonitor)
-        {
-            if (Convert.ToBoolean(NodeMonitor))
-            {
-                string autocreate = "true";
-                return autocreate;
-            }
-            else
-            {
-                string autocreate = "false";
-                return autocreate;
-            }
-
-        }
         public string DataPath { get => _dataPath; set => _dataPath = value; }
         public string PathRepository { get => _pathRepository; set => _pathRepository = value; }
         public string EsUserName { get => _esUserName; set => _esUserName = value; }
@@ -69,8 +42,8 @@ namespace DataTron
         public string AuthenticationWebServer { get => _authenticationWebServer; set => _authenticationWebServer = value; }
         public string ServiceAccountUserName { get => _serviceAccountUserName; set => _serviceAccountUserName = value; }
         public string ServiceAccountPassWord { get => _serviceAccountPassWord; set => _serviceAccountPassWord = value; }
-        public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = DestructionRequired(NodeMonitor); }
-        public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = AutoCreateIndexSetting(NodeMonitor); }
+        public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = value; }
+        public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
   
     }
 }
