@@ -8,8 +8,39 @@ namespace DataTron
 {
     class YML
     {
-        public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string Destructive, string Auto, string MonitoringNode, string DataPath, string PathRepository, string WebServer)
+        public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters)
         {
+
+            string DestructiveAction()
+            {
+                string DA;
+                if (Convert.ToBoolean(NodeMonitor))
+                {
+                     DA = "false";
+                }
+                else
+                {
+                     DA = "true";
+                }
+                return DA;
+            }
+            string Destructive = DestructiveAction();
+
+            string AutoCreateIndexes()
+            {
+                string ACI;
+                if (Convert.ToBoolean(NodeMonitor))
+                {
+                    ACI = "true";
+                }
+                else
+                {
+                    ACI = "false,.security";
+                }
+                return ACI;
+            }
+            string Auto = AutoCreateIndexes();
+
             string yml = $@"
 # ======================== Elasticsearch Configuration =========================
 #
@@ -29,7 +60,7 @@ cluster.name: {ClusterName}
 node.name: {NodeName}
 node.master: {NodeMaster}
 node.data: {NodeData}
-discovery.zen.minimum_master_nodes: 
+discovery.zen.minimum_master_nodes: {NumberOfMasters}
 discovery.zen.ping.multicast.enabled: false
 discovery.zen.ping.unicast.hosts: {UnicastHosts}
 # This prevents destructive actions w/ wildcards Ex: DELETE /*

@@ -90,7 +90,7 @@ namespace DataTron
 
         private void textBoxNodeName_TextChanged(object sender, EventArgs e)
         {
-            node.NodeName = textBoxClusterName.Text;
+            node.NodeName = textBoxNodeName.Text;
         }
 
         private void textBoxMasterNode_TextChanged(object sender, EventArgs e)
