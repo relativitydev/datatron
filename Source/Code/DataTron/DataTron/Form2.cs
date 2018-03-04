@@ -21,8 +21,6 @@ namespace DataTron
   
         }
 
-
-
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
             var form1 = (Form1)Tag;
@@ -35,7 +33,39 @@ namespace DataTron
             FolderBrowserDialog DialogBox = new FolderBrowserDialog();
             DialogBox.ShowDialog();
             string installPath = DialogBox.SelectedPath;
-            Directory.Move("RelativityDataGrid", installPath + "\\RelativityDataGridTest");
+
+
+            void Copy(string sourceDirectory, string targetDirectory)
+            {
+                DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
+                DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
+
+                CopyAll(diSource, diTarget);
+            }
+
+            void CopyAll(DirectoryInfo source, DirectoryInfo target)
+            {
+                Directory.CreateDirectory(target.FullName);
+
+                // Copy each file into the new directory.
+                foreach (FileInfo fi in source.GetFiles())
+                {
+                    Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                    fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+                }
+
+                // Copy each subdirectory using recursion.
+                foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+                {
+                    DirectoryInfo nextTargetSubDir =
+                        target.CreateSubdirectory(diSourceSubDir.Name);
+                    CopyAll(diSourceSubDir, nextTargetSubDir);
+                }
+            }
+
+            Copy("RelativityDataGrid", installPath + "\\RelativityDataGridTest");
+
+
             MessageBox.Show("Created the package at " + installPath);
         }
 
