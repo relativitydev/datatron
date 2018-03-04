@@ -10,28 +10,63 @@ namespace DataTron
     {
         public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters)
         {
+            //Create settings for Action DestructiveRequiresName and AutoCreateIndexes
+            if (NodeMonitor == null | NodeMonitor == "")
+            {
+                NodeMonitor = "false";
+            }
+
+
+            bool IsMonitoringNodeNull()
+            {
+                bool choice;
+                if (MonitoringNode == null)
+                {
+                    choice = false;
+                }
+                else
+                {
+                    choice = true;
+                }
+                return choice;
+            }
+            bool MonitoringNodeExists = IsMonitoringNodeNull();
+
 
             string DestructiveAction()
             {
                 string DA;
-                if (Convert.ToBoolean(NodeMonitor))
+                if (MonitoringNodeExists)
                 {
-                     DA = "false";
+                    if (Convert.ToBoolean(NodeMonitor))
+                    {
+                        DA = "false";
+                    }
+                    else
+                    {
+                        DA = "true";
+                    }
                 }
                 else
                 {
-                     DA = "true";
+                    DA = "true";
                 }
                 return DA;
             }
-            string Destructive = DestructiveAction();
 
             string AutoCreateIndexes()
             {
                 string ACI;
-                if (Convert.ToBoolean(NodeMonitor))
+                if (MonitoringNodeExists)
                 {
-                    ACI = "true";
+                    if (Convert.ToBoolean(NodeMonitor))
+                    {
+                        ACI = "true";
+                    }
+                    else
+                    {
+                        ACI = "false,.security";
+                    }
                 }
                 else
                 {
@@ -39,8 +74,15 @@ namespace DataTron
                 }
                 return ACI;
             }
-            string Auto = AutoCreateIndexes();
 
+            string Auto = AutoCreateIndexes();
+            string Destructive = DestructiveAction();
+
+
+            //Format UnicastHosts
+            UnicastHosts = UnicastHosts.Insert(0, @"""[""").Insert(UnicastHosts.Length + 3, @"""]""").Replace(",", @""",""");
+
+            #region //YML string
             string yml = $@"
 # ======================== Elasticsearch Configuration =========================
 #
@@ -211,6 +253,23 @@ shield.authc.realms:
 
 ";
             return yml;
+            #endregion
+        }
+
+        public YML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters)
+        {
+
+                ClusterName = "unspecified";
+                NodeName = "default";
+                NodeData = "true";
+                UnicastHosts = "unspecified";
+                NodeMonitor = "false";
+                MonitoringNode = "unspecified";
+                DataPath = @"c:\data";
+                PathRepository = "";
+                WebServer = "RelativityWebServer";
+                NumberOfMasters = "1";
+
         }
     }
 }

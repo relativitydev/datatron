@@ -44,6 +44,12 @@ namespace DataTron
         public string ServiceAccountPassWord { get => _serviceAccountPassWord; set => _serviceAccountPassWord = value; }
         public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = value; }
         public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
-  
+
+        public Node()
+        {
+            NodeMonitor = "false";
+            MonitoringNode = "false";
+            UnicastHosts = "";
+        }
     }
 }

@@ -97,9 +97,10 @@ namespace DataTron
 
         private void btnUpdateYML_Click(object sender, EventArgs e)
         {
-            YML yml = new YML();
+            YML yml = new YML(node.ClusterName,node.NodeName,node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AuthenticationWebServer, node.MinimumMasterNode);
             string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AutoCreateIndex, node.MinimumMasterNode);
-            MessageBox.Show(message);
+            RunLog runLog = new RunLog(); runLog.Frogger(message);
+            MessageBox.Show("yml file updated.");
         }
        
         private void btnInstallService_Click(object sender, EventArgs e)
