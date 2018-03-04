@@ -13,7 +13,7 @@ namespace DataTron
 {
     public partial class Form1 : Form
     {
-        Node node = new Node();
+        public Node node = new Node();
         public Form1()
         {
             InitializeComponent();
