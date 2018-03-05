@@ -32,7 +32,7 @@
             this.btnForm2Back = new System.Windows.Forms.Button();
             this.btnForm2Next = new System.Windows.Forms.Button();
             this.btnCopyPackage = new System.Windows.Forms.Button();
-            this.btnInstallJava = new System.Windows.Forms.Button();
+            this.btnGetJava = new System.Windows.Forms.Button();
             this.btnSetJavaHome = new System.Windows.Forms.Button();
             this.btnInstalWebCert = new System.Windows.Forms.Button();
             this.btnUpdateYML = new System.Windows.Forms.Button();
@@ -71,15 +71,15 @@
             this.btnCopyPackage.UseVisualStyleBackColor = true;
             this.btnCopyPackage.Click += new System.EventHandler(this.btnCopyPackage_Click);
             // 
-            // btnInstallJava
+            // btnGetJava
             // 
-            this.btnInstallJava.Location = new System.Drawing.Point(28, 103);
-            this.btnInstallJava.Name = "btnInstallJava";
-            this.btnInstallJava.Size = new System.Drawing.Size(259, 23);
-            this.btnInstallJava.TabIndex = 2;
-            this.btnInstallJava.Text = "Install Java";
-            this.btnInstallJava.UseVisualStyleBackColor = true;
-            this.btnInstallJava.Click += new System.EventHandler(this.btnInstallJava_Click);
+            this.btnGetJava.Location = new System.Drawing.Point(28, 103);
+            this.btnGetJava.Name = "btnGetJava";
+            this.btnGetJava.Size = new System.Drawing.Size(128, 23);
+            this.btnGetJava.TabIndex = 2;
+            this.btnGetJava.Text = "Get Java";
+            this.btnGetJava.UseVisualStyleBackColor = true;
+            this.btnGetJava.Click += new System.EventHandler(this.btnInstallJava_Click);
             // 
             // btnSetJavaHome
             // 
@@ -161,7 +161,7 @@
             this.Controls.Add(this.btnInstalWebCert);
             this.Controls.Add(this.btnGetJavaHome);
             this.Controls.Add(this.btnSetJavaHome);
-            this.Controls.Add(this.btnInstallJava);
+            this.Controls.Add(this.btnGetJava);
             this.Controls.Add(this.btnCopyPackage);
             this.Controls.Add(this.btnForm2Next);
             this.Controls.Add(this.btnForm2Back);
@@ -182,7 +182,7 @@
         private System.Windows.Forms.Button btnForm2Back;
         private System.Windows.Forms.Button btnForm2Next;
         private System.Windows.Forms.Button btnCopyPackage;
-        private System.Windows.Forms.Button btnInstallJava;
+        private System.Windows.Forms.Button btnGetJava;
         private System.Windows.Forms.Button btnSetJavaHome;
         private System.Windows.Forms.Button btnInstalWebCert;
         private System.Windows.Forms.Button btnUpdateYML;

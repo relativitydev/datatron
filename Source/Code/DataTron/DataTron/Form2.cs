@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace DataTron
 {
     public partial class Form2 : Form
@@ -25,8 +26,8 @@ namespace DataTron
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
             var form1 = (Form1)Tag;
+            Hide();
             form1.Show();
-            Close();          
         }
 
         private void btnCopyPackage_Click(object sender, EventArgs e)
@@ -84,7 +85,8 @@ namespace DataTron
 
         private void btnInstallJava_Click(object sender, EventArgs e)
         {
-
+            string[] message = Directory.GetDirectories(@"/Program Files/Java", "jdk*");
+            MessageBox.Show(message.ToString());
         }
 
         private void btnGetJavaHome_Click(object sender, EventArgs e)
@@ -124,12 +126,9 @@ namespace DataTron
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)
         {
             var form1 = (Form1)Tag;
+            Hide();
             form1.Show();
-            form1.Dispose();
         }
-
-
-
 
     }
 }
