@@ -103,7 +103,7 @@
             // 
             // btnUpdateYML
             // 
-            this.btnUpdateYML.Location = new System.Drawing.Point(28, 228);
+            this.btnUpdateYML.Location = new System.Drawing.Point(28, 61);
             this.btnUpdateYML.Name = "btnUpdateYML";
             this.btnUpdateYML.Size = new System.Drawing.Size(259, 23);
             this.btnUpdateYML.TabIndex = 2;

@@ -20,6 +20,7 @@ namespace DataTron
             InitializeComponent();
   
         }
+        public string installPath;
 
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
@@ -33,6 +34,7 @@ namespace DataTron
             FolderBrowserDialog DialogBox = new FolderBrowserDialog();
             DialogBox.ShowDialog();
             string installPath = DialogBox.SelectedPath;
+            this.installPath = installPath;
 
 
             void Copy(string sourceDirectory, string targetDirectory)
@@ -63,7 +65,7 @@ namespace DataTron
                 }
             }
 
-            Copy("RelativityDataGrid", installPath + "\\RelativityDataGridTest");
+            Copy("RelativityDataGrid", installPath + @"\RelativityDataGrid");
 
 
             MessageBox.Show("Created the package at " + installPath);
@@ -99,8 +101,8 @@ namespace DataTron
         {
             YML yml = new YML();
             string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AutoCreateIndex, node.MinimumMasterNode);
-            RunLog runLog = new RunLog(); runLog.Frogger(message);
-            MessageBox.Show("yml file updated.");
+            File.WriteAllText(this.installPath + @"\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
+            MessageBox.Show($@"yml file created at: {this.installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml");
         }
        
         private void btnInstallService_Click(object sender, EventArgs e)

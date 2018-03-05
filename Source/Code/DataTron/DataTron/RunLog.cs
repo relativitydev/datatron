@@ -9,9 +9,9 @@ namespace DataTron
 {
     class RunLog
     {
-        public void Frogger(string log)
+        public void Frogger(string path, string log)
         {
-            File.AppendAllText("log.txt",log);
+            File.AppendAllText(path,log);
         }
     }
 }
