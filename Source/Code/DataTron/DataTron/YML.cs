@@ -10,12 +10,16 @@ namespace DataTron
     {
         public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters)
         {
-            //Create settings for Action DestructiveRequiresName and AutoCreateIndexes
+            //If nothing has been specified for the NodeMonitor role set it to false.
             if (NodeMonitor == null | NodeMonitor == "")
             {
                 NodeMonitor = "false";
             }
-
+            //Format the marvel setting.
+            if (MonitoringNode != null & MonitoringNode != "")
+            {
+                MonitoringNode = MonitoringNode.Replace($@"{MonitoringNode}", $@"[""http://{MonitoringNode}:9200""]");
+            }
 
             bool IsMonitoringNodeNull()
             {
@@ -31,7 +35,6 @@ namespace DataTron
                 return choice;
             }
             bool MonitoringNodeExists = IsMonitoringNodeNull();
-
 
             string DestructiveAction()
             {
@@ -78,9 +81,11 @@ namespace DataTron
             string Auto = AutoCreateIndexes();
             string Destructive = DestructiveAction();
 
-
             //Format UnicastHosts
-            UnicastHosts = UnicastHosts.Insert(0, @"""[""").Insert(UnicastHosts.Length + 3, @"""]""").Replace(",", @""",""");
+            UnicastHosts = UnicastHosts.Insert(0, @"[""").Insert(UnicastHosts.Length + 2, @"""]").Replace(",", @""",""");
+
+            //Format Path Repo
+            PathRepository = PathRepository.Insert(0, @"[""").Insert(PathRepository.Length + 2, @"""]").Replace(@"\", @"\\");
 
             #region //YML string
             string yml = $@"
@@ -139,14 +144,14 @@ path.data: {DataPath}
 # Path to directory where to store backups
 #path.repo: C:\RelativityDataGrid\backups
 #path.repo: [""/mount/backups"", ""/mount/longterm_backups""]
-#path.repo: {PathRepository}
+path.repo: {PathRepository}
 
 # This disables the Java security manager - plugins cannot specify their own
 # security policies in this version of ES and will not function properly
 security.manager.enabled: false
 
 #network settings
-network.host: 
+network.host: {NodeName}
 
 #set index result size - default is 10000
 index.max_result_window: 2147483647
@@ -161,7 +166,7 @@ shield.authc.realms:
  custom:
   type: kCuraBearerRealm
   order: 0
-  publicJWKsUrl: {WebServer}
+  publicJWKsUrl: https://{WebServer}/Relativity/Identity/.well-known/jwks
  esusers1:
   type: esusers
   order: 1
@@ -252,24 +257,24 @@ shield.authc.realms:
 # action.destructive_requires_name: true
 
 ";
+            if (MonitoringNode == null | MonitoringNode == "")
+            {
+                string defaultMarvelSetting = $@"marvel.agent.exporters:
+ id1:
+  type: http
+  host: {MonitoringNode}";
+                string commentOutMarvelSetting = $@"#marvel.agent.exporters:
+# id1:
+#  type: http
+#  host: {MonitoringNode}";
+
+                yml = yml.Replace(defaultMarvelSetting, commentOutMarvelSetting);
+            }
+
             return yml;
             #endregion
         }
 
-        public YML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters)
-        {
 
-                ClusterName = "unspecified";
-                NodeName = "default";
-                NodeData = "true";
-                UnicastHosts = "unspecified";
-                NodeMonitor = "false";
-                MonitoringNode = "unspecified";
-                DataPath = @"c:\data";
-                PathRepository = "";
-                WebServer = "RelativityWebServer";
-                NumberOfMasters = "1";
-
-        }
     }
 }
