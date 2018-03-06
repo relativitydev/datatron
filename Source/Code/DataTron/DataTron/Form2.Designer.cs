@@ -79,7 +79,7 @@
             this.btnGetJava.TabIndex = 2;
             this.btnGetJava.Text = "Get Java";
             this.btnGetJava.UseVisualStyleBackColor = true;
-            this.btnGetJava.Click += new System.EventHandler(this.btnInstallJava_Click);
+            this.btnGetJava.Click += new System.EventHandler(this.btnCheckJava_Click);
             // 
             // btnSetJavaHome
             // 

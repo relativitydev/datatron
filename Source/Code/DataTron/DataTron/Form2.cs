@@ -83,7 +83,7 @@ namespace DataTron
 
         }
 
-        private void btnInstallJava_Click(object sender, EventArgs e)
+        private void btnCheckJava_Click(object sender, EventArgs e)
         {
             string[] message = Directory.GetDirectories(@"/Program Files/Java", "jdk*");
             MessageBox.Show(message.ToString());
@@ -91,13 +91,14 @@ namespace DataTron
 
         private void btnGetJavaHome_Click(object sender, EventArgs e)
         {
-            string JavaHome = Environment.GetEnvironmentVariable("KCURA_JAVA_HOME");
+            string JavaHome = Environment.GetEnvironmentVariable("KCURA_JAVA_HOME", EnvironmentVariableTarget.Machine);
             textBoxJavaHome.Text = JavaHome.Replace("\\\\","\\");
         }
 
         private void btnSetJavaHome_Click(object sender, EventArgs e)
         {
-
+            Environment.SetEnvironmentVariable("KCURA_JAVA_HOME", textBoxJavaHome.Text, EnvironmentVariableTarget.Machine);
+            MessageBox.Show($@"The environmental variable KCURA_JAVA_HOME set to {textBoxJavaHome.Text}");
         }
 
         private void btnInstalWebCert_Click(object sender, EventArgs e)
@@ -108,8 +109,11 @@ namespace DataTron
         private void btnUpdateYML_Click(object sender, EventArgs e)
         {
             YML yml = new YML();
+
             string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AutoCreateIndex, node.MinimumMasterNode);
+
             File.WriteAllText(this.installPath + @"\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
+
             MessageBox.Show($@"yml file created at: {this.installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml");
         }
        
