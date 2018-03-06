@@ -28,6 +28,7 @@ namespace DataTron
         }
         public string installPath;
         X509Certificate2 certificate = new X509Certificate2();
+        public static string driveLetter = (AppDomain.CurrentDomain.BaseDirectory).Split(':').GetValue(0).ToString();
 
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
@@ -91,7 +92,8 @@ namespace DataTron
 
         private void btnCheckJava_Click(object sender, EventArgs e)
         {
-            string[] message = Directory.GetDirectories(@"/Program Files/Java", "jdk*");
+
+            string[] message = Directory.GetDirectories($@"{driveLetter}:\Program Files\Java", "jdk*");
             
             for(int x = 0; x < message.Length; x++)
             {
@@ -103,7 +105,7 @@ namespace DataTron
         private void btnGetJavaHome_Click(object sender, EventArgs e)
         {
             string JavaHome = Environment.GetEnvironmentVariable("KCURA_JAVA_HOME", EnvironmentVariableTarget.Machine);
-            textBoxJavaHome.Text = JavaHome.Replace("\\\\","\\");
+            textBoxJavaHome.Text = JavaHome.Replace("\\\\","\\").Replace(@"/",@"\");
         }
 
         private void btnSetJavaHome_Click(object sender, EventArgs e)
@@ -114,7 +116,28 @@ namespace DataTron
 
         private void btnInstalWebCert_Click(object sender, EventArgs e)
         {
+            //TODO Update boiler plate to run keytool.
+            
 
+            //var processInfo = new ProcessStartInfo($@"{installPath}/Program Files/java/", "install");
+
+            //processInfo.CreateNoWindow = true;
+            //processInfo.UseShellExecute = false;
+            //processInfo.RedirectStandardError = true;
+            //processInfo.RedirectStandardOutput = true;
+
+            //var process = Process.Start(processInfo);
+
+            //process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
+            //    Console.WriteLine("output>>" + ev.Data);
+            //process.BeginOutputReadLine();
+
+            //process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
+            //    Console.WriteLine("error>>" + ev.Data);
+            //process.BeginErrorReadLine();
+
+            //process.WaitForExit();
+            //process.Close();
         }
 
         private void btnUpdateYML_Click(object sender, EventArgs e)
