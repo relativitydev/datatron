@@ -143,6 +143,8 @@ namespace DataTron
        
         private void btnInstallService_Click(object sender, EventArgs e)
         {
+            //TODO Adjust for the size of the RAM on the system.
+
             var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/kservice.bat", "install");
 
             processInfo.CreateNoWindow = true;
@@ -166,7 +168,27 @@ namespace DataTron
 
         private void btnCreateEsUsers_Click(object sender, EventArgs e)
         {
-            
+            var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat", $@"useradd {node.EsUserName} -p {node.EsPassWord} -r admin");
+
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.RedirectStandardOutput = true;
+
+            var process = Process.Start(processInfo);
+
+            process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
+                Console.WriteLine("output>>" + ev.Data);
+            process.BeginOutputReadLine();
+
+            process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
+                Console.WriteLine("error>>" + ev.Data);
+            process.BeginErrorReadLine();
+
+            process.WaitForExit();
+            process.Close();
+
+            MessageBox.Show("Elastic REST user created.");
         }
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)
