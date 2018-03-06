@@ -40,6 +40,7 @@
             this.btnCreateEsUsers = new System.Windows.Forms.Button();
             this.btnGetJavaHome = new System.Windows.Forms.Button();
             this.textBoxJavaHome = new System.Windows.Forms.TextBox();
+            this.listBoxJava = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // btnForm2Back
@@ -75,9 +76,9 @@
             // 
             this.btnGetJava.Location = new System.Drawing.Point(28, 103);
             this.btnGetJava.Name = "btnGetJava";
-            this.btnGetJava.Size = new System.Drawing.Size(128, 23);
+            this.btnGetJava.Size = new System.Drawing.Size(259, 23);
             this.btnGetJava.TabIndex = 2;
-            this.btnGetJava.Text = "Get Java";
+            this.btnGetJava.Text = "Get Java Installations";
             this.btnGetJava.UseVisualStyleBackColor = true;
             this.btnGetJava.Click += new System.EventHandler(this.btnCheckJava_Click);
             // 
@@ -148,12 +149,22 @@
             this.textBoxJavaHome.Size = new System.Drawing.Size(327, 20);
             this.textBoxJavaHome.TabIndex = 3;
             // 
+            // listBoxJava
+            // 
+            this.listBoxJava.FormattingEnabled = true;
+            this.listBoxJava.Location = new System.Drawing.Point(316, 103);
+            this.listBoxJava.Name = "listBoxJava";
+            this.listBoxJava.Size = new System.Drawing.Size(327, 30);
+            this.listBoxJava.TabIndex = 4;
+            this.listBoxJava.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxJava_MouseDoubleClick);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(1139, 406);
+            this.Controls.Add(this.listBoxJava);
             this.Controls.Add(this.textBoxJavaHome);
             this.Controls.Add(this.btnCreateEsUsers);
             this.Controls.Add(this.btnInstallService);
@@ -190,7 +201,6 @@
         private System.Windows.Forms.Button btnCreateEsUsers;
         private System.Windows.Forms.Button btnGetJavaHome;
         private System.Windows.Forms.TextBox textBoxJavaHome;
-
-        
+        private System.Windows.Forms.ListBox listBoxJava;
     }
 }

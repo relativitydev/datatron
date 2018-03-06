@@ -86,7 +86,12 @@ namespace DataTron
         private void btnCheckJava_Click(object sender, EventArgs e)
         {
             string[] message = Directory.GetDirectories(@"/Program Files/Java", "jdk*");
-            MessageBox.Show(message.ToString());
+            
+            for(int x = 0; x < message.Length; x++)
+            {
+                listBoxJava.Items.Add(message[x]);
+            }
+            
         }
 
         private void btnGetJavaHome_Click(object sender, EventArgs e)
@@ -134,5 +139,13 @@ namespace DataTron
             form1.Show();
         }
 
+        private void listBoxJava_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = listBoxJava.IndexFromPoint(e.Location);
+            if(index != ListBox.NoMatches)
+            {
+                textBoxJavaHome.Text = listBoxJava.SelectedItem.ToString();
+            }
+        }
     }
 }
