@@ -41,6 +41,8 @@
             this.btnGetJavaHome = new System.Windows.Forms.Button();
             this.textBoxJavaHome = new System.Windows.Forms.TextBox();
             this.listBoxJava = new System.Windows.Forms.ListBox();
+            this.btnStartES = new System.Windows.Forms.Button();
+            this.btnStopES = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnForm2Back
@@ -94,7 +96,7 @@
             // 
             // btnInstalWebCert
             // 
-            this.btnInstalWebCert.Location = new System.Drawing.Point(28, 185);
+            this.btnInstalWebCert.Location = new System.Drawing.Point(28, 267);
             this.btnInstalWebCert.Name = "btnInstalWebCert";
             this.btnInstalWebCert.Size = new System.Drawing.Size(259, 23);
             this.btnInstalWebCert.TabIndex = 2;
@@ -114,7 +116,7 @@
             // 
             // btnInstallService
             // 
-            this.btnInstallService.Location = new System.Drawing.Point(28, 267);
+            this.btnInstallService.Location = new System.Drawing.Point(28, 192);
             this.btnInstallService.Name = "btnInstallService";
             this.btnInstallService.Size = new System.Drawing.Size(259, 23);
             this.btnInstallService.TabIndex = 2;
@@ -158,12 +160,34 @@
             this.listBoxJava.TabIndex = 4;
             this.listBoxJava.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxJava_MouseDoubleClick);
             // 
+            // btnStartES
+            // 
+            this.btnStartES.Location = new System.Drawing.Point(28, 232);
+            this.btnStartES.Name = "btnStartES";
+            this.btnStartES.Size = new System.Drawing.Size(128, 23);
+            this.btnStartES.TabIndex = 5;
+            this.btnStartES.Text = "Start Service";
+            this.btnStartES.UseVisualStyleBackColor = true;
+            this.btnStartES.Click += new System.EventHandler(this.btnStartES_Click);
+            // 
+            // btnStopES
+            // 
+            this.btnStopES.Location = new System.Drawing.Point(163, 232);
+            this.btnStopES.Name = "btnStopES";
+            this.btnStopES.Size = new System.Drawing.Size(124, 23);
+            this.btnStopES.TabIndex = 6;
+            this.btnStopES.Text = "Stop Service";
+            this.btnStopES.UseVisualStyleBackColor = true;
+            this.btnStopES.Click += new System.EventHandler(this.btnStopES_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(1139, 406);
+            this.Controls.Add(this.btnStopES);
+            this.Controls.Add(this.btnStartES);
             this.Controls.Add(this.listBoxJava);
             this.Controls.Add(this.textBoxJavaHome);
             this.Controls.Add(this.btnCreateEsUsers);
@@ -202,5 +226,7 @@
         private System.Windows.Forms.Button btnGetJavaHome;
         private System.Windows.Forms.TextBox textBoxJavaHome;
         private System.Windows.Forms.ListBox listBoxJava;
+        private System.Windows.Forms.Button btnStartES;
+        private System.Windows.Forms.Button btnStopES;
     }
 }

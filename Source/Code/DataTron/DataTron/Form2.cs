@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.ServiceProcess;
 
 
 namespace DataTron
@@ -115,7 +117,7 @@ namespace DataTron
         {
             YML yml = new YML();
 
-            string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AutoCreateIndex, node.MinimumMasterNode);
+            string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AuthenticationWebServer, node.MinimumMasterNode);
 
             File.WriteAllText(this.installPath + @"\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
 
@@ -124,7 +126,25 @@ namespace DataTron
        
         private void btnInstallService_Click(object sender, EventArgs e)
         {
+            var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/kservice.bat", "install");
 
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.RedirectStandardOutput = true;
+
+            var process = Process.Start(processInfo);
+
+            process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
+                Console.WriteLine("output>>" + ev.Data);
+            process.BeginOutputReadLine();
+
+            process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
+                Console.WriteLine("error>>" + ev.Data);
+            process.BeginErrorReadLine();
+
+            process.WaitForExit();
+            process.Close();
         }
 
         private void btnCreateEsUsers_Click(object sender, EventArgs e)
@@ -145,6 +165,54 @@ namespace DataTron
             if(index != ListBox.NoMatches)
             {
                 textBoxJavaHome.Text = listBoxJava.SelectedItem.ToString();
+            }
+        }
+
+        bool DoesServiceExist(string serviceName)
+        {
+            ServiceController[] services = ServiceController.GetServices();
+            var service = services.FirstOrDefault(s => s.ServiceName == serviceName);
+            return service != null;
+        }
+
+        private void btnStartES_Click(object sender, EventArgs e)
+        {
+            if (DoesServiceExist("elasticsearch-service-x64"))
+            {
+                ServiceController elastic = new ServiceController("elasticsearch-service-x64");
+                if (elastic.Status == ServiceControllerStatus.Stopped)
+                {
+                    elastic.Start();
+                    MessageBox.Show("Started the Elastic Windows service.");
+                } else
+                {
+                    MessageBox.Show("The Elastic Windows service is not stopped.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("The elastic service was not found.");
+            }
+        }
+
+        private void btnStopES_Click(object sender, EventArgs e)
+        {
+            if (DoesServiceExist("elasticsearch-service-x64"))
+            {
+                ServiceController elastic = new ServiceController("elasticsearch-service-x64");
+                if (elastic.Status == ServiceControllerStatus.Running)
+                {
+                    elastic.Stop();
+                    MessageBox.Show("Stopped the Elastic Windows service.");
+                }
+                else
+                {
+                    MessageBox.Show("The Elastic Windows service is not running.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("The elastic service was not found.");
             }
         }
     }
