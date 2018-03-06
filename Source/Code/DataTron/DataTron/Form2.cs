@@ -30,6 +30,8 @@ namespace DataTron
         X509Certificate2 certificate = new X509Certificate2();
         public static string driveLetter = (AppDomain.CurrentDomain.BaseDirectory).Split(':').GetValue(0).ToString();
 
+        
+
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
             var form1 = (Form1)Tag;
@@ -116,28 +118,16 @@ namespace DataTron
 
         private void btnInstalWebCert_Click(object sender, EventArgs e)
         {
-            //TODO Update boiler plate to run keytool.
-            
 
-            //var processInfo = new ProcessStartInfo($@"{installPath}/Program Files/java/", "install");
+            var processInfo = new ProcessStartInfo($@"{textBoxJavaHome.Text}\bin\keytool.exe", $@"-importcert -alias shield -keystore ""{textBoxJavaHome.Text}\jre\lib\security\cacerts"" -storepass changeit -file ShieldCert.pem -noprompt");
 
-            //processInfo.CreateNoWindow = true;
-            //processInfo.UseShellExecute = false;
-            //processInfo.RedirectStandardError = true;
-            //processInfo.RedirectStandardOutput = true;
+            var process = Process.Start(processInfo);
 
-            //var process = Process.Start(processInfo);
+            process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
+                MessageBox.Show(process.StandardOutput.ToString());
 
-            //process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
-            //    Console.WriteLine("output>>" + ev.Data);
-            //process.BeginOutputReadLine();
-
-            //process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
-            //    Console.WriteLine("error>>" + ev.Data);
-            //process.BeginErrorReadLine();
-
-            //process.WaitForExit();
-            //process.Close();
+            process.WaitForExit();
+            process.Close();
         }
 
         private void btnUpdateYML_Click(object sender, EventArgs e)
@@ -251,9 +241,21 @@ namespace DataTron
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 response.Close();
                 X509Certificate cert = request.ServicePoint.Certificate;
-                X509Certificate2 cert2 = new X509Certificate2(cert);
-                certificate = cert2;
+
                 MessageBox.Show("Certificate Captured.");
+                void ExportToPEM(X509Certificate certToExport)
+                {
+                    StringBuilder builder = new StringBuilder();
+
+                    builder.AppendLine("-----BEGIN CERTIFICATE-----");
+                    builder.AppendLine(Convert.ToBase64String(cert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));
+                    builder.AppendLine("-----END CERTIFICATE-----");
+
+                    string pem = builder.ToString();
+                    File.WriteAllText("ShieldCert.pem", pem);                 
+                }
+                ExportToPEM(cert);
+
             }
             catch (System.UriFormatException)
             {
