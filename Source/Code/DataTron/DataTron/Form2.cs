@@ -10,7 +10,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.ServiceProcess;
-
+using System.Security;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Net;
 
 namespace DataTron
 {
@@ -24,6 +27,7 @@ namespace DataTron
   
         }
         public string installPath;
+        X509Certificate2 certificate = new X509Certificate2();
 
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
@@ -149,7 +153,7 @@ namespace DataTron
 
         private void btnCreateEsUsers_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)
@@ -214,6 +218,28 @@ namespace DataTron
             {
                 MessageBox.Show("The elastic service was not found.");
             }
+        }
+
+        private void btnGetWebCert_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($@"https://{node.AuthenticationWebServer}/Relativity/Identity/.well-known/jwks");
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                response.Close();
+                X509Certificate cert = request.ServicePoint.Certificate;
+                X509Certificate2 cert2 = new X509Certificate2(cert);
+                certificate = cert2;
+                MessageBox.Show("Certificate Captured.");
+            }
+            catch (System.UriFormatException)
+            {
+                MessageBox.Show("Specify a Authentication Web server in the previous form.");
+            }
+            catch (System.Net.WebException eWeb) when (eWeb.Message == "The underlying connection was closed: Could not establish trust relationship for the SSL/TLS secure channel.")
+            {
+                MessageBox.Show("The Authentication Web server certificate is not trusted.");
+            }              
         }
     }
 }

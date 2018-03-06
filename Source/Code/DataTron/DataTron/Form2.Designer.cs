@@ -43,6 +43,7 @@
             this.listBoxJava = new System.Windows.Forms.ListBox();
             this.btnStartES = new System.Windows.Forms.Button();
             this.btnStopES = new System.Windows.Forms.Button();
+            this.btnGetWebCert = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnForm2Back
@@ -96,11 +97,11 @@
             // 
             // btnInstalWebCert
             // 
-            this.btnInstalWebCert.Location = new System.Drawing.Point(28, 267);
+            this.btnInstalWebCert.Location = new System.Drawing.Point(163, 277);
             this.btnInstalWebCert.Name = "btnInstalWebCert";
-            this.btnInstalWebCert.Size = new System.Drawing.Size(259, 23);
+            this.btnInstalWebCert.Size = new System.Drawing.Size(124, 23);
             this.btnInstalWebCert.TabIndex = 2;
-            this.btnInstalWebCert.Text = "Install Web Server Certificate";
+            this.btnInstalWebCert.Text = "Install Web Cert";
             this.btnInstalWebCert.UseVisualStyleBackColor = true;
             this.btnInstalWebCert.Click += new System.EventHandler(this.btnInstalWebCert_Click);
             // 
@@ -126,7 +127,7 @@
             // 
             // btnCreateEsUsers
             // 
-            this.btnCreateEsUsers.Location = new System.Drawing.Point(28, 308);
+            this.btnCreateEsUsers.Location = new System.Drawing.Point(28, 346);
             this.btnCreateEsUsers.Name = "btnCreateEsUsers";
             this.btnCreateEsUsers.Size = new System.Drawing.Size(259, 23);
             this.btnCreateEsUsers.TabIndex = 2;
@@ -180,12 +181,23 @@
             this.btnStopES.UseVisualStyleBackColor = true;
             this.btnStopES.Click += new System.EventHandler(this.btnStopES_Click);
             // 
+            // btnGetWebCert
+            // 
+            this.btnGetWebCert.Location = new System.Drawing.Point(28, 277);
+            this.btnGetWebCert.Name = "btnGetWebCert";
+            this.btnGetWebCert.Size = new System.Drawing.Size(128, 23);
+            this.btnGetWebCert.TabIndex = 7;
+            this.btnGetWebCert.Text = "Get Web Cert";
+            this.btnGetWebCert.UseVisualStyleBackColor = true;
+            this.btnGetWebCert.Click += new System.EventHandler(this.btnGetWebCert_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(1139, 406);
+            this.Controls.Add(this.btnGetWebCert);
             this.Controls.Add(this.btnStopES);
             this.Controls.Add(this.btnStartES);
             this.Controls.Add(this.listBoxJava);
@@ -228,5 +240,6 @@
         private System.Windows.Forms.ListBox listBoxJava;
         private System.Windows.Forms.Button btnStartES;
         private System.Windows.Forms.Button btnStopES;
+        private System.Windows.Forms.Button btnGetWebCert;
     }
 }
