@@ -27,7 +27,6 @@ namespace DataTron
         private string _serviceAccountUserName;
         private string _serviceAccountPassWord;
 
-
         public string NodeMonitor { get => _nodeMonitor; set => _nodeMonitor = value; }
         public string ClusterName { get => _clusterName; set => _clusterName = value; }
         public string NodeName { get => _nodeName; set => _nodeName = value; }
@@ -45,9 +44,6 @@ namespace DataTron
         public string ServiceAccountPassWord { get => _serviceAccountPassWord; set => _serviceAccountPassWord = value; }
         public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = value; }
         public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
-
-        
-        
 
         public Node()
         {

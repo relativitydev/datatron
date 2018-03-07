@@ -14,6 +14,10 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Net;
+using System.Runtime.InteropServices;
+
+
+
 
 namespace DataTron
 {
@@ -68,7 +72,6 @@ namespace DataTron
                     // Copy each file into the new directory.
                     foreach (FileInfo fi in source.GetFiles())
                     {
-                        Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
                         fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
                     }
 
@@ -81,9 +84,17 @@ namespace DataTron
                     }
                 }
 
-                Copy("RelativityDataGrid", installPath + @"\RelativityDataGrid");
+                if (File.Exists($@"{installPath}/RelativityDataGrid"))
+                {
+                    MessageBox.Show("The RelativityDataGrid folders already exists!");
+                }
+                else
+                {
+                    Copy("RelativityDataGrid", installPath + @"\RelativityDataGrid");
 
-                MessageBox.Show("Created the package at " + installPath);
+                    MessageBox.Show("Created the package at " + installPath);
+                }
+
             }  
         }
 
