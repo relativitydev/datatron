@@ -150,27 +150,40 @@ namespace DataTron
        
         private void btnInstallService_Click(object sender, EventArgs e)
         {
-            //TODO Adjust for the size of the RAM on the system.
+            ServiceController[] allServices = ServiceController.GetServices();
+            bool elasticIsInstalled = false;
+            foreach (ServiceController service in allServices)
+            {
+                if (service.ServiceName == "elasticsearch-service-x64")
+                {
+                    elasticIsInstalled = true;
+                    MessageBox.Show("The elasticsearch service is already installed.");
+                }
+            }
 
-            var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/kservice.bat", "install");
+            if (!elasticIsInstalled)
+            {
+                var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/kservice.bat", "install");
 
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardError = true;
-            processInfo.RedirectStandardOutput = true;
+                processInfo.CreateNoWindow = true;
+                processInfo.UseShellExecute = false;
+                processInfo.RedirectStandardError = true;
+                processInfo.RedirectStandardOutput = true;
 
-            var process = Process.Start(processInfo);
+                var process = Process.Start(processInfo);
 
-            process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
-                Console.WriteLine("output>>" + ev.Data);
-            process.BeginOutputReadLine();
+                process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
+                    MessageBox.Show("output>>" + ev.Data);
+                process.BeginOutputReadLine();
 
-            process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
-                Console.WriteLine("error>>" + ev.Data);
-            process.BeginErrorReadLine();
+                process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
+                    MessageBox.Show("error>>" + ev.Data);
+                process.BeginErrorReadLine();
 
-            process.WaitForExit();
-            process.Close();
+                process.WaitForExit();
+                process.Close();
+            }
+
         }
 
         private void btnCreateEsUsers_Click(object sender, EventArgs e)
