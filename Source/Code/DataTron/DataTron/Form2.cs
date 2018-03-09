@@ -45,7 +45,7 @@ namespace DataTron
 
         private void btnCopyPackage_Click(object sender, EventArgs e)
         {
-            if (!Directory.Exists("RelativityDataGrid"))
+            if (!Directory.Exists(@"RelativityDataGrid"))
             {
                 MessageBox.Show("Please Copy the RelativityDataGrid Folder to the executable folder.", "RelativityDataGrid Package not found!");
             }
@@ -53,7 +53,7 @@ namespace DataTron
             {
                 FolderBrowserDialog DialogBox = new FolderBrowserDialog();
                 DialogBox.ShowDialog();
-                string installPath = DialogBox.SelectedPath;
+                installPath = DialogBox.SelectedPath;
 
                 if (Directory.Exists($@"{installPath}/RelativityDataGrid"))
                 {
@@ -101,51 +101,84 @@ namespace DataTron
 
         private void btnCheckJava_Click(object sender, EventArgs e)
         {
-
             string[] message = Directory.GetDirectories($@"{driveLetter}:\Program Files\Java", "jdk*");
-            
-            for(int x = 0; x < message.Length; x++)
+            for (int x = 0; x < message.Length; x++)
             {
                 listBoxJava.Items.Add(message[x]);
             }
-            
+            try
+            {
+                if (message[0] == null) { }
+
+            }
+            catch (System.IndexOutOfRangeException)
+            {
+                MessageBox.Show("No jdk instalation found in /Program Files/Java.  Install the Java jdk package ");
+            }
         }
 
         private void btnGetJavaHome_Click(object sender, EventArgs e)
         {
-            string JavaHome = Environment.GetEnvironmentVariable("KCURA_JAVA_HOME", EnvironmentVariableTarget.Machine);
-            textBoxJavaHome.Text = JavaHome.Replace("\\\\","\\").Replace(@"/",@"\");
+            try
+            {
+                string JavaHome = Environment.GetEnvironmentVariable("KCURA_JAVA_HOME", EnvironmentVariableTarget.Machine);
+                textBoxJavaHome.Text = JavaHome.Replace("\\\\", "\\").Replace(@"/", @"\");
+            }
+            catch (NullReferenceException)
+            {
+                MessageBox.Show("No KCURA_JAVA_HOME environmental variable exists.  Try the Get Java Installations button.");
+            }
+            
         }
 
         private void btnSetJavaHome_Click(object sender, EventArgs e)
         {
-            Environment.SetEnvironmentVariable("KCURA_JAVA_HOME", textBoxJavaHome.Text, EnvironmentVariableTarget.Machine);
-            MessageBox.Show($@"The environmental variable KCURA_JAVA_HOME set to {textBoxJavaHome.Text}");
+            if (textBoxJavaHome.Text == "" | textBoxJavaHome.Text == null)
+            {
+                MessageBox.Show("Please use the Get Java Installation button double click a Java location to use.");
+            }
+            else
+            {
+                Microsoft.Win32.RegistryKey key;
+                key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment");
+                key.SetValue("KCURA_JAVA_HOME", $@"{textBoxJavaHome.Text}");
+                key.Close();
+
+                MessageBox.Show($@"The environmental variable KCURA_JAVA_HOME set to {textBoxJavaHome.Text}");
+            }
         }
 
         private void btnInstalWebCert_Click(object sender, EventArgs e)
         {
 
             var processInfo = new ProcessStartInfo($@"{textBoxJavaHome.Text}\bin\keytool.exe", $@"-importcert -alias shield -keystore ""{textBoxJavaHome.Text}\jre\lib\security\cacerts"" -storepass changeit -file ShieldCert.pem -noprompt");
+            processInfo.CreateNoWindow = true;
 
             var process = Process.Start(processInfo);
 
-            process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
-                MessageBox.Show(process.StandardOutput.ToString());
-
             process.WaitForExit();
             process.Close();
+
+            MessageBox.Show("The web certificate is installed to the Java Key store.");
         }
 
         private void btnUpdateYML_Click(object sender, EventArgs e)
         {
-            YML yml = new YML();
+            try
+            {
+                YML yml = new YML();
 
-            string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AuthenticationWebServer, node.MinimumMasterNode);
+                string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AuthenticationWebServer, node.MinimumMasterNode);
 
-            File.WriteAllText(this.installPath + @"\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
+                File.WriteAllText(this.installPath + @"\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
 
-            MessageBox.Show($@"yml file created at: {this.installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml");
+                MessageBox.Show($@"yml file created at: {this.installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml");
+            }
+            catch (System.NullReferenceException)
+            {
+                MessageBox.Show("Use the back button to create a node.  If you are not using a response file use the Do Not Use Response File checkbox.");
+            }
+
         }
        
         private void btnInstallService_Click(object sender, EventArgs e)
@@ -161,9 +194,46 @@ namespace DataTron
                 }
             }
 
-            if (!elasticIsInstalled)
+            Microsoft.Win32.RegistryKey key;
+            key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment");
+            string JavaHome = (key.GetValue("KCURA_JAVA_HOME", $@"{textBoxJavaHome.Text}")).ToString();
+            key.Close();
+
+            if (JavaHome == null | JavaHome == "")
             {
+                MessageBox.Show("No KCURA_JAVA_HOME environmental variable exists.  Try the Set Java Installations button.");
+            }
+
+            if (installPath == null | installPath == "")
+            {
+                MessageBox.Show("No RelativityDataGrid Folder found. Use the Copy Data Grid Package to Disk button.");
+            }
+
+
+            if (!elasticIsInstalled & JavaHome != null & installPath != null)
+            {
+
                 var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/kservice.bat", "install");
+
+                processInfo.CreateNoWindow = true;
+                processInfo.UseShellExecute = false;
+                processInfo.RedirectStandardError = true;
+                processInfo.RedirectStandardOutput = true;
+                processInfo.EnvironmentVariables["KCURA_JAVA_HOME"] = JavaHome;
+
+                var process = Process.Start(processInfo);
+
+                process.WaitForExit();
+                process.Close();
+                MessageBox.Show("The elastic windows service is installed.");
+            }
+        }
+
+        private void btnCreateEsUsers_Click(object sender, EventArgs e)
+        {
+            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat"))
+            {
+                var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat", $@"useradd {node.EsUserName} -p {node.EsPassWord} -r admin");
 
                 processInfo.CreateNoWindow = true;
                 processInfo.UseShellExecute = false;
@@ -172,43 +242,15 @@ namespace DataTron
 
                 var process = Process.Start(processInfo);
 
-                process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
-                    MessageBox.Show("output>>" + ev.Data);
-                process.BeginOutputReadLine();
-
-                process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
-                    MessageBox.Show("error>>" + ev.Data);
-                process.BeginErrorReadLine();
-
                 process.WaitForExit();
                 process.Close();
+
+                MessageBox.Show("Elastic REST user created.");
             }
-
-        }
-
-        private void btnCreateEsUsers_Click(object sender, EventArgs e)
-        {
-            var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat", $@"useradd {node.EsUserName} -p {node.EsPassWord} -r admin");
-
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardError = true;
-            processInfo.RedirectStandardOutput = true;
-
-            var process = Process.Start(processInfo);
-
-            process.OutputDataReceived += (object psender, DataReceivedEventArgs ev) =>
-                Console.WriteLine("output>>" + ev.Data);
-            process.BeginOutputReadLine();
-
-            process.ErrorDataReceived += (object psender, DataReceivedEventArgs ev) =>
-                Console.WriteLine("error>>" + ev.Data);
-            process.BeginErrorReadLine();
-
-            process.WaitForExit();
-            process.Close();
-
-            MessageBox.Show("Elastic REST user created.");
+            else
+            {
+                MessageBox.Show("Please use the Copy Data Grid Package to Disk button to create the RelativityDataGrid folder.");
+            }
         }
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)

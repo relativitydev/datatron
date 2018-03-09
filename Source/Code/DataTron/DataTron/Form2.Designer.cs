@@ -44,6 +44,7 @@
             this.btnStartES = new System.Windows.Forms.Button();
             this.btnStopES = new System.Windows.Forms.Button();
             this.btnGetWebCert = new System.Windows.Forms.Button();
+            this.lblChooseAJava = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnForm2Back
@@ -191,12 +192,22 @@
             this.btnGetWebCert.UseVisualStyleBackColor = true;
             this.btnGetWebCert.Click += new System.EventHandler(this.btnGetWebCert_Click);
             // 
+            // lblChooseAJava
+            // 
+            this.lblChooseAJava.AutoSize = true;
+            this.lblChooseAJava.Location = new System.Drawing.Point(313, 87);
+            this.lblChooseAJava.Name = "lblChooseAJava";
+            this.lblChooseAJava.Size = new System.Drawing.Size(151, 13);
+            this.lblChooseAJava.TabIndex = 8;
+            this.lblChooseAJava.Text = "Select a Java Installation";
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(1139, 406);
+            this.Controls.Add(this.lblChooseAJava);
             this.Controls.Add(this.btnGetWebCert);
             this.Controls.Add(this.btnStopES);
             this.Controls.Add(this.btnStartES);
@@ -241,5 +252,6 @@
         private System.Windows.Forms.Button btnStartES;
         private System.Windows.Forms.Button btnStopES;
         private System.Windows.Forms.Button btnGetWebCert;
+        private System.Windows.Forms.Label lblChooseAJava;
     }
 }
