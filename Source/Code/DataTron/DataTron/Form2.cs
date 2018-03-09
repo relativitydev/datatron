@@ -233,12 +233,18 @@ namespace DataTron
         {
             if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat"))
             {
+                Microsoft.Win32.RegistryKey key;
+                key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment");
+                string JavaHome = (key.GetValue("KCURA_JAVA_HOME", $@"{textBoxJavaHome.Text}")).ToString();
+                key.Close();
+
                 var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat", $@"useradd {node.EsUserName} -p {node.EsPassWord} -r admin");
 
                 processInfo.CreateNoWindow = true;
                 processInfo.UseShellExecute = false;
                 processInfo.RedirectStandardError = true;
                 processInfo.RedirectStandardOutput = true;
+                processInfo.EnvironmentVariables["KCURA_JAVA_HOME"] = JavaHome;
 
                 var process = Process.Start(processInfo);
 
