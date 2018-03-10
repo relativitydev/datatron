@@ -15,12 +15,15 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Net;
 using System.Runtime.InteropServices;
-
+using System.Management;
+using System.Data.Objects;
+using Microsoft.VisualBasic.Devices;
 
 
 
 namespace DataTron
 {
+
     public partial class Form2 : Form
     {
         public Node node { get; internal set; }
@@ -34,7 +37,7 @@ namespace DataTron
         X509Certificate2 certificate = new X509Certificate2();
         public static string driveLetter = (AppDomain.CurrentDomain.BaseDirectory).Split(':').GetValue(0).ToString();
 
-        
+
 
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
@@ -54,6 +57,7 @@ namespace DataTron
                 FolderBrowserDialog DialogBox = new FolderBrowserDialog();
                 DialogBox.ShowDialog();
                 installPath = DialogBox.SelectedPath;
+                DialogBox.Dispose();
 
                 if (Directory.Exists($@"{installPath}/RelativityDataGrid"))
                 {
@@ -67,6 +71,7 @@ namespace DataTron
                         DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
 
                         CopyAll(diSource, diTarget);
+                        
                     }
 
                     void CopyAll(DirectoryInfo source, DirectoryInfo target)
@@ -84,12 +89,16 @@ namespace DataTron
                         {
                             DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
                             CopyAll(diSourceSubDir, nextTargetSubDir);
+                            
                         }
+                        
                     }
 
                     Copy("RelativityDataGrid", installPath + @"\RelativityDataGrid");
+                    
 
                     MessageBox.Show("Created the package at " + installPath);
+
                 }
             }
         }
@@ -170,15 +179,14 @@ namespace DataTron
 
                 string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AuthenticationWebServer, node.MinimumMasterNode);
 
-                File.WriteAllText(this.installPath + @"\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
+                File.WriteAllText($@"{installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
 
-                MessageBox.Show($@"yml file created at: {this.installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml");
+                MessageBox.Show($@"yml file created at: {installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml");
             }
             catch (System.NullReferenceException)
             {
                 MessageBox.Show("Use the back button to create a node.  If you are not using a response file use the Do Not Use Response File checkbox.");
             }
-
         }
        
         private void btnInstallService_Click(object sender, EventArgs e)
@@ -212,6 +220,14 @@ namespace DataTron
 
             if (!elasticIsInstalled & JavaHome != null & installPath != null)
             {
+                ComputerInfo computerInfo = new ComputerInfo();
+                ulong mem = ulong.Parse(computerInfo.TotalPhysicalMemory.ToString());
+                string javaHeap = Math.Round(Convert.ToDouble((mem / (1024 * 1024 * 1024)) + 1) / 2).ToString();
+
+                KService kService = new KService();
+                string kServiceAdjusted = kService.kService(javaHeap);
+
+                File.WriteAllText($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/kservice.bat", kServiceAdjusted);
 
                 var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/kservice.bat", "install");
 

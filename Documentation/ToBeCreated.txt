@@ -2,8 +2,6 @@ There is no documenation at this time.  This is an experimental version of the s
 
 Issues:
 
-MessageBox popups not displaying for all items.
-
-Copy Folder Button will cause an exception if the destination location exists.
-
 kService.bat needs to be updated for the RAM on the machine.
+
+Sign the executable.
