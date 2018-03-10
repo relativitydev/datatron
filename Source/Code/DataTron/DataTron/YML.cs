@@ -10,11 +10,12 @@ namespace DataTron
     {
         public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters)
         {
-            //If nothing has been specified for the NodeMonitor role set it to false.
+            //When nothing has been specified for the NodeMonitor role set it to false.
             if (NodeMonitor == null | NodeMonitor == "")
             {
                 NodeMonitor = "false";
             }
+
             //Format the marvel setting.
             if (MonitoringNode != null & MonitoringNode != "")
             {
@@ -84,8 +85,16 @@ namespace DataTron
             //Format UnicastHosts
             UnicastHosts = UnicastHosts.Insert(0, @"[""").Insert(UnicastHosts.Length + 2, @"""]").Replace(",", @""",""");
 
-            //Format Path Repo
-            PathRepository = PathRepository.Insert(0, @"[""").Insert(PathRepository.Length + 2, @"""]").Replace(@"\", @"\\");
+            //Format PathRepository
+            if (PathRepository == null | PathRepository == "")
+            {
+                PathRepository = "#path.repo: ";
+            }
+            else
+            {
+                PathRepository = PathRepository.Insert(0, @"[""").Insert(PathRepository.Length + 2, @"""]").Replace(@"\", @"\\");
+                PathRepository = "path.repo: " + PathRepository;
+            }
 
             #region //YML string
             string yml = $@"
@@ -144,7 +153,7 @@ path.data: {DataPath}
 # Path to directory where to store backups
 #path.repo: C:\RelativityDataGrid\backups
 #path.repo: [""/mount/backups"", ""/mount/longterm_backups""]
-path.repo: {PathRepository}
+{PathRepository}
 
 # This disables the Java security manager - plugins cannot specify their own
 # security policies in this version of ES and will not function properly
@@ -263,7 +272,8 @@ shield.authc.realms:
  id1:
   type: http
   host: {MonitoringNode}";
-                string commentOutMarvelSetting = $@"#marvel.agent.exporters:
+                string commentOutMarvelSetting = $@"marvel.enabled: false
+#marvel.agent.exporters:
 # id1:
 #  type: http
 #  host: {MonitoringNode}";
