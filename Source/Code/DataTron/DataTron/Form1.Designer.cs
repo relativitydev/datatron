@@ -64,6 +64,9 @@
             this.checkBoxNoResponseFile = new System.Windows.Forms.CheckBox();
             this.lblAuthWebServer = new System.Windows.Forms.Label();
             this.textBoxAuthWebServer = new System.Windows.Forms.TextBox();
+            this.checkBoxMasterRole = new System.Windows.Forms.CheckBox();
+            this.checkBoxDataRole = new System.Windows.Forms.CheckBox();
+            this.checkMonitorRole = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lblClusterName
@@ -105,7 +108,7 @@
             // lblMinMaster
             // 
             this.lblMinMaster.AutoSize = true;
-            this.lblMinMaster.Location = new System.Drawing.Point(126, 109);
+            this.lblMinMaster.Location = new System.Drawing.Point(126, 132);
             this.lblMinMaster.Name = "lblMinMaster";
             this.lblMinMaster.Size = new System.Drawing.Size(147, 13);
             this.lblMinMaster.TabIndex = 0;
@@ -114,7 +117,7 @@
             // lbl
             // 
             this.lbl.AutoSize = true;
-            this.lbl.Location = new System.Drawing.Point(143, 138);
+            this.lbl.Location = new System.Drawing.Point(143, 108);
             this.lbl.Name = "lbl";
             this.lbl.Size = new System.Drawing.Size(130, 13);
             this.lbl.TabIndex = 0;
@@ -198,37 +201,45 @@
             this.textBoxNodeName.Size = new System.Drawing.Size(116, 20);
             this.textBoxNodeName.TabIndex = 2;
             this.textBoxNodeName.TextChanged += new System.EventHandler(this.textBoxNodeName_TextChanged);
+            this.textBoxNodeName.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.textBoxNodeName_ControlAdded);
+            this.textBoxNodeName.Text = System.Environment.MachineName;
             // 
             // textBoxMasterNode
             // 
-            this.textBoxMasterNode.Location = new System.Drawing.Point(279, 57);
+            this.textBoxMasterNode.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.textBoxMasterNode.Location = new System.Drawing.Point(300, 57);
             this.textBoxMasterNode.Name = "textBoxMasterNode";
-            this.textBoxMasterNode.Size = new System.Drawing.Size(116, 20);
-            this.textBoxMasterNode.TabIndex = 3;
+            this.textBoxMasterNode.ReadOnly = true;
+            this.textBoxMasterNode.Size = new System.Drawing.Size(95, 20);
+            this.textBoxMasterNode.TabIndex = 0;
             this.textBoxMasterNode.TextChanged += new System.EventHandler(this.textBoxMasterNode_TextChanged);
             // 
             // textBoxDataNode
             // 
-            this.textBoxDataNode.Location = new System.Drawing.Point(279, 83);
+            this.textBoxDataNode.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.textBoxDataNode.Location = new System.Drawing.Point(300, 83);
             this.textBoxDataNode.Name = "textBoxDataNode";
-            this.textBoxDataNode.Size = new System.Drawing.Size(116, 20);
-            this.textBoxDataNode.TabIndex = 4;
+            this.textBoxDataNode.ReadOnly = true;
+            this.textBoxDataNode.Size = new System.Drawing.Size(95, 20);
+            this.textBoxDataNode.TabIndex = 0;
             this.textBoxDataNode.TextChanged += new System.EventHandler(this.textBoxDataNode_TextChanged);
             // 
             // textBoxNumberMasters
             // 
-            this.textBoxNumberMasters.Location = new System.Drawing.Point(279, 109);
+            this.textBoxNumberMasters.Location = new System.Drawing.Point(279, 132);
             this.textBoxNumberMasters.Name = "textBoxNumberMasters";
             this.textBoxNumberMasters.Size = new System.Drawing.Size(116, 20);
-            this.textBoxNumberMasters.TabIndex = 5;
+            this.textBoxNumberMasters.TabIndex = 6;
             this.textBoxNumberMasters.TextChanged += new System.EventHandler(this.textBoxNumberMasters_TextChanged);
             // 
             // textBoxMonitorNode
             // 
-            this.textBoxMonitorNode.Location = new System.Drawing.Point(279, 138);
+            this.textBoxMonitorNode.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.textBoxMonitorNode.Location = new System.Drawing.Point(300, 108);
             this.textBoxMonitorNode.Name = "textBoxMonitorNode";
-            this.textBoxMonitorNode.Size = new System.Drawing.Size(116, 20);
-            this.textBoxMonitorNode.TabIndex = 6;
+            this.textBoxMonitorNode.ReadOnly = true;
+            this.textBoxMonitorNode.Size = new System.Drawing.Size(95, 20);
+            this.textBoxMonitorNode.TabIndex = 0;
             this.textBoxMonitorNode.TextChanged += new System.EventHandler(this.textBoxMonitorNode_TextChanged);
             // 
             // textBoxMonitoringNode
@@ -246,6 +257,7 @@
             this.textBoxDataPath.Size = new System.Drawing.Size(116, 20);
             this.textBoxDataPath.TabIndex = 8;
             this.textBoxDataPath.TextChanged += new System.EventHandler(this.textBoxDataPath_TextChanged);
+            this.textBoxDataPath.DoubleClick += new System.EventHandler(this.textBoxDataPath_DoubleClick);
             // 
             // textBoxBackupLoc
             // 
@@ -376,12 +388,45 @@
             this.textBoxAuthWebServer.TabIndex = 15;
             this.textBoxAuthWebServer.TextChanged += new System.EventHandler(this.textBoxAuthWebServer_TextChanged);
             // 
+            // checkBoxMasterRole
+            // 
+            this.checkBoxMasterRole.AutoSize = true;
+            this.checkBoxMasterRole.Location = new System.Drawing.Point(279, 60);
+            this.checkBoxMasterRole.Name = "checkBoxMasterRole";
+            this.checkBoxMasterRole.Size = new System.Drawing.Size(15, 14);
+            this.checkBoxMasterRole.TabIndex = 3;
+            this.checkBoxMasterRole.UseVisualStyleBackColor = true;
+            this.checkBoxMasterRole.CheckedChanged += new System.EventHandler(this.checkBoxMasterRole_CheckedChanged);
+            // 
+            // checkBoxDataRole
+            // 
+            this.checkBoxDataRole.AutoSize = true;
+            this.checkBoxDataRole.Location = new System.Drawing.Point(279, 83);
+            this.checkBoxDataRole.Name = "checkBoxDataRole";
+            this.checkBoxDataRole.Size = new System.Drawing.Size(15, 14);
+            this.checkBoxDataRole.TabIndex = 4;
+            this.checkBoxDataRole.UseVisualStyleBackColor = true;
+            this.checkBoxDataRole.CheckedChanged += new System.EventHandler(this.checkBoxDataRole_CheckedChanged);
+            // 
+            // checkMonitorRole
+            // 
+            this.checkMonitorRole.AutoSize = true;
+            this.checkMonitorRole.Location = new System.Drawing.Point(279, 108);
+            this.checkMonitorRole.Name = "checkMonitorRole";
+            this.checkMonitorRole.Size = new System.Drawing.Size(15, 14);
+            this.checkMonitorRole.TabIndex = 5;
+            this.checkMonitorRole.UseVisualStyleBackColor = true;
+            this.checkMonitorRole.CheckedChanged += new System.EventHandler(this.checkMonitorRole_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(976, 406);
+            this.Controls.Add(this.checkMonitorRole);
+            this.Controls.Add(this.checkBoxDataRole);
+            this.Controls.Add(this.checkBoxMasterRole);
             this.Controls.Add(this.textBoxAuthWebServer);
             this.Controls.Add(this.lblAuthWebServer);
             this.Controls.Add(this.checkBoxNoResponseFile);
@@ -466,6 +511,9 @@
         private System.Windows.Forms.CheckBox checkBoxNoResponseFile;
         private System.Windows.Forms.Label lblAuthWebServer;
         private System.Windows.Forms.TextBox textBoxAuthWebServer;
+        private System.Windows.Forms.CheckBox checkBoxMasterRole;
+        private System.Windows.Forms.CheckBox checkBoxDataRole;
+        private System.Windows.Forms.CheckBox checkMonitorRole;
     }
 }
 

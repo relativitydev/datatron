@@ -99,7 +99,10 @@ namespace DataTron
 
         private void textBoxMasterNode_TextChanged(object sender, EventArgs e)
         {
+
             node.NodeMaster = textBoxMasterNode.Text;
+
+  
         }
 
         private void textBoxDataNode_TextChanged(object sender, EventArgs e)
@@ -233,7 +236,63 @@ namespace DataTron
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            ToolTip toolTip = new ToolTip();
 
+            toolTip.AutoPopDelay = 5000;
+            toolTip.InitialDelay = 100;
+            toolTip.ReshowDelay = 500;
+
+            toolTip.SetToolTip(textBoxClusterName, "Enter a clustername, do not use special characters.");
+            toolTip.SetToolTip(textBoxNodeName, "Enter the FQDN name of this node.");
+        }
+
+        private void checkBoxMasterRole_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxMasterRole.Checked)
+            {
+                textBoxMasterNode.Text = "true";
+            }
+            if (!checkBoxMasterRole.Checked)
+            {
+                textBoxMasterNode.Text = "false";
+            }
+        }
+
+        private void checkBoxDataRole_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxDataRole.Checked)
+            {
+                textBoxDataNode.Text = "true";
+            }
+            if (!checkBoxDataRole.Checked)
+            {
+                textBoxDataNode.Text = "false";
+            }
+        }
+
+        private void checkMonitorRole_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkMonitorRole.Checked)
+            {
+                textBoxMonitoringNode.Text = "true";
+            }
+            if (!checkMonitorRole.Checked)
+            {
+                textBoxMonitoringNode.Text = "false";
+            }
+        }
+
+        private void textBoxDataPath_DoubleClick(object sender, EventArgs e)
+        {
+            FolderBrowserDialog DialogBox = new FolderBrowserDialog();
+            DialogBox.ShowDialog();
+            textBoxDataPath.Text = DialogBox.SelectedPath;
+            DialogBox.Dispose();
+        }
+
+        private void textBoxNodeName_ControlAdded(object sender, ControlEventArgs e)
+        {
+            textBoxNodeName.Text = Environment.MachineName;
         }
     }
 }
