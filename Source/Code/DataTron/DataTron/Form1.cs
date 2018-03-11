@@ -115,9 +115,6 @@ namespace DataTron
         private void textBoxNumberMasters_TextChanged(object sender, EventArgs e)
         {
             
-
-
-
             if (decimal.TryParse(textBoxNumberMasters.Text, out decimal DecOfMasters))
             {
                 if (DecOfMasters % 2 == 1 & !(textBoxNumberMasters.Text == ""))

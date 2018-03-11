@@ -10,6 +10,7 @@ namespace DataTron
     {
         /// <summary>
         /// The main entry point for the application.
+        /// Developed by Ivan Koretsky for the Relativity Corporation.  Shout out to Andrew!
         /// </summary>
         [STAThread]
         static void Main()
