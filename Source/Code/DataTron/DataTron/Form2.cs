@@ -177,7 +177,7 @@ namespace DataTron
             {
                 YML yml = new YML();
 
-                string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AuthenticationWebServer, node.MinimumMasterNode);
+                string message = yml.PopulateTheYML(node.ClusterName, node.NodeName, node.NodeMaster, node.NodeData, node.UnicastHosts, node.NodeMonitor, node.MonitoringNode, node.DataPath, node.PathRepository, node.AuthenticationWebServer, node.MinimumMasterNode, node.MarvelUserName, node.MarvelPassWord);
 
                 File.WriteAllText($@"{installPath}\RelativityDataGrid\elasticsearch-main\config\elasticsearch.yml", message);
 

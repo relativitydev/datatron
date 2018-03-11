@@ -26,6 +26,8 @@ namespace DataTron
         private string _authenticationWebServer;
         private string _serviceAccountUserName;
         private string _serviceAccountPassWord;
+        private string _marvelUserName;
+        private string _marvelPassWord;
 
         public string NodeMonitor { get => _nodeMonitor; set => _nodeMonitor = value; }
         public string ClusterName { get => _clusterName; set => _clusterName = value; }
@@ -44,12 +46,9 @@ namespace DataTron
         public string ServiceAccountPassWord { get => _serviceAccountPassWord; set => _serviceAccountPassWord = value; }
         public string DestructiveRequiresName { get => _destructiveRequiresName; set => _destructiveRequiresName = value; }
         public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
+        public string MarvelUserName { get => _marvelUserName; set => _marvelUserName = value; }
+        public string MarvelPassWord { get => _marvelPassWord; set => _marvelPassWord = value; }
 
-        public Node()
-        {
-            NodeMonitor = "false";
-            MonitoringNode = "false";
-            UnicastHosts = "";
-        }
+
     }
 }

@@ -8,13 +8,13 @@ namespace DataTron
 {
     class YML
     {
-        public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters)
+        public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters, string MarvelUser, string MarvelPass)
         {
-            //When nothing has been specified for the NodeMonitor role set it to false.
-            if (NodeMonitor == null | NodeMonitor == "")
-            {
-                NodeMonitor = "false";
-            }
+            ////When nothing has been specified for the NodeMonitor role set it to false.
+            //if (NodeMonitor == null | NodeMonitor == "")
+            //{
+            //    NodeMonitor = "false";
+            //}
 
             //Format the marvel setting.
             if (MonitoringNode != null & MonitoringNode != "")
@@ -139,6 +139,9 @@ marvel.agent.exporters:
  id1:
   type: http
   host: {MonitoringNode}
+  auth: 
+   username: {MarvelUser}
+   password: {MarvelPass}
 
 # This puts all scripting functionality in a sandbox
 #script.disable_dynamic: true
@@ -266,19 +269,42 @@ shield.authc.realms:
 # action.destructive_requires_name: true
 
 ";
-            if (MonitoringNode == null | MonitoringNode == "")
+            if (NodeMonitor == "true")
             {
                 string defaultMarvelSetting = $@"marvel.agent.exporters:
  id1:
   type: http
-  host: {MonitoringNode}";
+  host: {MonitoringNode}
+  auth: 
+   username: {MarvelUser}
+   password: {MarvelPass}";
                 string commentOutMarvelSetting = $@"marvel.enabled: false
 #marvel.agent.exporters:
 # id1:
 #  type: http
-#  host: {MonitoringNode}";
+#  host: {MonitoringNode}
+#  auth: 
+#   username: {MarvelUser}
+#   password: {MarvelPass}";
 
                 yml = yml.Replace(defaultMarvelSetting, commentOutMarvelSetting);
+            }
+
+            if (NodeMonitor == "true")
+            {
+                string defaultShieldSettings = $@"shield.authc.realms: 
+ custom:
+  type: kCuraBearerRealm
+  order: 0
+  publicJWKsUrl: https://{WebServer}/Relativity/Identity/.well-known/jwks
+ esusers1:
+  type: esusers
+  order: 1";
+                string removeThePublicJWKsUrl = $@"shield.authc.realms: 
+ esusers1:
+  type: esusers
+  order: 0";
+                yml = yml.Replace(defaultShieldSettings, removeThePublicJWKsUrl);
             }
 
             return yml;

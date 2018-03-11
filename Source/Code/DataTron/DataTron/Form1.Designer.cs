@@ -67,6 +67,10 @@
             this.checkBoxMasterRole = new System.Windows.Forms.CheckBox();
             this.checkBoxDataRole = new System.Windows.Forms.CheckBox();
             this.checkMonitorRole = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblMarvelPass = new System.Windows.Forms.Label();
+            this.textBoxMarvelUser = new System.Windows.Forms.TextBox();
+            this.textBoxMarvelPass = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // lblClusterName
@@ -153,25 +157,25 @@
             // lblEsUserName
             // 
             this.lblEsUserName.AutoSize = true;
-            this.lblEsUserName.Location = new System.Drawing.Point(129, 241);
+            this.lblEsUserName.Location = new System.Drawing.Point(105, 241);
             this.lblEsUserName.Name = "lblEsUserName";
-            this.lblEsUserName.Size = new System.Drawing.Size(142, 13);
+            this.lblEsUserName.Size = new System.Drawing.Size(165, 13);
             this.lblEsUserName.TabIndex = 0;
-            this.lblEsUserName.Text = "Elastic REST Username";
+            this.lblEsUserName.Text = "Production REST Username";
             // 
             // lblElasticPassword
             // 
             this.lblElasticPassword.AutoSize = true;
-            this.lblElasticPassword.Location = new System.Drawing.Point(133, 267);
+            this.lblElasticPassword.Location = new System.Drawing.Point(107, 267);
             this.lblElasticPassword.Name = "lblElasticPassword";
-            this.lblElasticPassword.Size = new System.Drawing.Size(140, 13);
+            this.lblElasticPassword.Size = new System.Drawing.Size(163, 13);
             this.lblElasticPassword.TabIndex = 0;
-            this.lblElasticPassword.Text = "Elastic REST Password";
+            this.lblElasticPassword.Text = "Production REST Password";
             // 
             // lblRelUserName
             // 
             this.lblRelUserName.AutoSize = true;
-            this.lblRelUserName.Location = new System.Drawing.Point(53, 292);
+            this.lblRelUserName.Location = new System.Drawing.Point(57, 351);
             this.lblRelUserName.Name = "lblRelUserName";
             this.lblRelUserName.Size = new System.Drawing.Size(220, 13);
             this.lblRelUserName.TabIndex = 0;
@@ -180,7 +184,7 @@
             // lblRelPassword
             // 
             this.lblRelPassword.AutoSize = true;
-            this.lblRelPassword.Location = new System.Drawing.Point(57, 318);
+            this.lblRelPassword.Location = new System.Drawing.Point(57, 377);
             this.lblRelPassword.Name = "lblRelPassword";
             this.lblRelPassword.Size = new System.Drawing.Size(216, 13);
             this.lblRelPassword.TabIndex = 0;
@@ -200,9 +204,8 @@
             this.textBoxNodeName.Name = "textBoxNodeName";
             this.textBoxNodeName.Size = new System.Drawing.Size(116, 20);
             this.textBoxNodeName.TabIndex = 2;
-            this.textBoxNodeName.TextChanged += new System.EventHandler(this.textBoxNodeName_TextChanged);
-            this.textBoxNodeName.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.textBoxNodeName_ControlAdded);
-            this.textBoxNodeName.Text = System.Environment.MachineName;
+            this.textBoxNodeName.TextChanged += new System.EventHandler(this.textBoxNodeName_TextChanged_1);
+            this.textBoxNodeName.DoubleClick += new System.EventHandler(this.textBoxNodeName_DoubleClick);
             // 
             // textBoxMasterNode
             // 
@@ -285,18 +288,18 @@
             // 
             // textBoxRelUser
             // 
-            this.textBoxRelUser.Location = new System.Drawing.Point(279, 292);
+            this.textBoxRelUser.Location = new System.Drawing.Point(279, 351);
             this.textBoxRelUser.Name = "textBoxRelUser";
             this.textBoxRelUser.Size = new System.Drawing.Size(116, 20);
-            this.textBoxRelUser.TabIndex = 12;
+            this.textBoxRelUser.TabIndex = 14;
             this.textBoxRelUser.TextChanged += new System.EventHandler(this.textBoxRelUser_TextChanged);
             // 
             // textBoxRelPass
             // 
-            this.textBoxRelPass.Location = new System.Drawing.Point(279, 318);
+            this.textBoxRelPass.Location = new System.Drawing.Point(279, 377);
             this.textBoxRelPass.Name = "textBoxRelPass";
             this.textBoxRelPass.Size = new System.Drawing.Size(116, 20);
-            this.textBoxRelPass.TabIndex = 13;
+            this.textBoxRelPass.TabIndex = 15;
             this.textBoxRelPass.TextChanged += new System.EventHandler(this.textBoxRelPass_TextChanged);
             // 
             // btnLoadResponce
@@ -345,7 +348,7 @@
             // lblUnicastHosts
             // 
             this.lblUnicastHosts.AutoSize = true;
-            this.lblUnicastHosts.Location = new System.Drawing.Point(181, 345);
+            this.lblUnicastHosts.Location = new System.Drawing.Point(181, 416);
             this.lblUnicastHosts.Name = "lblUnicastHosts";
             this.lblUnicastHosts.Size = new System.Drawing.Size(92, 13);
             this.lblUnicastHosts.TabIndex = 6;
@@ -353,10 +356,10 @@
             // 
             // textBoxUnicastHosts
             // 
-            this.textBoxUnicastHosts.Location = new System.Drawing.Point(279, 345);
+            this.textBoxUnicastHosts.Location = new System.Drawing.Point(279, 416);
             this.textBoxUnicastHosts.Name = "textBoxUnicastHosts";
             this.textBoxUnicastHosts.Size = new System.Drawing.Size(642, 20);
-            this.textBoxUnicastHosts.TabIndex = 14;
+            this.textBoxUnicastHosts.TabIndex = 16;
             this.textBoxUnicastHosts.TextChanged += new System.EventHandler(this.textBoxUnicastHosts_TextChanged);
             // 
             // checkBoxNoResponseFile
@@ -374,7 +377,7 @@
             // lblAuthWebServer
             // 
             this.lblAuthWebServer.AutoSize = true;
-            this.lblAuthWebServer.Location = new System.Drawing.Point(113, 372);
+            this.lblAuthWebServer.Location = new System.Drawing.Point(113, 442);
             this.lblAuthWebServer.Name = "lblAuthWebServer";
             this.lblAuthWebServer.Size = new System.Drawing.Size(160, 13);
             this.lblAuthWebServer.TabIndex = 9;
@@ -382,10 +385,10 @@
             // 
             // textBoxAuthWebServer
             // 
-            this.textBoxAuthWebServer.Location = new System.Drawing.Point(279, 372);
+            this.textBoxAuthWebServer.Location = new System.Drawing.Point(279, 442);
             this.textBoxAuthWebServer.Name = "textBoxAuthWebServer";
             this.textBoxAuthWebServer.Size = new System.Drawing.Size(116, 20);
-            this.textBoxAuthWebServer.TabIndex = 15;
+            this.textBoxAuthWebServer.TabIndex = 17;
             this.textBoxAuthWebServer.TextChanged += new System.EventHandler(this.textBoxAuthWebServer_TextChanged);
             // 
             // checkBoxMasterRole
@@ -418,12 +421,48 @@
             this.checkMonitorRole.UseVisualStyleBackColor = true;
             this.checkMonitorRole.CheckedChanged += new System.EventHandler(this.checkMonitorRole_CheckedChanged);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(130, 296);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(142, 13);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "Marvel REST Username";
+            // 
+            // lblMarvelPass
+            // 
+            this.lblMarvelPass.AutoSize = true;
+            this.lblMarvelPass.Location = new System.Drawing.Point(130, 321);
+            this.lblMarvelPass.Name = "lblMarvelPass";
+            this.lblMarvelPass.Size = new System.Drawing.Size(140, 13);
+            this.lblMarvelPass.TabIndex = 18;
+            this.lblMarvelPass.Text = "Marvel REST Password";
+            // 
+            // textBoxMarvelUser
+            // 
+            this.textBoxMarvelUser.Location = new System.Drawing.Point(279, 296);
+            this.textBoxMarvelUser.Name = "textBoxMarvelUser";
+            this.textBoxMarvelUser.Size = new System.Drawing.Size(116, 20);
+            this.textBoxMarvelUser.TabIndex = 12;
+            // 
+            // textBoxMarvelPass
+            // 
+            this.textBoxMarvelPass.Location = new System.Drawing.Point(279, 321);
+            this.textBoxMarvelPass.Name = "textBoxMarvelPass";
+            this.textBoxMarvelPass.Size = new System.Drawing.Size(116, 20);
+            this.textBoxMarvelPass.TabIndex = 13;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
-            this.ClientSize = new System.Drawing.Size(976, 406);
+            this.ClientSize = new System.Drawing.Size(976, 474);
+            this.Controls.Add(this.textBoxMarvelPass);
+            this.Controls.Add(this.textBoxMarvelUser);
+            this.Controls.Add(this.lblMarvelPass);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.checkMonitorRole);
             this.Controls.Add(this.checkBoxDataRole);
             this.Controls.Add(this.checkBoxMasterRole);
@@ -514,6 +553,10 @@
         private System.Windows.Forms.CheckBox checkBoxMasterRole;
         private System.Windows.Forms.CheckBox checkBoxDataRole;
         private System.Windows.Forms.CheckBox checkMonitorRole;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblMarvelPass;
+        private System.Windows.Forms.TextBox textBoxMarvelUser;
+        private System.Windows.Forms.TextBox textBoxMarvelPass;
     }
 }
 

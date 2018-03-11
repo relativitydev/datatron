@@ -41,6 +41,8 @@ namespace DataTron
             textBoxRelPass.Text = node.ServiceAccountPassWord;
             textBoxUnicastHosts.Text = node.UnicastHosts;
             textBoxAuthWebServer.Text = node.AuthenticationWebServer;
+            textBoxMarvelUser.Text = node.MarvelUserName;
+            textBoxMarvelPass.Text = node.MarvelPassWord;
         }
 
         private void btnForm1Next_Click(object sender, EventArgs e)
@@ -229,6 +231,14 @@ namespace DataTron
             File.WriteAllLines("DataGridResponseFile.txt", lines);
             LoadResponseFile.ReadResponseFileText(node);
 
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "MarvelNodeRESTUser = ", textBoxMarvelUser.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
+            lines = UpdateResponseFile.UpdateResponseFileText(node, "MarvelNodeRESTPassword = ", textBoxMarvelPass.Text, lines);
+            File.WriteAllLines("DataGridResponseFile.txt", lines);
+            LoadResponseFile.ReadResponseFileText(node);
+
             MessageBox.Show("Response File Updated.");
         }
 
@@ -274,11 +284,11 @@ namespace DataTron
         {
             if (checkMonitorRole.Checked)
             {
-                textBoxMonitoringNode.Text = "true";
+                textBoxMonitorNode.Text = "true";
             }
             if (!checkMonitorRole.Checked)
             {
-                textBoxMonitoringNode.Text = "false";
+                textBoxMonitorNode.Text = "false";
             }
         }
 
@@ -290,9 +300,25 @@ namespace DataTron
             DialogBox.Dispose();
         }
 
-        private void textBoxNodeName_ControlAdded(object sender, ControlEventArgs e)
+        private void textBoxMarvelUser_TextChanged(object sender, EventArgs e)
+        {
+            node.MarvelUserName = textBoxMarvelUser.Text;
+        }
+
+        private void textBoxMarvelPass_TextChanged(object sender, EventArgs e)
+        {
+            node.MarvelPassWord = textBoxMarvelPass.Text;
+        }
+
+        private void textBoxNodeName_TextChanged_1(object sender, EventArgs e)
+        {
+            node.NodeName = textBoxNodeName.Text;
+        }
+
+        private void textBoxNodeName_DoubleClick(object sender, EventArgs e)
         {
             textBoxNodeName.Text = Environment.MachineName;
+            node.NodeName = textBoxNodeName.Text;
         }
     }
 }

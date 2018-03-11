@@ -80,6 +80,14 @@ ServiceAccountUserName =
 
 ServiceAccountPassWord = 
 
+#The Marvel Node REST username 
+
+MarvelNodeRESTUser = 
+
+#The Marvel Node REST password
+
+MarvelNodeRESTPassword = 
+
 ";
         public static void MakeResponseFile()
         {
