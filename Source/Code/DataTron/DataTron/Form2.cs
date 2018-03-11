@@ -247,7 +247,7 @@ namespace DataTron
 
         private void btnCreateEsUsers_Click(object sender, EventArgs e)
         {
-            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat"))
+            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat") & node.NodeMonitor == "false")
             {
                 Microsoft.Win32.RegistryKey key;
                 key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment");
@@ -269,10 +269,33 @@ namespace DataTron
 
                 MessageBox.Show("Elastic REST user created.");
             }
+            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat") & node.NodeMonitor == "true")
+            {
+                Microsoft.Win32.RegistryKey key;
+                key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment");
+                string JavaHome = (key.GetValue("KCURA_JAVA_HOME", $@"{textBoxJavaHome.Text}")).ToString();
+                key.Close();
+
+                var processInfo = new ProcessStartInfo($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat", $@"useradd {node.MarvelUserName} -p {node.MarvelPassWord} -r admin");
+
+                processInfo.CreateNoWindow = true;
+                processInfo.UseShellExecute = false;
+                processInfo.RedirectStandardError = true;
+                processInfo.RedirectStandardOutput = true;
+                processInfo.EnvironmentVariables["KCURA_JAVA_HOME"] = JavaHome;
+
+                var process = Process.Start(processInfo);
+
+                process.WaitForExit();
+                process.Close();
+
+                MessageBox.Show("Elastic REST user created.");
+            }
             else
             {
                 MessageBox.Show("Please use the Copy Data Grid Package to Disk button to create the RelativityDataGrid folder.");
             }
+
         }
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)

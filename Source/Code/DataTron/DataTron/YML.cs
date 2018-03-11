@@ -10,77 +10,24 @@ namespace DataTron
     {
         public string PopulateTheYML(string ClusterName, string NodeName, string NodeMaster, string NodeData, string UnicastHosts, string NodeMonitor, string MonitoringNode, string DataPath, string PathRepository, string WebServer, string NumberOfMasters, string MarvelUser, string MarvelPass)
         {
-            ////When nothing has been specified for the NodeMonitor role set it to false.
-            //if (NodeMonitor == null | NodeMonitor == "")
-            //{
-            //    NodeMonitor = "false";
-            //}
-
-            //Format the marvel setting.
             if (MonitoringNode != null & MonitoringNode != "")
             {
                 MonitoringNode = MonitoringNode.Replace($@"{MonitoringNode}", $@"[""http://{MonitoringNode}:9200""]");
             }
 
-            bool IsMonitoringNodeNull()
-            {
-                bool choice;
-                if (MonitoringNode == null)
-                {
-                    choice = false;
-                }
-                else
-                {
-                    choice = true;
-                }
-                return choice;
-            }
-            bool MonitoringNodeExists = IsMonitoringNodeNull();
+            string Auto;
+            string Destructive;
 
-            string DestructiveAction()
+            if (NodeMonitor == "true")
             {
-                string DA;
-                if (MonitoringNodeExists)
-                {
-                    if (Convert.ToBoolean(NodeMonitor))
-                    {
-                        DA = "false";
-                    }
-                    else
-                    {
-                        DA = "true";
-                    }
-                }
-                else
-                {
-                    DA = "true";
-                }
-                return DA;
+                Destructive = "false";
+                Auto = "true";
             }
-
-            string AutoCreateIndexes()
+            else
             {
-                string ACI;
-                if (MonitoringNodeExists)
-                {
-                    if (Convert.ToBoolean(NodeMonitor))
-                    {
-                        ACI = "true";
-                    }
-                    else
-                    {
-                        ACI = "false,.security";
-                    }
-                }
-                else
-                {
-                    ACI = "false,.security";
-                }
-                return ACI;
+                Destructive = "true";
+                Auto = "false,.security";
             }
-
-            string Auto = AutoCreateIndexes();
-            string Destructive = DestructiveAction();
 
             //Format UnicastHosts
             UnicastHosts = UnicastHosts.Insert(0, @"[""").Insert(UnicastHosts.Length + 2, @"""]").Replace(",", @""",""");
