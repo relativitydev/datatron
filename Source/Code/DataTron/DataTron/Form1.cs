@@ -114,7 +114,30 @@ namespace DataTron
 
         private void textBoxNumberMasters_TextChanged(object sender, EventArgs e)
         {
-            node.MinimumMasterNode = textBoxNumberMasters.Text;
+            
+
+
+
+            if (decimal.TryParse(textBoxNumberMasters.Text, out decimal DecOfMasters))
+            {
+                if (DecOfMasters % 2 == 1 & !(textBoxNumberMasters.Text == ""))
+                {
+                node.MinimumMasterNode = textBoxNumberMasters.Text;
+                }
+                else
+                {
+                    MessageBox.Show("You must have a odd number of master nodes to avoid split brain!");
+                    textBoxNumberMasters.Text = "";
+                }             
+            }
+            else
+            {
+                if (!(textBoxNumberMasters.Text == ""))
+                {
+                    MessageBox.Show("Please enter the  number of master nodes.");
+                    textBoxNumberMasters.Text = "";
+                }
+            }        
         }
 
         private void textBoxMonitorNode_TextChanged(object sender, EventArgs e)

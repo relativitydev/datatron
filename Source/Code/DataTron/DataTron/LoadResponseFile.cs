@@ -32,8 +32,7 @@ namespace DataTron
             node.ClusterName = ParseResponse("ClusterName = ", lines);
             node.NodeMaster = ParseResponse("IsMaster = ", lines);
             node.NodeData = ParseResponse("IsData = ", lines);
-            node.NodeMonitor = ParseResponse("IsMonitor = ", lines);
-            node.MinimumMasterNode = ParseResponse("MasterNodeNumber = ", lines);
+            node.NodeMonitor = ParseResponse("IsMonitor = ", lines);           
             node.MonitoringNode = ParseResponse("MonitoringNode = ", lines);          
             node.UnicastHosts = ParseResponse("UnicastHosts = ", lines);
             node.MonitoringNode = ParseResponse("MonitoringNode = ", lines);
@@ -47,6 +46,8 @@ namespace DataTron
             node.NodeName = ParseResponse("NodeName = ", lines);
             node.MarvelUserName = ParseResponse("MarvelNodeRESTUser = ", lines);
             node.MarvelPassWord = ParseResponse("MarvelNodeRESTPassword = ", lines);
+            node.MinimumMasterNode = ParseResponse("MasterNodeNumber = ", lines);
+
         }
     }
 }

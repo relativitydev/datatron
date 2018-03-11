@@ -30,14 +30,11 @@ namespace DataTron
 
         public Form2()
         {
-            InitializeComponent();
-  
+            InitializeComponent(); 
         }
         public string installPath;
         X509Certificate2 certificate = new X509Certificate2();
         public static string driveLetter = (AppDomain.CurrentDomain.BaseDirectory).Split(':').GetValue(0).ToString();
-
-
 
         private void btnForm2Back_Click(object sender, EventArgs e)
         {
@@ -291,7 +288,7 @@ namespace DataTron
 
                 MessageBox.Show("Elastic REST user created.");
             }
-            else
+            if(!File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat"))
             {
                 MessageBox.Show("Please use the Copy Data Grid Package to Disk button to create the RelativityDataGrid folder.");
             }

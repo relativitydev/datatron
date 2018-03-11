@@ -42,6 +42,12 @@ namespace DataTron
                 PathRepository = PathRepository.Insert(0, @"[""").Insert(PathRepository.Length + 2, @"""]").Replace(@"\", @"\\");
                 PathRepository = "path.repo: " + PathRepository;
             }
+            //Format number of Masters
+
+            if (decimal.TryParse(NumberOfMasters, out decimal DecofMasters))
+            {
+                NumberOfMasters = (Math.Floor((DecofMasters / 2) + 1)).ToString();
+            }
 
             #region //YML string
             string yml = $@"
