@@ -48,7 +48,5 @@ namespace DataTron
         public string AutoCreateIndex { get => _autoCreateIndex; set => _autoCreateIndex = value; }
         public string MarvelUserName { get => _marvelUserName; set => _marvelUserName = value; }
         public string MarvelPassWord { get => _marvelPassWord; set => _marvelPassWord = value; }
-
-
     }
 }

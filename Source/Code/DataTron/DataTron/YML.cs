@@ -33,7 +33,7 @@ namespace DataTron
             UnicastHosts = UnicastHosts.Insert(0, @"[""").Insert(UnicastHosts.Length + 2, @"""]").Replace(",", @""",""");
 
             //Format PathRepository
-            if (PathRepository == null | PathRepository == "")
+            if (string.IsNullOrEmpty(PathRepository))
             {
                 PathRepository = "#path.repo: ";
             }
@@ -263,7 +263,5 @@ shield.authc.realms:
             return yml;
             #endregion
         }
-
-
     }
 }

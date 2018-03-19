@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Windows.Forms;
 
 namespace DataTron
 {
@@ -25,9 +26,16 @@ namespace DataTron
 
             string ParseResponse(string StringToParse, string[] linesArray)
             {
+                try
+                {
+                    string ParsedResponce = (Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "");
+                    return ParsedResponce;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
 
-                string ParsedResponce = (Array.Find(linesArray, element => element.StartsWith(StringToParse))).Replace(StringToParse, "");
-                return ParsedResponce;
             }
             node.ClusterName = ParseResponse("ClusterName = ", lines);
             node.NodeMaster = ParseResponse("IsMaster = ", lines);
@@ -47,7 +55,6 @@ namespace DataTron
             node.MarvelUserName = ParseResponse("MarvelNodeRESTUser = ", lines);
             node.MarvelPassWord = ParseResponse("MarvelNodeRESTPassword = ", lines);
             node.MinimumMasterNode = ParseResponse("MasterNodeNumber = ", lines);
-
         }
     }
 }

@@ -10,7 +10,9 @@ namespace DataTron
     {
         /// <summary>
         /// The main entry point for the application.
-        /// Developed by Ivan Koretsky for the Relativity Corporation.  Shout out to Andrew!
+        /// Developed by Ivan Koretsky for the Relativity Corporation.
+        /// The RelativityDataGrid media is available to currently licensed clients of Relativity Corporation.
+        /// Do more with less!
         /// </summary>
         [STAThread]
         static void Main()

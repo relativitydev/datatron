@@ -139,7 +139,7 @@ namespace DataTron
 
         private void btnSetJavaHome_Click(object sender, EventArgs e)
         {
-            if (textBoxJavaHome.Text == "" | textBoxJavaHome.Text == null)
+            if (string.IsNullOrEmpty(textBoxJavaHome.Text))
             {
                 MessageBox.Show("Please use the Get Java Installation button double click a Java location to use.");
             }
@@ -204,12 +204,12 @@ namespace DataTron
             string JavaHome = (key.GetValue("KCURA_JAVA_HOME", $@"{textBoxJavaHome.Text}")).ToString();
             key.Close();
 
-            if (JavaHome == null | JavaHome == "")
+            if (string.IsNullOrEmpty(JavaHome))
             {
                 MessageBox.Show("No KCURA_JAVA_HOME environmental variable exists.  Try the Set Java Installations button.");
             }
 
-            if (installPath == null | installPath == "")
+            if (string.IsNullOrEmpty(installPath))
             {
                 MessageBox.Show("No RelativityDataGrid Folder found. Use the Copy Data Grid Package to Disk button.");
             }
