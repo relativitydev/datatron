@@ -28,29 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.buttonBack = new System.Windows.Forms.Button();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form3));
+            this.buttonExit = new System.Windows.Forms.Button();
             this.buttonTestNode = new System.Windows.Forms.Button();
             this.buttonGetLicense = new System.Windows.Forms.Button();
             this.buttonUpdateLicense = new System.Windows.Forms.Button();
             this.buttonGetSnapshot = new System.Windows.Forms.Button();
             this.buttonRegisterSnapShot = new System.Windows.Forms.Button();
+            this.buttonKibanaTemplate = new System.Windows.Forms.Button();
+            this.buttonMarvelTemplate = new System.Windows.Forms.Button();
+            this.buttonBack = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // buttonBack
+            // buttonExit
             // 
-            this.buttonBack.Location = new System.Drawing.Point(534, 214);
-            this.buttonBack.Name = "buttonBack";
-            this.buttonBack.Size = new System.Drawing.Size(152, 23);
-            this.buttonBack.TabIndex = 0;
-            this.buttonBack.Text = "Back";
-            this.buttonBack.UseVisualStyleBackColor = true;
-            this.buttonBack.Click += new System.EventHandler(this.buttonBack_Click);
+            this.buttonExit.Location = new System.Drawing.Point(750, 311);
+            this.buttonExit.Name = "buttonExit";
+            this.buttonExit.Size = new System.Drawing.Size(177, 23);
+            this.buttonExit.TabIndex = 0;
+            this.buttonExit.Text = "Exit";
+            this.buttonExit.UseVisualStyleBackColor = true;
+            this.buttonExit.Click += new System.EventHandler(this.buttonBack_Click);
             // 
             // buttonTestNode
             // 
-            this.buttonTestNode.Location = new System.Drawing.Point(13, 14);
+            this.buttonTestNode.Location = new System.Drawing.Point(15, 14);
             this.buttonTestNode.Name = "buttonTestNode";
-            this.buttonTestNode.Size = new System.Drawing.Size(143, 23);
+            this.buttonTestNode.Size = new System.Drawing.Size(167, 23);
             this.buttonTestNode.TabIndex = 1;
             this.buttonTestNode.Text = "Test Node";
             this.buttonTestNode.UseVisualStyleBackColor = true;
@@ -58,9 +62,9 @@
             // 
             // buttonGetLicense
             // 
-            this.buttonGetLicense.Location = new System.Drawing.Point(13, 43);
+            this.buttonGetLicense.Location = new System.Drawing.Point(15, 43);
             this.buttonGetLicense.Name = "buttonGetLicense";
-            this.buttonGetLicense.Size = new System.Drawing.Size(143, 23);
+            this.buttonGetLicense.Size = new System.Drawing.Size(167, 23);
             this.buttonGetLicense.TabIndex = 2;
             this.buttonGetLicense.Text = "Get License";
             this.buttonGetLicense.UseVisualStyleBackColor = true;
@@ -68,9 +72,9 @@
             // 
             // buttonUpdateLicense
             // 
-            this.buttonUpdateLicense.Location = new System.Drawing.Point(13, 73);
+            this.buttonUpdateLicense.Location = new System.Drawing.Point(15, 73);
             this.buttonUpdateLicense.Name = "buttonUpdateLicense";
-            this.buttonUpdateLicense.Size = new System.Drawing.Size(143, 23);
+            this.buttonUpdateLicense.Size = new System.Drawing.Size(167, 23);
             this.buttonUpdateLicense.TabIndex = 3;
             this.buttonUpdateLicense.Text = "Update License";
             this.buttonUpdateLicense.UseVisualStyleBackColor = true;
@@ -78,9 +82,9 @@
             // 
             // buttonGetSnapshot
             // 
-            this.buttonGetSnapshot.Location = new System.Drawing.Point(13, 114);
+            this.buttonGetSnapshot.Location = new System.Drawing.Point(15, 114);
             this.buttonGetSnapshot.Name = "buttonGetSnapshot";
-            this.buttonGetSnapshot.Size = new System.Drawing.Size(143, 23);
+            this.buttonGetSnapshot.Size = new System.Drawing.Size(167, 23);
             this.buttonGetSnapshot.TabIndex = 4;
             this.buttonGetSnapshot.Text = "Check Snapshot";
             this.buttonGetSnapshot.UseVisualStyleBackColor = true;
@@ -88,38 +92,78 @@
             // 
             // buttonRegisterSnapShot
             // 
-            this.buttonRegisterSnapShot.Location = new System.Drawing.Point(13, 144);
+            this.buttonRegisterSnapShot.Location = new System.Drawing.Point(15, 144);
             this.buttonRegisterSnapShot.Name = "buttonRegisterSnapShot";
-            this.buttonRegisterSnapShot.Size = new System.Drawing.Size(143, 23);
+            this.buttonRegisterSnapShot.Size = new System.Drawing.Size(167, 23);
             this.buttonRegisterSnapShot.TabIndex = 5;
             this.buttonRegisterSnapShot.Text = "Register Backup Location";
             this.buttonRegisterSnapShot.UseVisualStyleBackColor = true;
             this.buttonRegisterSnapShot.Click += new System.EventHandler(this.buttonRegisterSnapShot_Click);
             // 
+            // buttonKibanaTemplate
+            // 
+            this.buttonKibanaTemplate.Location = new System.Drawing.Point(15, 213);
+            this.buttonKibanaTemplate.Name = "buttonKibanaTemplate";
+            this.buttonKibanaTemplate.Size = new System.Drawing.Size(167, 23);
+            this.buttonKibanaTemplate.TabIndex = 6;
+            this.buttonKibanaTemplate.Text = "Update Template Kibana";
+            this.buttonKibanaTemplate.UseVisualStyleBackColor = true;
+            // 
+            // buttonMarvelTemplate
+            // 
+            this.buttonMarvelTemplate.Location = new System.Drawing.Point(15, 243);
+            this.buttonMarvelTemplate.Name = "buttonMarvelTemplate";
+            this.buttonMarvelTemplate.Size = new System.Drawing.Size(167, 23);
+            this.buttonMarvelTemplate.TabIndex = 7;
+            this.buttonMarvelTemplate.Text = "Update Template Marvel";
+            this.buttonMarvelTemplate.UseVisualStyleBackColor = true;
+            // 
+            // buttonBack
+            // 
+            this.buttonBack.Location = new System.Drawing.Point(750, 250);
+            this.buttonBack.Name = "buttonBack";
+            this.buttonBack.Size = new System.Drawing.Size(177, 23);
+            this.buttonBack.TabIndex = 8;
+            this.buttonBack.Text = "Back";
+            this.buttonBack.UseVisualStyleBackColor = true;
+            this.buttonBack.Click += new System.EventHandler(this.buttonBack_Click_1);
+            // 
             // Form3
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(712, 330);
+            this.BackColor = System.Drawing.Color.Silver;
+            this.ClientSize = new System.Drawing.Size(984, 461);
+            this.Controls.Add(this.buttonBack);
+            this.Controls.Add(this.buttonMarvelTemplate);
+            this.Controls.Add(this.buttonKibanaTemplate);
             this.Controls.Add(this.buttonRegisterSnapShot);
             this.Controls.Add(this.buttonGetSnapshot);
             this.Controls.Add(this.buttonUpdateLicense);
             this.Controls.Add(this.buttonGetLicense);
             this.Controls.Add(this.buttonTestNode);
-            this.Controls.Add(this.buttonBack);
+            this.Controls.Add(this.buttonExit);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ForeColor = System.Drawing.Color.Navy;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form3";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form3";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form3_FormClosed);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button buttonBack;
+        private System.Windows.Forms.Button buttonExit;
         private System.Windows.Forms.Button buttonTestNode;
         private System.Windows.Forms.Button buttonGetLicense;
         private System.Windows.Forms.Button buttonUpdateLicense;
         private System.Windows.Forms.Button buttonGetSnapshot;
         private System.Windows.Forms.Button buttonRegisterSnapShot;
+        private System.Windows.Forms.Button buttonKibanaTemplate;
+        private System.Windows.Forms.Button buttonMarvelTemplate;
+        private System.Windows.Forms.Button buttonBack;
     }
 }

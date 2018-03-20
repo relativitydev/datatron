@@ -315,7 +315,7 @@
             // 
             // btnForm1Next
             // 
-            this.btnForm1Next.Location = new System.Drawing.Point(741, 267);
+            this.btnForm1Next.Location = new System.Drawing.Point(750, 250);
             this.btnForm1Next.Name = "btnForm1Next";
             this.btnForm1Next.Size = new System.Drawing.Size(210, 23);
             this.btnForm1Next.TabIndex = 0;
@@ -348,7 +348,7 @@
             // lblUnicastHosts
             // 
             this.lblUnicastHosts.AutoSize = true;
-            this.lblUnicastHosts.Location = new System.Drawing.Point(181, 416);
+            this.lblUnicastHosts.Location = new System.Drawing.Point(180, 404);
             this.lblUnicastHosts.Name = "lblUnicastHosts";
             this.lblUnicastHosts.Size = new System.Drawing.Size(92, 13);
             this.lblUnicastHosts.TabIndex = 6;
@@ -356,7 +356,7 @@
             // 
             // textBoxUnicastHosts
             // 
-            this.textBoxUnicastHosts.Location = new System.Drawing.Point(279, 416);
+            this.textBoxUnicastHosts.Location = new System.Drawing.Point(279, 404);
             this.textBoxUnicastHosts.Name = "textBoxUnicastHosts";
             this.textBoxUnicastHosts.Size = new System.Drawing.Size(642, 20);
             this.textBoxUnicastHosts.TabIndex = 16;
@@ -377,7 +377,7 @@
             // lblAuthWebServer
             // 
             this.lblAuthWebServer.AutoSize = true;
-            this.lblAuthWebServer.Location = new System.Drawing.Point(113, 442);
+            this.lblAuthWebServer.Location = new System.Drawing.Point(113, 430);
             this.lblAuthWebServer.Name = "lblAuthWebServer";
             this.lblAuthWebServer.Size = new System.Drawing.Size(160, 13);
             this.lblAuthWebServer.TabIndex = 9;
@@ -385,7 +385,7 @@
             // 
             // textBoxAuthWebServer
             // 
-            this.textBoxAuthWebServer.Location = new System.Drawing.Point(279, 442);
+            this.textBoxAuthWebServer.Location = new System.Drawing.Point(279, 430);
             this.textBoxAuthWebServer.Name = "textBoxAuthWebServer";
             this.textBoxAuthWebServer.Size = new System.Drawing.Size(116, 20);
             this.textBoxAuthWebServer.TabIndex = 17;
@@ -458,7 +458,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
-            this.ClientSize = new System.Drawing.Size(976, 474);
+            this.ClientSize = new System.Drawing.Size(984, 461);
             this.Controls.Add(this.textBoxMarvelPass);
             this.Controls.Add(this.textBoxMarvelUser);
             this.Controls.Add(this.lblMarvelPass);

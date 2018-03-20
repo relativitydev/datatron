@@ -49,7 +49,7 @@
             // 
             // btnForm2Back
             // 
-            this.btnForm2Back.Location = new System.Drawing.Point(852, 267);
+            this.btnForm2Back.Location = new System.Drawing.Point(750, 299);
             this.btnForm2Back.Name = "btnForm2Back";
             this.btnForm2Back.Size = new System.Drawing.Size(212, 23);
             this.btnForm2Back.TabIndex = 0;
@@ -59,7 +59,7 @@
             // 
             // btnForm2Next
             // 
-            this.btnForm2Next.Location = new System.Drawing.Point(852, 318);
+            this.btnForm2Next.Location = new System.Drawing.Point(750, 250);
             this.btnForm2Next.Name = "btnForm2Next";
             this.btnForm2Next.Size = new System.Drawing.Size(212, 23);
             this.btnForm2Next.TabIndex = 1;
@@ -207,7 +207,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
-            this.ClientSize = new System.Drawing.Size(1139, 406);
+            this.ClientSize = new System.Drawing.Size(984, 461);
             this.Controls.Add(this.lblChooseAJava);
             this.Controls.Add(this.btnGetWebCert);
             this.Controls.Add(this.btnStopES);

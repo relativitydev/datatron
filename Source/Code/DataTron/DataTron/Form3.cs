@@ -19,13 +19,11 @@ namespace DataTron
         public Form3()
         {
             InitializeComponent();
-
         }
-
 
         private void buttonBack_Click(object sender, EventArgs e)
         {
-
+            Application.Exit();
         }
 
         private void buttonTestNode_Click(object sender, EventArgs e)
@@ -82,6 +80,20 @@ namespace DataTron
             string YouKnowForSearch = RESTRequest.putRequest(snapshotUri, node.EsUserName, node.EsPassWord, body);
 
             MessageBox.Show(YouKnowForSearch);
+        }
+
+        private void buttonBack_Click_1(object sender, EventArgs e)
+        {
+            var form2 = (Form2)Tag;
+            Hide();
+            form2.Show();
+        }
+
+        private void Form3_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            var form2 = (Form2)Tag;
+            Hide();
+            form2.Show();
         }
     }
 }
