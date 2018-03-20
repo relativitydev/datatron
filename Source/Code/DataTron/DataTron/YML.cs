@@ -222,7 +222,7 @@ shield.authc.realms:
 # action.destructive_requires_name: true
 
 ";
-            if (NodeMonitor == "true")
+            if (string.IsNullOrEmpty(MonitoringNode) && NodeMonitor == "false")
             {
                 string defaultMarvelSetting = $@"marvel.agent.exporters:
  id1:
