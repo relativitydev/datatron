@@ -65,6 +65,7 @@
             this.btnForm2Next.TabIndex = 1;
             this.btnForm2Next.Text = "Next";
             this.btnForm2Next.UseVisualStyleBackColor = true;
+            this.btnForm2Next.Click += new System.EventHandler(this.btnForm2Next_Click);
             // 
             // btnCopyPackage
             // 

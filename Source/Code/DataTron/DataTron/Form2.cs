@@ -392,5 +392,15 @@ namespace DataTron
                 MessageBox.Show("The Authentication Web server certificate is not trusted.");
             }              
         }
+
+        private void btnForm2Next_Click(object sender, EventArgs e)
+        {
+            Form3 form3 = new Form3();
+            form3.Tag = this;
+            form3.node = node;
+            form3.Show(this);
+
+            Hide();
+        }
     }
 }
