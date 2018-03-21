@@ -95,5 +95,15 @@ namespace DataTron
             Hide();
             form2.Show();
         }
+
+        private void buttonSnapshot_Click(object sender, EventArgs e)
+        {
+            string timeInTicks = (DateTime.Now).Ticks.ToString();
+            Uri snapshotUri = new Uri($@"http://{node.NodeName}:9200/_snapshot/datagridbackup/{timeInTicks}");
+            string repoPathJava = node.PathRepository.Replace(@"\", @"/");
+            string body = $@"";
+            string YouKnowForSearch = RESTRequest.putRequest(snapshotUri, node.EsUserName, node.EsPassWord, body);
+            MessageBox.Show(YouKnowForSearch);
+        }
     }
 }

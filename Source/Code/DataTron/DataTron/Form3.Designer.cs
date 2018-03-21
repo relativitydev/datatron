@@ -38,6 +38,7 @@
             this.buttonKibanaTemplate = new System.Windows.Forms.Button();
             this.buttonMarvelTemplate = new System.Windows.Forms.Button();
             this.buttonBack = new System.Windows.Forms.Button();
+            this.buttonSnapshot = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonExit
@@ -128,12 +129,23 @@
             this.buttonBack.UseVisualStyleBackColor = true;
             this.buttonBack.Click += new System.EventHandler(this.buttonBack_Click_1);
             // 
+            // buttonSnapshot
+            // 
+            this.buttonSnapshot.Location = new System.Drawing.Point(15, 174);
+            this.buttonSnapshot.Name = "buttonSnapshot";
+            this.buttonSnapshot.Size = new System.Drawing.Size(167, 23);
+            this.buttonSnapshot.TabIndex = 9;
+            this.buttonSnapshot.Text = "Snapshot";
+            this.buttonSnapshot.UseVisualStyleBackColor = true;
+            this.buttonSnapshot.Click += new System.EventHandler(this.buttonSnapshot_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(984, 461);
+            this.Controls.Add(this.buttonSnapshot);
             this.Controls.Add(this.buttonBack);
             this.Controls.Add(this.buttonMarvelTemplate);
             this.Controls.Add(this.buttonKibanaTemplate);
@@ -165,5 +177,6 @@
         private System.Windows.Forms.Button buttonKibanaTemplate;
         private System.Windows.Forms.Button buttonMarvelTemplate;
         private System.Windows.Forms.Button buttonBack;
+        private System.Windows.Forms.Button buttonSnapshot;
     }
 }
