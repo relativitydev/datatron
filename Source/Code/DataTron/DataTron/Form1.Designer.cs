@@ -266,7 +266,7 @@
             // 
             this.textBoxBackupLoc.Location = new System.Drawing.Point(279, 215);
             this.textBoxBackupLoc.Name = "textBoxBackupLoc";
-            this.textBoxBackupLoc.Size = new System.Drawing.Size(116, 20);
+            this.textBoxBackupLoc.Size = new System.Drawing.Size(451, 20);
             this.textBoxBackupLoc.TabIndex = 9;
             this.textBoxBackupLoc.TextChanged += new System.EventHandler(this.textBoxBackupLoc_TextChanged);
             // 

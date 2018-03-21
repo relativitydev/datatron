@@ -14,22 +14,53 @@ namespace DataTron
     public partial class Form3 : Form
     {
         public Node node { get; internal set; }
-
+        
 
         public Form3()
         {
             InitializeComponent();
+            
         }
 
         private void buttonBack_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            Application.Exit(); 
         }
+
+        string UserName()
+        {
+            if (Convert.ToBoolean(node.NodeMonitor))
+            {
+                string userName = node.MarvelUserName;
+                return userName;
+            }
+            else
+            {
+                string userName = node.EsUserName;
+                return userName;
+            }
+        }
+
+        string PassWord()
+        {
+            if (Convert.ToBoolean(node.NodeMonitor))
+            {
+                string passWord = node.MarvelPassWord;
+                return passWord;
+            }
+            else
+            {
+                string passWord = node.EsPassWord;
+                return passWord;
+            }
+        }
+
 
         private void buttonTestNode_Click(object sender, EventArgs e)
         {
+            
             Uri helloUri = new Uri($@"http://{node.NodeName}:9200");
-            string YouKnowForSearch = RESTRequest.getRequest(helloUri, node.EsUserName, node.EsPassWord);
+            string YouKnowForSearch = RESTRequest.getRequest(helloUri, UserName(), PassWord());
 
             MessageBox.Show(YouKnowForSearch);
         }
@@ -37,7 +68,7 @@ namespace DataTron
         private void buttonGetLicense_Click(object sender, EventArgs e)
         {
             Uri LicenseUri = new Uri($@"http://{node.NodeName}:9200/_license");
-            string YouKnowForSearch = RESTRequest.getRequest(LicenseUri, node.EsUserName, node.EsPassWord);
+            string YouKnowForSearch = RESTRequest.getRequest(LicenseUri, UserName(), PassWord());
 
             MessageBox.Show(YouKnowForSearch);
         }
@@ -48,7 +79,7 @@ namespace DataTron
             try
             {
                 string body = File.ReadAllText("license.json");
-                string YouKnowForSearch = RESTRequest.putRequest(LicenseUri, node.EsUserName, node.EsPassWord, body);
+                string YouKnowForSearch = RESTRequest.putRequest(LicenseUri, UserName(), PassWord(), body);
                 MessageBox.Show(YouKnowForSearch);
             }
             catch (FileNotFoundException)
@@ -60,7 +91,7 @@ namespace DataTron
         private void buttonGetSnapshot_Click(object sender, EventArgs e)
         {
             Uri snapshotUri = new Uri($@"http://{node.NodeName}:9200/_snapshot");
-            string YouKnowForSearch = RESTRequest.getRequest(snapshotUri, node.EsUserName, node.EsPassWord);
+            string YouKnowForSearch = RESTRequest.getRequest(snapshotUri, UserName(), PassWord());
 
             if (YouKnowForSearch == "{}")
             {
@@ -77,7 +108,7 @@ namespace DataTron
             Uri snapshotUri = new Uri($@"http://{node.NodeName}:9200/_snapshot/datagridbackup");
             string repoPathJava = node.PathRepository.Replace(@"\", @"/");
             string body = $@"{{ ""type"": ""fs"", ""settings"": {{ ""location"": ""{repoPathJava}"", ""compress"": true}} }}";
-            string YouKnowForSearch = RESTRequest.putRequest(snapshotUri, node.EsUserName, node.EsPassWord, body);
+            string YouKnowForSearch = RESTRequest.putRequest(snapshotUri, UserName(), PassWord(), body);
 
             MessageBox.Show(YouKnowForSearch);
         }
@@ -102,7 +133,7 @@ namespace DataTron
             Uri snapshotUri = new Uri($@"http://{node.NodeName}:9200/_snapshot/datagridbackup/{timeInTicks}");
             string repoPathJava = node.PathRepository.Replace(@"\", @"/");
             string body = $@"";
-            string YouKnowForSearch = RESTRequest.putRequest(snapshotUri, node.EsUserName, node.EsPassWord, body);
+            string YouKnowForSearch = RESTRequest.putRequest(snapshotUri, UserName(), PassWord(), body);
             MessageBox.Show(YouKnowForSearch);
         }
 
@@ -110,7 +141,7 @@ namespace DataTron
         {
             Uri kibanaTemplateUri = new Uri($@"http://{node.NodeName}:9200/_template/custom_kibana");
             string body = $@"{{ ""template"": "".kibana*"", ""order"": 1, ""settings"": {{ ""number_of_shards"": 1, ""number_of_replicas"": 0 }} }}";
-            string YouKnowForSearch = RESTRequest.putRequest(kibanaTemplateUri, node.EsUserName, node.EsPassWord, body);
+            string YouKnowForSearch = RESTRequest.putRequest(kibanaTemplateUri, UserName(), PassWord(), body);
             MessageBox.Show(YouKnowForSearch);
         }
 
@@ -118,7 +149,7 @@ namespace DataTron
         {
             Uri marvelTemplateUri = new Uri($@"http://{node.NodeName}:9200/_template/custom_marvel");
             string body = $@"{{ ""template"": "".marvel*"", ""order"": 1, ""settings"": {{ ""number_of_shards"": 1, ""number_of_replicas"": 0 }} }}";
-            string YouKnowForSearch = RESTRequest.putRequest(marvelTemplateUri, node.EsUserName, node.EsPassWord, body);
+            string YouKnowForSearch = RESTRequest.putRequest(marvelTemplateUri, UserName(), PassWord(), body);
             MessageBox.Show(YouKnowForSearch);
         }
     }
