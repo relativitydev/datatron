@@ -244,7 +244,7 @@ namespace DataTron
 
         private void btnCreateEsUsers_Click(object sender, EventArgs e)
         {
-            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat") & node.NodeMonitor == "false")
+            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat") && node.NodeMonitor == "false")
             {
                 Microsoft.Win32.RegistryKey key;
                 key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment");
@@ -266,7 +266,7 @@ namespace DataTron
 
                 MessageBox.Show("Elastic REST user created.");
             }
-            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat") & node.NodeMonitor == "true")
+            if (File.Exists($@"{installPath}/RelativityDataGrid/elasticsearch-main/bin/shield/esusers.bat") && node.NodeMonitor == "true")
             {
                 Microsoft.Win32.RegistryKey key;
                 key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment");

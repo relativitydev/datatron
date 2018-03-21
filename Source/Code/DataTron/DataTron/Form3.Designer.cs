@@ -109,6 +109,7 @@
             this.buttonKibanaTemplate.TabIndex = 6;
             this.buttonKibanaTemplate.Text = "Update Template Kibana";
             this.buttonKibanaTemplate.UseVisualStyleBackColor = true;
+            this.buttonKibanaTemplate.Click += new System.EventHandler(this.buttonKibanaTemplate_Click);
             // 
             // buttonMarvelTemplate
             // 
@@ -118,6 +119,7 @@
             this.buttonMarvelTemplate.TabIndex = 7;
             this.buttonMarvelTemplate.Text = "Update Template Marvel";
             this.buttonMarvelTemplate.UseVisualStyleBackColor = true;
+            this.buttonMarvelTemplate.Click += new System.EventHandler(this.buttonMarvelTemplate_Click);
             // 
             // buttonBack
             // 

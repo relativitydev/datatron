@@ -105,5 +105,21 @@ namespace DataTron
             string YouKnowForSearch = RESTRequest.putRequest(snapshotUri, node.EsUserName, node.EsPassWord, body);
             MessageBox.Show(YouKnowForSearch);
         }
+
+        private void buttonKibanaTemplate_Click(object sender, EventArgs e)
+        {
+            Uri kibanaTemplateUri = new Uri($@"http://{node.NodeName}:9200/_template/custom_kibana");
+            string body = $@"{{ ""template"": "".kibana*"", ""order"": 1, ""settings"": {{ ""number_of_shards"": 1, ""number_of_replicas"": 0 }} }}";
+            string YouKnowForSearch = RESTRequest.putRequest(kibanaTemplateUri, node.EsUserName, node.EsPassWord, body);
+            MessageBox.Show(YouKnowForSearch);
+        }
+
+        private void buttonMarvelTemplate_Click(object sender, EventArgs e)
+        {
+            Uri marvelTemplateUri = new Uri($@"http://{node.NodeName}:9200/_template/custom_marvel");
+            string body = $@"{{ ""template"": "".marvel*"", ""order"": 1, ""settings"": {{ ""number_of_shards"": 1, ""number_of_replicas"": 0 }} }}";
+            string YouKnowForSearch = RESTRequest.putRequest(marvelTemplateUri, node.EsUserName, node.EsPassWord, body);
+            MessageBox.Show(YouKnowForSearch);
+        }
     }
 }
