@@ -45,6 +45,7 @@
             this.btnStopES = new System.Windows.Forms.Button();
             this.btnGetWebCert = new System.Windows.Forms.Button();
             this.lblChooseAJava = new System.Windows.Forms.Label();
+            this.buttonSetService = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnForm2Back
@@ -99,7 +100,7 @@
             // 
             // btnInstalWebCert
             // 
-            this.btnInstalWebCert.Location = new System.Drawing.Point(163, 277);
+            this.btnInstalWebCert.Location = new System.Drawing.Point(163, 299);
             this.btnInstalWebCert.Name = "btnInstalWebCert";
             this.btnInstalWebCert.Size = new System.Drawing.Size(124, 23);
             this.btnInstalWebCert.TabIndex = 2;
@@ -129,7 +130,7 @@
             // 
             // btnCreateEsUsers
             // 
-            this.btnCreateEsUsers.Location = new System.Drawing.Point(28, 346);
+            this.btnCreateEsUsers.Location = new System.Drawing.Point(28, 362);
             this.btnCreateEsUsers.Name = "btnCreateEsUsers";
             this.btnCreateEsUsers.Size = new System.Drawing.Size(259, 23);
             this.btnCreateEsUsers.TabIndex = 2;
@@ -165,7 +166,7 @@
             // 
             // btnStartES
             // 
-            this.btnStartES.Location = new System.Drawing.Point(28, 232);
+            this.btnStartES.Location = new System.Drawing.Point(28, 250);
             this.btnStartES.Name = "btnStartES";
             this.btnStartES.Size = new System.Drawing.Size(128, 23);
             this.btnStartES.TabIndex = 5;
@@ -175,7 +176,7 @@
             // 
             // btnStopES
             // 
-            this.btnStopES.Location = new System.Drawing.Point(163, 232);
+            this.btnStopES.Location = new System.Drawing.Point(162, 250);
             this.btnStopES.Name = "btnStopES";
             this.btnStopES.Size = new System.Drawing.Size(124, 23);
             this.btnStopES.TabIndex = 6;
@@ -185,7 +186,7 @@
             // 
             // btnGetWebCert
             // 
-            this.btnGetWebCert.Location = new System.Drawing.Point(28, 277);
+            this.btnGetWebCert.Location = new System.Drawing.Point(28, 299);
             this.btnGetWebCert.Name = "btnGetWebCert";
             this.btnGetWebCert.Size = new System.Drawing.Size(128, 23);
             this.btnGetWebCert.TabIndex = 7;
@@ -202,12 +203,23 @@
             this.lblChooseAJava.TabIndex = 8;
             this.lblChooseAJava.Text = "Select a Java Installation";
             // 
+            // buttonSetService
+            // 
+            this.buttonSetService.Location = new System.Drawing.Point(28, 222);
+            this.buttonSetService.Name = "buttonSetService";
+            this.buttonSetService.Size = new System.Drawing.Size(259, 23);
+            this.buttonSetService.TabIndex = 9;
+            this.buttonSetService.Text = "Update Service User Account";
+            this.buttonSetService.UseVisualStyleBackColor = true;
+            this.buttonSetService.Click += new System.EventHandler(this.buttonSetService_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(984, 461);
+            this.Controls.Add(this.buttonSetService);
             this.Controls.Add(this.lblChooseAJava);
             this.Controls.Add(this.btnGetWebCert);
             this.Controls.Add(this.btnStopES);
@@ -254,5 +266,6 @@
         private System.Windows.Forms.Button btnStopES;
         private System.Windows.Forms.Button btnGetWebCert;
         private System.Windows.Forms.Label lblChooseAJava;
+        private System.Windows.Forms.Button buttonSetService;
     }
 }

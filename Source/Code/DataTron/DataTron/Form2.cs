@@ -402,5 +402,28 @@ namespace DataTron
 
             Hide();
         }
+
+        private void buttonSetService_Click(object sender, EventArgs e)
+        {
+            string mgmntPath = string.Format("Win32_Service.Name='elasticsearch-service-x64'");
+            using (ManagementObject service = new ManagementObject(new ManagementPath(mgmntPath)))
+            {
+                object[] accountParams = new object[11];
+                accountParams[6] = node.ServiceAccountUserName;
+                accountParams[7] = node.ServiceAccountPassWord;
+                uint returnCode = (uint)service.InvokeMethod("Change", accountParams);
+                if (returnCode == 0)
+                {
+                    MessageBox.Show("Service account information changed successfully");
+                }
+                else
+                {
+                    MessageBox.Show("Failed to change Service account information");
+                    MessageBox.Show("Error code: " + returnCode);
+                    // Support link to check the message for corresponding Return code:
+                    // https://msdn.microsoft.com/en-us/library/aa393660(v=vs.85).aspx
+                }
+            }
+        }
     }
 }
