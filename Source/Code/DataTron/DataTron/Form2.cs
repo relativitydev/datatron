@@ -158,10 +158,6 @@ namespace DataTron
         {
             try
             {
-                //string currentDirName = System.IO.Directory.GetCurrentDirectory();
-                //MessageBox.Show(currentDirName);
-                //IEnumerable<string> dirFileNames = System.IO.Directory.EnumerateFiles(currentDirName);
-
 
                 string[] files = Directory.EnumerateFiles(".", "ShieldCert_*").Select(p => Path.GetFileName(p)).ToArray();
 

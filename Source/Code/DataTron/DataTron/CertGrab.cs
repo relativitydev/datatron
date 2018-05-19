@@ -27,12 +27,6 @@ namespace DataTron
 
                 bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
                 {
-
-                    //foreach (var cer in chain.ChainElements)
-                    //{
-                    //    ExportToPEM(cer.Certificate);
-                    //}
-
                     Int32 i = 0;
                     foreach (var cer in chain.ChainElements)
                     {
