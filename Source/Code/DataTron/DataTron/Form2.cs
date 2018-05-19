@@ -156,16 +156,32 @@ namespace DataTron
 
         private void btnInstalWebCert_Click(object sender, EventArgs e)
         {
+            try
+            {
+                //string currentDirName = System.IO.Directory.GetCurrentDirectory();
+                //MessageBox.Show(currentDirName);
+                //IEnumerable<string> dirFileNames = System.IO.Directory.EnumerateFiles(currentDirName);
 
-            var processInfo = new ProcessStartInfo($@"{textBoxJavaHome.Text}\bin\keytool.exe", $@"-importcert -alias shield -keystore ""{textBoxJavaHome.Text}\jre\lib\security\cacerts"" -storepass changeit -file ShieldCert.pem -noprompt");
-            processInfo.CreateNoWindow = true;
 
-            var process = Process.Start(processInfo);
+                string[] files = Directory.EnumerateFiles(".", "ShieldCert_*").Select(p => Path.GetFileName(p)).ToArray();
 
-            process.WaitForExit();
-            process.Close();
+                foreach (var filename in files)
+                {
+                        var processInfo = new ProcessStartInfo($@"{textBoxJavaHome.Text}\bin\keytool.exe", $@"-importcert -alias {filename} -keystore ""{textBoxJavaHome.Text}\jre\lib\security\cacerts"" -storepass changeit -file {filename} -noprompt");
+                        processInfo.CreateNoWindow = true;
 
-            MessageBox.Show("The web certificate is installed to the Java Key store.");
+                        var process = Process.Start(processInfo);
+
+                        process.WaitForExit();
+                        process.Close();
+
+                }
+                MessageBox.Show("Certificate(s) installed to the Java Key store.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private void btnUpdateYML_Click(object sender, EventArgs e)
@@ -361,36 +377,7 @@ namespace DataTron
 
         private void btnGetWebCert_Click(object sender, EventArgs e)
         {
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($@"https://{node.AuthenticationWebServer}/Relativity/Identity/.well-known/jwks");
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                response.Close();
-                X509Certificate cert = request.ServicePoint.Certificate;
-
-                MessageBox.Show("Certificate Captured.");
-                void ExportToPEM(X509Certificate certToExport)
-                {
-                    StringBuilder builder = new StringBuilder();
-
-                    builder.AppendLine("-----BEGIN CERTIFICATE-----");
-                    builder.AppendLine(Convert.ToBase64String(cert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));
-                    builder.AppendLine("-----END CERTIFICATE-----");
-
-                    string pem = builder.ToString();
-                    File.WriteAllText("ShieldCert.pem", pem);                 
-                }
-                ExportToPEM(cert);
-
-            }
-            catch (System.UriFormatException)
-            {
-                MessageBox.Show("Specify a Authentication Web server in the previous form.");
-            }
-            catch (System.Net.WebException eWeb) when (eWeb.Message == "The underlying connection was closed: Could not establish trust relationship for the SSL/TLS secure channel.")
-            {
-                MessageBox.Show("The Authentication Web server certificate is not trusted.");
-            }              
+            CertGrab.Grab(node);
         }
 
         private void btnForm2Next_Click(object sender, EventArgs e)

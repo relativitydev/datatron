@@ -274,6 +274,7 @@ namespace DataTron
 
             toolTip.SetToolTip(textBoxClusterName, "Enter a clustername, do not use special characters.");
             toolTip.SetToolTip(textBoxNodeName, "Enter the FQDN name of this node.");
+
         }
 
         private void checkBoxMasterRole_CheckedChanged(object sender, EventArgs e)
